@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+
+:root{
+    --primary: #787878;
+    --secondary: #e6e6e6;
+    --afterHover: #FF8F9C;
+}
+
+
+body{
+    font-family: "Poppins", sans-serif;
+    overflow-x: hidden;
+}
+
+.font-Cormorant{
+    font-family: "Cormorant Garamond", serif;
+}
+
+.font-playfair{
+    font-family: "Playfair Display", serif;
+}
+
+
+::-webkit-scrollbar{
+    display: none;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+
+.category-pill-active {
+    background-color: #FF8F9C;
+    color: #fcfaf8;
+}
+
+.category-pill-inactive {
+    background-color: transparent;
+    color: #7c736a;
+}
+
+.category-pill {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 0.3s;
+    animation-duration: 0.3s;
+    padding: 0.5rem 1rem;
+}
+
+.blog-card-hover {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+    transition-duration: .5s;
+    transition-timing-function: cubic-bezier(0, 0, .2, 1);
+    animation-duration: .5s;
+    animation-timing-function: cubic-bezier(0, 0, .2, 1);
+}
+
+
+.text-gradient-pink {
+    -webkit-text-fill-color: transparent;
+    background: linear-gradient(135deg, rgb(255, 143, 152), rgb(237, 94, 106)) text;
+}
+
+.bg-gradient-pink {
+    background: linear-gradient(135deg, rgb(255, 143, 152), rgb(255, 179, 185));
+}
+
+.shadow-pink {
+    box-shadow: rgba(255, 143, 152, 0.35) 0px 4px 30px -5px;
+}
+
+.shadow-card {
+    --tw-shadow-color: #ffffff;
+    --tw-shadow: 0 0 #0000;
+}
+
+/* Toast Animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.animate-slideIn {
+    animation: slideIn 0.3s ease-out;
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.2s ease-out;
+}
+
+.animate-scaleIn {
+    animation: scaleIn 0.2s ease-out;
+}
