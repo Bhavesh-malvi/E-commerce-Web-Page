@@ -1,5 +1,4 @@
 import { createContext, useEffect, useState } from "react";
-import { dummyProducts } from "../assets/assets";
 import API from "../api/Api";
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -187,6 +186,7 @@ export const AppProvider = ({children})=>{
              setAuthLoading(false);
         };
         init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -458,6 +458,7 @@ useEffect(() => {
 
   init();
 
+// eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
 
 
@@ -667,7 +668,7 @@ const getUniqueCategories = async () => {
   try {
     const res = await API.get("/product/categories");
     return res.data;
-  } catch (error) {
+  } catch{
     return { success: false, categories: [] };
   }
 };
@@ -677,7 +678,7 @@ const getUniqueSubCategories = async (category) => {
   try {
     const res = await API.get("/product/subcategories", { params: { category } });
     return res.data;
-  } catch (error) {
+  } catch {
     return { success: false, subCategories: [] };
   }
 };
@@ -1008,7 +1009,7 @@ const value = {
          // Direct download link logic usually, but here we might need blob if headers are set
          // Easier: return URL
          return { success: true, url: `${import.meta.env.VITE_BACKEND_URL}/order/invoice/${orderId}` };
-       } catch (e) { return { success: false }; }
+       } catch { return { success: false }; }
     },
     sendDeliveryOTP: async (orderId) => {
         try {
@@ -1027,7 +1028,7 @@ const value = {
     cart, getCart, addToCart, removeFromCart, updateCartQuantity, placeOrder, applyCoupon, getMyOrders,
 
     bestSeller,
-    activeDeals, fetchActiveDeals,
+    fetchActiveDeals,
 
     // Wishlist functions
     wishlist,
@@ -1039,7 +1040,7 @@ const value = {
         await API.delete("/wishlist");
         setWishlist({ items: [] });
         return { success: true };
-      } catch (error) {
+      } catch {
         return { success: false };
       }
     },
