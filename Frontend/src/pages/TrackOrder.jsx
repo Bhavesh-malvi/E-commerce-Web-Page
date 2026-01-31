@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { FaTruck, FaCheck, FaBox, FaMapMarkerAlt, FaSearch, FaMapMarkedAlt } from 'react-icons/fa';
 import { motion } from 'framer-motion';
-import API from '../api/Api';
+import API from '../Api/Api.js';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
