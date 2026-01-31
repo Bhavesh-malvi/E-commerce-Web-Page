@@ -30,6 +30,7 @@ export const AppProvider = ({children})=>{
     const [activeMegaDeal, setActiveMegaDeal] = useState(null);
     const [addresses, setAddresses] = useState([]);
     const [selectedAddressID, setSelectedAddressID] = useState(localStorage.getItem("selectedAddressID") || null);
+    const [activeBanners, setActiveBanners] = useState([]);
 
 
     const fetchProducts = async () => {
@@ -65,6 +66,62 @@ export const AppProvider = ({children})=>{
             }
         } catch (error) {
             console.error("Error fetching mega deal:", error);
+        }
+    };
+
+    const fetchActiveBanners = async () => {
+        try {
+            const res = await API.get("/banner/active");
+            if (res.data.success) {
+                setActiveBanners(res.data.banners);
+            }
+        } catch (error) {
+            console.error("Error fetching active banners:", error);
+        }
+    };
+
+    const getBanners = async () => {
+        try {
+            const res = await API.get("/banner/all");
+            return res.data;
+        } catch (error) {
+            return error.response?.data || { success: false, message: "Failed to fetch banners" };
+        }
+    };
+
+    const createBanner = async (bannerData) => {
+        try {
+            const res = await API.post("/banner/create", bannerData);
+            if (res.data.success) {
+                fetchActiveBanners();
+            }
+            return res.data;
+        } catch (error) {
+            return error.response?.data || { success: false, message: "Failed to create banner" };
+        }
+    };
+
+    const updateBanner = async (id, bannerData) => {
+        try {
+            const res = await API.put(`/banner/update/${id}`, bannerData);
+            if (res.data.success) {
+                fetchActiveBanners();
+            }
+            return res.data;
+        } catch (error) {
+            return error.response?.data || { success: false, message: "Failed to update banner" };
+        }
+    };
+
+    const deleteBanner = async (id) => {
+        try {
+            const res = await API.delete(`/banner/delete/${id}`);
+            if (res.data.success) {
+                fetchActiveBanners();
+            }
+            return res.data;
+        } catch (error) {
+            return error.response?.data || { success: false, message: "Failed to delete banner" };
         }
     };
 
@@ -177,6 +234,7 @@ export const AppProvider = ({children})=>{
              await fetchProducts();
              await fetchActiveDeals();
              await fetchActiveMegaDeal();
+             await fetchActiveBanners();
 
              const token = localStorage.getItem("token");
              if (token) {
@@ -1047,6 +1105,8 @@ const value = {
     // Admin functions
     getAdminStats, getMonthlyRevenue, getTopProducts, getRecentOrders, getTodayStats,
     getAllOrders, deleteUser, getAdminProducts,
+    // Banner functions
+    activeBanners, fetchActiveBanners, getBanners, createBanner, updateBanner, deleteBanner,
     
     // Advanced Tracking
     getInvoice: async (orderId) => {

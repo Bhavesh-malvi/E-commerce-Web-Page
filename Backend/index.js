@@ -30,6 +30,7 @@ import recommendRouter from "./routes/RecommendRoute.js";
 import invoiceRouter from "./routes/InvoiceRoute.js";
 import wishlistRouter from "./routes/WishlistRoute.js";
 import megaDealRouter from "./routes/MegaDealRoute.js";
+import bannerRouter from "./routes/BannerRoute.js";
 
 // Middleware
 import errorHandler from "./middleware/errorHandler.js";

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/purity */
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { IoIosCheckmarkCircleOutline, IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import StarRating from "../UI/StarRating";
 import { AppContext } from "../context/AppContext";
@@ -15,6 +15,7 @@ import RecentlyViewed from "../components/ProductDetails/RecentlyViewed";
 
 const ProductDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const { currency, convertPrice, getSingleProduct, addToCart, products, trackActivity, wishlist, addToWishlist, removeFromWishlist } = useContext(AppContext);
   const [product, setProduct] = useState(null);
@@ -66,6 +67,15 @@ const ProductDetails = () => {
       }
     } else {
       await addToWishlist(product._id);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    try {
+      await addToCart(product._id, 1, selectedVariant);
+      navigate("/cart");
+    } catch (error) {
+      console.error("Buy Now Error:", error);
     }
   };
 
@@ -233,7 +243,7 @@ const ProductDetails = () => {
               >
                 <BuyButton 
                   image={product?.mainImages?.[0]?.url || ""} 
-                  onClick={() => {/* Buy logic later */}}
+                  onClick={handleBuyNow}
                 />
               </div>
             </div>

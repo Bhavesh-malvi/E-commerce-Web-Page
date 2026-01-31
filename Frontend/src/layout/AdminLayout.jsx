@@ -9,7 +9,8 @@ import {
   FaShoppingCart,
   FaTag,
   FaTicketAlt,
-  FaSignOutAlt 
+  FaSignOutAlt,
+  FaImage
 } from "react-icons/fa";
 
 const AdminLayout = () => {
@@ -149,6 +150,18 @@ const AdminLayout = () => {
             >
               <FaTicketAlt className="text-lg group-hover:scale-110 transition-transform" />
               <span className="font-medium">Coupons</span>
+            </Link>
+
+            <Link
+              to="/admin/banners"
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
+                isActive('/admin/banners')
+                  ? 'bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 shadow-md'
+                  : 'text-gray-700 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 hover:text-blue-700'
+              }`}
+            >
+              <FaImage className="text-lg group-hover:scale-110 transition-transform" />
+              <span className="font-medium">Banners</span>
             </Link>
 
           </nav>

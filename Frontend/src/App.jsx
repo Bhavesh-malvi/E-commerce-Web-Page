@@ -43,6 +43,7 @@ import AdminOrders from "./pages/Admin/AdminOrders";
 import AdminDeals from "./pages/Admin/AdminDeals";
 import AdminMegaDeals from "./pages/Admin/AdminMegaDeals";
 import AdminCoupons from "./pages/Admin/AdminCoupons";
+import AdminBanners from "./pages/Admin/AdminBanners";
 
 
 import TrackOrder from "./pages/TrackOrder";
@@ -158,6 +159,7 @@ const App = () => {
           <Route path="deals" element={<AdminDeals />} />
           <Route path="megadeals" element={<AdminMegaDeals />} />
           <Route path="coupons" element={<AdminCoupons />} />
+          <Route path="banners" element={<AdminBanners />} />
 
         </Route>
 
