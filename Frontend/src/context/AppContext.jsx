@@ -182,7 +182,7 @@ export const AppProvider = ({children})=>{
              if (token) {
                  const res = await getProfile();
                  if (res?.success && res.user) {
-                     connectSocket(res.user.id);
+                     connectSocket(res.user._id || res.user.id);
                  }
                  await getWishlist();
                  await getCart();
@@ -200,8 +200,15 @@ export const AppProvider = ({children})=>{
 
     const connectSocket = (userId) => {
         if (!userId) return;
-        const newSocket = io(import.meta.env.VITE_BACKEND_URL, {
-            withCredentials: true
+        
+        // Fix for production: VITE_BACKEND_URL usually ends with /api
+        // Socket.io needs the base server URL
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+        const socketUrl = backendUrl.replace(/\/api$/, "");
+
+        const newSocket = io(socketUrl, {
+            withCredentials: true,
+            transports: ["websocket", "polling"] // Force websocket if possible
         });
 
         newSocket.on("connect", () => {
@@ -258,7 +265,7 @@ const login = async (email, password) => {
     localStorage.setItem("token", data.token);
 
     setUser(data.user);
-    connectSocket(data.user.id);
+    connectSocket(data.user._id || data.user.id);
     // Fetch wishlist after login
     getWishlist();
 
