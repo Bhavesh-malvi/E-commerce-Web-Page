@@ -43,6 +43,7 @@ const DealOfTheDaySlider = () => {
   }
 
   return (
+    <>
     <div className="col-span-3 overflow-hidden">
       <h1 className="text-lg sm:text-xl md:text-[20px] font-semibold text-[#333232] border-b pb-2 border-gray-200">
         Deal of the day
@@ -108,6 +109,7 @@ const DealOfTheDaySlider = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
