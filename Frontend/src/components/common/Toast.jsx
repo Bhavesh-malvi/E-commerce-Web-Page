@@ -3,6 +3,7 @@ import { FaCheckCircle, FaExclamationCircle, FaInfoCircle, FaTimes } from 'react
 
 const ToastContext = createContext();
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useToast = () => {
   const context = useContext(ToastContext);
   if (!context) {
@@ -20,6 +21,7 @@ export const ToastProvider = ({ children }) => {
 
     if (duration > 0) {
       setTimeout(() => {
+        // eslint-disable-next-line react-hooks/immutability
         removeToast(id);
       }, duration);
     }

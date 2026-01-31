@@ -6,7 +6,7 @@ import Products from '../Products';
 import { useNavigate } from 'react-router-dom';
 
 const CategoryProduct = () => {
-const { trendTypeData, truncateText, dealOfTheDay, newProducts, currency, convertPrice } = useContext(AppContext);
+const { trendTypeData, truncateText, newProducts, currency, convertPrice } = useContext(AppContext);
 
 const navigate = useNavigate()
 

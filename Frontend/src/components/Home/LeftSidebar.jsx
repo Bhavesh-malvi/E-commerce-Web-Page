@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react'
-import { dummyProducts, subCategory } from '../../assets/assets'
+import { subCategory } from '../../assets/assets'
 import { GoPlus } from 'react-icons/go'
 import { LuMinus } from 'react-icons/lu';
 import StarRating from '../../UI/StarRating';

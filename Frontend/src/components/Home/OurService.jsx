@@ -1,6 +1,5 @@
 import React from 'react'
 import { assets } from '../../assets/assets'
-import { RiShipLine } from 'react-icons/ri'
 import { LiaShipSolid } from 'react-icons/lia'
 import { IoArrowUndoOutline, IoCallOutline, IoRocketOutline, IoTicketOutline } from 'react-icons/io5'
 

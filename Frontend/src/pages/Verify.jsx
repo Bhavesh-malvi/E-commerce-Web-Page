@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import { useToast } from '../components/common/Toast';
-import API from '../api/Api';
+import API from '../Api/Api.js';
 
 const Verify = () => {
   const [searchParams] = useSearchParams();
@@ -14,6 +14,7 @@ const Verify = () => {
   const [verifying, setVerifying] = useState(true);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/immutability
     verifyPayment();
   }, []);
 

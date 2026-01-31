@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 
 const ProductSpecification = ({ specifications }) => {
     if (!specifications || specifications.length === 0) return null;
