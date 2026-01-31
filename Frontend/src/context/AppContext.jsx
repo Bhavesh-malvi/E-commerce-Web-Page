@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import API from "../api/Api.js";
+import API from "../Api/Api.js";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AppContext = createContext();
