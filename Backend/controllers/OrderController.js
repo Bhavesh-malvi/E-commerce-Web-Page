@@ -8,6 +8,7 @@ import QRCode from "qrcode";
 import { updateInterest } from "../utils/updateInterest.js";
 import Stripe from 'stripe';
 import { generateInvoice } from "../utils/invoiceGenerator.js";
+import { io } from "../index.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -636,6 +637,13 @@ export const updateOrderStatus = async (req, res) => {
 
     await order.save();
 
+    // Emit real-time update to the user
+    io.to(order.user.toString()).emit("orderStatusUpdated", {
+      orderId: order._id,
+      status: order.orderStatus,
+      message: `Your order status has been updated to ${order.orderStatus}`
+    });
+
     res.json({
       success: true,
       message: "Order status updated",
@@ -825,6 +833,13 @@ export const verifyDelivery = async (req, res) => {
     order.deliveryOTP = null; 
 
     await order.save();
+    
+    // Emit real-time update to the user
+    io.to(order.user.toString()).emit("orderStatusUpdated", {
+        orderId: order._id,
+        status: 'Delivered',
+        message: 'Your order has been delivered successfully! 🎉'
+    });
 
     res.json({ success: true, message: "Order Delivered Successfully!" });
 

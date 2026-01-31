@@ -72,7 +72,13 @@ const SellerOrders = () => {
   const downloadInvoice = async (orderId) => {
       const res = await getInvoice(orderId);
       if(res.success) {
-          window.open(res.url, '_blank');
+          const win = window.open(res.url, '_blank');
+          // Revoke the URL after a short delay to allow browser to start download/open
+          if (win) {
+              setTimeout(() => {
+                  window.URL.revokeObjectURL(res.url);
+              }, 100);
+          }
       } else {
           toast.error("Failed to get invoice");
       }

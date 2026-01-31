@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import API from "../Api/Api.js";
+import { io } from "socket.io-client";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AppContext = createContext();
@@ -12,6 +13,7 @@ export const AppProvider = ({children})=>{
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(false);
     const [authLoading, setAuthLoading] = useState(true);
+    const [socket, setSocket] = useState(null);
 
 
 
@@ -178,7 +180,10 @@ export const AppProvider = ({children})=>{
 
              const token = localStorage.getItem("token");
              if (token) {
-                 await getProfile();
+                 const res = await getProfile();
+                 if (res?.success && res.user) {
+                     connectSocket(res.user.id);
+                 }
                  await getWishlist();
                  await getCart();
                  await fetchAddresses();
@@ -186,8 +191,39 @@ export const AppProvider = ({children})=>{
              setAuthLoading(false);
         };
         init();
+
+        return () => {
+            if (socket) socket.disconnect();
+        };
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const connectSocket = (userId) => {
+        if (!userId) return;
+        const newSocket = io(import.meta.env.VITE_BACKEND_URL, {
+            withCredentials: true
+        });
+
+        newSocket.on("connect", () => {
+            console.log("Connected to socket:", newSocket.id);
+            newSocket.emit("join", userId);
+        });
+
+        newSocket.on("orderStatusUpdated", (data) => {
+            console.log("Real-time Update:", data);
+            // Trigger a re-fetch of orders or update toast
+            // For now, let's keep it simple: inform the user
+            // In a real app, you might update the specific order in state
+            // or just fetch all orders again.
+            getMyOrders(); // Refresh orders state if needed
+            
+            // If you have a toast system, you could use it here
+            // But AppContext doesn't have useToast directly usually (circular)
+            // SellerOrders/Orders components can also listen if we expose socket
+        });
+
+        setSocket(newSocket);
+    };
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -222,6 +258,7 @@ const login = async (email, password) => {
     localStorage.setItem("token", data.token);
 
     setUser(data.user);
+    connectSocket(data.user.id);
     // Fetch wishlist after login
     getWishlist();
 
@@ -991,6 +1028,7 @@ const value = {
     products, setProducts, fetchProducts,
     open, setOpen, user, login, register, getProfile, loading, updateProfile,setUser,
     forgotPassword, getAllUsers, authLoading, blockUser, applySeller, getAllSellers, approveSeller,
+    socket,
     // Active Deals & Mega Deal
     activeDeals, activeMegaDeal, fetchActiveMegaDeal,
     // Seller functions
@@ -1006,10 +1044,20 @@ const value = {
     // Advanced Tracking
     getInvoice: async (orderId) => {
        try {
-         // Direct download link logic usually, but here we might need blob if headers are set
-         // Easier: return URL
-         return { success: true, url: `${import.meta.env.VITE_BACKEND_URL}/order/invoice/${orderId}` };
-       } catch { return { success: false }; }
+         const res = await API.get(`/order/invoice/${orderId}`, {
+           responseType: 'blob'
+         });
+         
+         if (res.status === 200) {
+           const blob = new Blob([res.data], { type: 'application/pdf' });
+           const url = window.URL.createObjectURL(blob);
+           return { success: true, url };
+         }
+         return { success: false };
+       } catch (e) { 
+         console.error("Invoice Download Error:", e);
+         return { success: false }; 
+       }
     },
     sendDeliveryOTP: async (orderId) => {
         try {

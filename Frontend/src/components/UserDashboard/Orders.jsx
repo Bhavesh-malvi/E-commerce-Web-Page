@@ -2,16 +2,35 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../context/AppContext';
 import { FaBoxOpen } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../common/Toast';
 
 const Orders = () => {
-  const { getMyOrders, currency, convertPrice, user } = useContext(AppContext);
+  const { getMyOrders, currency, convertPrice, user, socket } = useContext(AppContext);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const toast = useToast();
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+
+    if (socket) {
+      socket.on("orderStatusUpdated", (data) => {
+        toast.success(data.message);
+        
+        // Update the specific order in state
+        setOrders(prev => prev.map(order => 
+          order._id === data.orderId ? { ...order, orderStatus: data.status } : order
+        ));
+      });
+    }
+
+    return () => {
+      if (socket) {
+        socket.off("orderStatusUpdated");
+      }
+    };
+  }, [socket]);
 
   const fetchOrders = async () => {
     setLoading(true);

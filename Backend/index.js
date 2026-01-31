@@ -4,7 +4,9 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
-import morgan from "morgan";
+import Morgan from "morgan";
+import { Server } from "socket.io";
+import http from "http";
 
 import connectDB from "./config/db.js";
 import "./jobs/dealCron.js";
@@ -35,6 +37,30 @@ import errorHandler from "./middleware/errorHandler.js";
 
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    credentials: true,
+  },
+});
+
+// Socket logic
+io.on("connection", (socket) => {
+  console.log("Client connected:", socket.id);
+
+  socket.on("join", (userId) => {
+    socket.join(userId);
+    console.log(`User ${userId} joined room`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
+});
+
+// Export io for controllers
+export { io };
 
 
 
@@ -156,7 +182,7 @@ const startServer = async () => {
 
     await connectDB();
 
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
 
       console.log(`
 =================================
