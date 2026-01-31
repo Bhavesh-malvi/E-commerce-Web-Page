@@ -5,6 +5,7 @@ import { AppContext } from "./context/AppContext";
 
 import Popup from "./UI/Popup";
 import Auth from "./components/Auth";
+import ScrollToTop from "./components/ScrollToTop";
 
 import MainLayout from "./layout/MainLayout";
 import AdminLayout from "./layout/AdminLayout";
@@ -65,6 +66,7 @@ const App = () => {
   return (
     <div>
       
+      <ScrollToTop />
       {open && <Auth />}
 
 

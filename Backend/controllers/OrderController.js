@@ -708,13 +708,24 @@ export const requestReturn = async (req, res) => {
 // ================= GET INVOICE =================
 export const getInvoice = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.params.id)
+      .populate({
+        path: 'items.seller',
+        select: 'shopName address phone'
+      });
+    
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    // Get seller info from the first item (most orders are single-seller)
+    let sellerInfo = null;
+    if (order.items?.length > 0 && order.items[0].seller) {
+      sellerInfo = order.items[0].seller;
+    }
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=invoice-${order._id}.pdf`);
 
-    generateInvoice(order, res);
+    generateInvoice(order, res, sellerInfo);
 
   } catch (error) {
     console.error("INVOICE ERROR:", error);
