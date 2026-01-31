@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { FaMapMarkerAlt, FaCheckCircle } from 'react-icons/fa';
-import API from '../../api/Api';
+import API from '../../Api/Api.js';
 
 const DeliveryUpdate = () => {
     const { trackingId } = useParams();
