@@ -91,6 +91,7 @@ const productSchema = new mongoose.Schema({
 
 
   // DESCRIPTION
+  shortDescription: String,
   descriptionBlocks:[
     {
       type:{

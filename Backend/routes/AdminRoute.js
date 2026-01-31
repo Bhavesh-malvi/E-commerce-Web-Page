@@ -6,6 +6,7 @@ import AdminAuth from "../middleware/AdminAuth.js";
 
 import {
   getAdminStats,
+  getAnalytics,
   monthlyRevenue,
   topProducts,
   sellerPerformance,
@@ -34,6 +35,7 @@ router.use(AdminAuth);
 router.use(authorize("admin"));
 
 router.get("/stats", getAdminStats);
+router.get("/analytics", getAnalytics);
 router.get("/monthly", monthlyRevenue);
 router.get("/top-products", topProducts);
 router.get("/seller-performance", sellerPerformance);

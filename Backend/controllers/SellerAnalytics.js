@@ -1,107 +1,143 @@
 import Order from "../models/OrderModel.js";
 import Seller from "../models/SellerModel.js";
+import Product from "../models/ProductModel.js";
+import { subDays, startOfYear } from "date-fns";
 
+export const sellerAnalytics = async (req, res) => {
+  try {
+    const seller = await Seller.findOne({ user: req.user._id });
 
+    if (!seller) {
+      return res.status(404).json({
+        success: false,
+        message: "Seller not found"
+      });
+    }
 
-export const sellerAnalytics = async (req,res)=>{
+    const { range = "month" } = req.query;
+    let startDate;
+    let groupBy;
+    const now = new Date();
 
- try{
+    if (range === "week") {
+      startDate = subDays(now, 7);
+      groupBy = { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } };
+    } else if (range === "year") {
+      startDate = startOfYear(now);
+      groupBy = { $dateToString: { format: "%Y-%m", date: "$createdAt" } };
+    } else {
+      startDate = subDays(now, 30);
+      groupBy = { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } };
+    }
 
-  const seller = await Seller.findOne({
-   user:req.user._id
-  });
+    // 1. Time-series Data: Revenue and Orders
+    const timeSeries = await Order.aggregate([
+      { 
+        $match: { 
+          isPaid: true, 
+          createdAt: { $gte: startDate },
+          "items.seller": seller._id 
+        } 
+      },
+      { $unwind: "$items" },
+      { $match: { "items.seller": seller._id } },
+      {
+        $group: {
+          _id: groupBy,
+          revenue: { $sum: { $multiply: ["$items.price", "$items.quantity"] } },
+          earning: { $sum: "$items.sellerEarning" },
+          orderCount: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
 
+    // 2. Top Selling Products
+    const topProducts = await Order.aggregate([
+      { $match: { isPaid: true, "items.seller": seller._id } },
+      { $unwind: "$items" },
+      { $match: { "items.seller": seller._id } },
+      {
+        $group: {
+          _id: "$items.product",
+          name: { $first: "$items.name" },
+          imageObj: { $first: "$items.image" },
+          sold: { $sum: "$items.quantity" },
+          revenue: { $sum: { $multiply: ["$items.price", "$items.quantity"] } }
+        }
+      },
+      {
+        $project: {
+          name: 1,
+          sold: 1,
+          revenue: 1,
+          image: {
+            $cond: {
+              if: { $eq: [{ $type: "$imageObj" }, "object"] },
+              then: "$imageObj.url",
+              else: "$imageObj"
+            }
+          }
+        }
+      },
+      { $sort: { sold: -1 } },
+      { $limit: 10 }
+    ]);
 
-  if(!seller){
-   return res.status(404).json({
-    success:false,
-    message:"Seller not found"
-   });
+    // 3. Order Status Breakdown
+    const orderStatus = await Order.aggregate([
+      { $match: { "items.seller": seller._id } },
+      {
+        $group: {
+          _id: "$orderStatus",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // 4. Stock Status
+    const stockStatus = {
+      outOfStock: await Product.countDocuments({ seller: seller._id, stock: 0 }),
+      lowStock: await Product.countDocuments({ seller: seller._id, stock: { $gt: 0, $lte: 5 } }),
+      inStock: await Product.countDocuments({ seller: seller._id, stock: { $gt: 5 } })
+    };
+
+    // 5. General Stats
+    const totalStats = await Order.aggregate([
+      { $match: { isPaid: true, "items.seller": seller._id } },
+      { $unwind: "$items" },
+      { $match: { "items.seller": seller._id } },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: { $multiply: ["$items.price", "$items.quantity"] } },
+          totalEarning: { $sum: "$items.sellerEarning" },
+          totalSold: { $sum: "$items.quantity" }
+        }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        timeSeries,
+        topProducts,
+        orderStatus,
+        stockStatus,
+        stats: {
+          revenue: totalStats[0]?.totalRevenue || 0,
+          earning: totalStats[0]?.totalEarning || 0,
+          sold: totalStats[0]?.totalSold || 0,
+          products: await Product.countDocuments({ seller: seller._id })
+        }
+      }
+    });
+
+  } catch (err) {
+    console.error("SELLER ANALYTICS ERROR:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch analytics"
+    });
   }
-
-
-  // Date filter (optional)
-  const { from, to } = req.query;
-
-  let dateFilter = {};
-
-  if(from && to){
-   dateFilter = {
-    createdAt:{
-     $gte:new Date(from),
-     $lte:new Date(to)
-    }
-   };
-  }
-
-
-  const stats = await Order.aggregate([
-
-   // Only paid
-   {
-    $match:{
-     isPaid:true,
-     ...dateFilter
-    }
-   },
-
-   // Each item
-   { $unwind:"$items" },
-
-
-   // Seller filter
-   {
-    $match:{
-     "items.seller": seller._id
-    }
-   },
-
-
-   // Group
-   {
-    $group:{
-     _id:null,
-
-     totalRevenue:{
-      $sum:"$items.price"
-     },
-
-     totalSold:{
-      $sum:"$items.quantity"
-     },
-
-     totalEarning:{
-      $sum:"$items.sellerEarning"
-     }
-    }
-   }
-
-  ]);
-
-
-  res.json({
-   success:true,
-
-   analytics:{
-    products: await Order.distinct(
-     "items.product",
-     { "items.seller": seller._id }
-    ).then(r=>r.length),
-
-    revenue: stats[0]?.totalRevenue || 0,
-    sold: stats[0]?.totalSold || 0,
-    earning: stats[0]?.totalEarning || 0
-   }
-  });
-
-
- }catch(err){
-
-  console.log("SELLER ANALYTICS:",err);
-
-  res.status(500).json({
-   success:false,
-   message:"Server error"
-  });
- }
 };

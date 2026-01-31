@@ -68,123 +68,134 @@ const AdminSellers = () => {
     );
   }
 
+  const StatItem = ({ label, value, color }) => {
+    const colors = {
+      blue: "from-blue-500 to-indigo-600 shadow-blue-100",
+      yellow: "from-amber-400 to-orange-500 shadow-amber-100",
+      green: "from-emerald-500 to-teal-600 shadow-emerald-100"
+    };
+
+    return (
+      <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl border border-slate-100 shadow-lg shadow-slate-100/50 flex items-center justify-between group transition-all">
+        <div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</p>
+          <p className="text-xl md:text-2xl font-bold text-slate-800 mt-1 tracking-tight">{value}</p>
+        </div>
+        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br ${colors[color]} shadow-md flex items-center justify-center text-white`}>
+          <FaStore size={16} />
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 md:space-y-8 animate-fadeIn">
       
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Sellers Management
-        </h1>
-        <p className="text-gray-600 mt-1">Manage seller requests and accounts</p>
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent uppercase tracking-tight">
+            Seller Partners
+          </h1>
+          <p className="text-gray-400 text-xs md:text-sm font-semibold mt-1 uppercase tracking-widest opacity-80">Manage vendor profiles and status</p>
+        </div>
+        <div className="flex items-center w-full xl:w-auto bg-slate-50 p-1.5 rounded-2xl border border-slate-100 overflow-x-auto no-scrollbar">
+           {['all', 'pending', 'active'].map(f => (
+             <button
+               key={f}
+               onClick={() => setFilter(f)}
+               className={`px-5 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
+                 filter === f 
+                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' 
+                 : 'text-slate-400 hover:text-slate-600'
+               }`}
+             >
+               {f} Sellers
+             </button>
+           ))}
+        </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white/80 backdrop-blur-md rounded-xl shadow p-4 border border-blue-100">
-          <p className="text-sm text-gray-600">Total Sellers</p>
-          <p className="text-2xl font-bold text-blue-600">{sellers.length}</p>
-        </div>
-        <div className="bg-white/80 backdrop-blur-md rounded-xl shadow p-4 border border-yellow-100">
-          <p className="text-sm text-gray-600">Pending Requests</p>
-          <p className="text-2xl font-bold text-yellow-600">
-            {sellers.filter(s => s.status === 'pending').length}
-          </p>
-        </div>
-        <div className="bg-white/80 backdrop-blur-md rounded-xl shadow p-4 border border-green-100">
-          <p className="text-sm text-gray-600">Active Sellers</p>
-          <p className="text-2xl font-bold text-green-600">
-            {sellers.filter(s => s.status === 'active').length}
-          </p>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-6 border border-purple-100">
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <FaFilter className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-            <select
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="pl-12 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none bg-white font-medium text-gray-700"
-            >
-              <option value="all">All Sellers</option>
-              <option value="pending">Pending Requests</option>
-              <option value="active">Active Sellers</option>
-              <option value="suspended">Suspended Sellers</option>
-            </select>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <StatItem label="Total Partners" value={sellers.length} color="blue" />
+        <StatItem label="Pending" value={sellers.filter(s => s.status === 'pending').length} color="yellow" />
+        <StatItem label="Verified" value={sellers.filter(s => s.status === 'active').length} color="green" />
       </div>
 
       {/* Sellers Table */}
-      <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-purple-100 overflow-hidden">
+      <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl shadow-blue-100/20 border border-slate-100 overflow-hidden">
         {filteredSellers.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FaStore className="text-gray-400 text-2xl" />
+          <div className="text-center py-20">
+            <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+              <FaStore className="text-slate-300 text-3xl" />
             </div>
-            <p className="text-gray-600">No sellers found</p>
+            <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No sellers found</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-100">
-                <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Seller Info</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Shop Name</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Joined Date</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">Actions</th>
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full min-w-[800px]">
+              <thead>
+                <tr className="bg-slate-50/50 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                  <th className="px-6 py-5 text-left">Seller Info</th>
+                  <th className="px-6 py-5 text-left md:table-cell hidden">Shop Name</th>
+                  <th className="px-6 py-5 text-left">Status</th>
+                  <th className="px-6 py-5 text-left md:table-cell hidden">Registered</th>
+                  <th className="px-6 py-5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-slate-50">
                 {filteredSellers.map((seller) => (
-                  <tr key={seller._id} className="hover:bg-purple-50/50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
+                  <tr key={seller._id} className="group hover:bg-slate-50/50 transition-all">
+                    <td className="px-6 py-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-base shadow-md shadow-indigo-100 shrink-0">
                           {seller.user?.name?.charAt(0).toUpperCase()}
                         </div>
-                        <div>
-                          <p className="font-medium text-gray-800">{seller.user?.name}</p>
-                          <div className="flex items-center gap-1 text-xs text-gray-500">
-                            <FaEnvelope size={10} />
-                            {seller.user?.email}
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-800 text-sm truncate">{seller.user?.name}</p>
+                          <div className="flex flex-col md:hidden">
+                             <p className="text-[10px] font-bold text-indigo-500 uppercase mt-0.5">{seller.shopName}</p>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-0.5 max-w-[150px] md:max-w-none">
+                            <FaEnvelope size={10} className="shrink-0" />
+                            <span className="truncate">{seller.user?.email}</span>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 font-medium text-gray-700">
-                        <FaStore className="text-purple-400" />
-                        {seller.shopName}
+                    <td className="px-6 py-6 md:table-cell hidden">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-slate-700 text-sm">{seller.shopName}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium flex-inline items-center gap-1 ${
-                        seller.status === 'active' 
-                          ? 'bg-green-100 text-green-700' 
-                          : seller.status === 'pending'
-                          ? 'bg-yellow-100 text-yellow-700'
-                          : 'bg-red-100 text-red-700'
-                      }`}>
-                        {seller.status === 'pending' && <FaClock className="inline mr-1 text-[10px]" />}
-                        {seller.status.charAt(0).toUpperCase() + seller.status.slice(1)}
-                      </span>
+                    <td className="px-6 py-6 border-slate-50">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${
+                          seller.status === 'active' ? 'bg-green-500' : 
+                          seller.status === 'pending' ? 'bg-amber-400 pulse' : 'bg-red-500'
+                        }`}></div>
+                        <span className={`text-[10px] font-bold uppercase tracking-widest ${
+                          seller.status === 'active' ? 'text-green-600' : 
+                          seller.status === 'pending' ? 'text-amber-600' : 'text-red-500'
+                        }`}>
+                          {seller.status}
+                        </span>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
+                    <td className="px-6 py-6 text-[10px] font-semibold text-slate-400 uppercase tracking-widest md:table-cell hidden">
                       {new Date(seller.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      {seller.status === 'pending' && (
+                    <td className="px-6 py-6 text-right">
+                      {seller.status === 'pending' ? (
                         <button
                           onClick={() => openApproveModal(seller)}
-                          className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg shadow hover:shadow-lg transition-all text-sm font-medium flex items-center gap-2 ml-auto"
+                          className="px-5 py-2.5 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-100 hover:bg-blue-700 active:scale-95 transition-all text-[10px] font-bold uppercase tracking-widest inline-flex items-center gap-2"
                         >
-                          <FaCheck size={12} /> Approve
+                          <FaCheck size={10} /> Approve
                         </button>
+                      ) : (
+                        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em]">Verified</span>
                       )}
                     </td>
                   </tr>

@@ -160,3 +160,47 @@ export const mySellerAccount = async (req, res) => {
     });
   }
 };
+
+
+// ================= UPDATE PROFILE =================
+export const updateSellerProfile = async (req, res) => {
+  try {
+    const { shopName, gstNumber, address, phone } = req.body;
+
+    const seller = await Seller.findOne({ user: req.user._id });
+
+    if (!seller) {
+      return res.status(404).json({
+        success: false,
+        message: "Seller not found"
+      });
+    }
+
+    // Update fields
+    if (shopName) seller.shopName = shopName;
+    if (gstNumber) seller.gstNumber = gstNumber;
+    if (phone) seller.phone = phone;
+    
+    if (address) {
+      seller.address = {
+        ...seller.address.toObject(),
+        ...address
+      };
+    }
+
+    await seller.save();
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      seller
+    });
+
+  } catch (err) {
+    console.log("UPDATE SELLER PROFILE:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};

@@ -2,7 +2,8 @@ import express from "express";
 
 import {
   applySeller,
-  mySellerAccount
+  mySellerAccount,
+  updateSellerProfile
 } from "../controllers/SellerController.js";
 
 import AuthUser from "../middleware/AuthUser.js";
@@ -24,6 +25,13 @@ router.get(
   AuthUser,
   SellerAuth,
   mySellerAccount
+);
+
+router.put(
+  "/update-profile",
+  AuthUser,
+  SellerAuth,
+  updateSellerProfile
 );
 
 

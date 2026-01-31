@@ -77,135 +77,144 @@ const AdminProducts = () => {
     );
   }
 
+  const StatCard = ({ label, value, color }) => {
+    const colors = {
+      blue: "from-blue-500 to-indigo-600 shadow-blue-100",
+      green: "from-emerald-500 to-teal-600 shadow-emerald-100",
+      red: "from-rose-500 to-pink-600 shadow-rose-100"
+    };
+
+    return (
+      <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl border border-slate-100 shadow-lg shadow-slate-100/50 group transition-all">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</p>
+        <div className="flex items-center justify-between mt-2">
+           <p className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">{value}</p>
+           <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br ${colors[color]} shadow-md flex items-center justify-center text-white`}>
+             <FaBox size={16} />
+           </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 md:space-y-8 animate-fadeIn">
       
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Products Management
-        </h1>
-        <p className="text-gray-600 mt-1">Manage all products across the platform</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent uppercase tracking-tight">
+            Inventory Page
+          </h1>
+          <p className="text-gray-400 text-xs md:text-sm font-semibold mt-1 uppercase tracking-widest opacity-80">Manage all platform products</p>
+        </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white/80 backdrop-blur-md rounded-xl shadow p-4 border border-blue-100">
-          <p className="text-sm text-gray-600">Total Products</p>
-          <p className="text-2xl font-bold text-blue-600">{serverTotal}</p>
-        </div>
-        <div className="bg-white/80 backdrop-blur-md rounded-xl shadow p-4 border border-green-100">
-          <p className="text-sm text-gray-600">Active Products</p>
-          <p className="text-2xl font-bold text-green-600">
-            {products.filter(p => p.isActive !== false).length}
-          </p>
-        </div>
-        <div className="bg-white/80 backdrop-blur-md rounded-xl shadow p-4 border border-red-100">
-          <p className="text-sm text-gray-600">Low Stock</p>
-          <p className="text-2xl font-bold text-red-600">
-            {products.filter(p => p.stock < 10).length}
-          </p>
-        </div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <StatCard label="Total Products" value={serverTotal} color="blue" />
+        <StatCard label="Active Items" value={products.filter(p => p.isActive !== false).length} color="green" />
+        <StatCard label="Low Stock (<10)" value={products.filter(p => p.stock < 10).length} color="red" />
       </div>
 
       {/* Filters */}
-      <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-6 border border-purple-100 flex flex-col md:flex-row gap-4 justify-between items-center">
-        <div className="relative w-full md:w-96">
-          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+      <div className="bg-white p-4 rounded-2xl md:rounded-3xl shadow-xl shadow-blue-100/20 border border-slate-100 flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1 group">
+          <FaSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" />
           <input
             type="text"
             placeholder="Search products or sellers..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+            className="w-full pl-12 pr-6 py-4 bg-slate-50/50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-blue-100 outline-none text-sm font-semibold text-slate-700 placeholder:text-slate-300"
           />
         </div>
-        
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none bg-white"
-        >
-          <option value="all">All Categories</option>
-          {categories.map(cat => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
+
+        <div className="relative w-full md:w-64">
+          <FaTag className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" />
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="w-full pl-12 pr-6 py-4 bg-slate-50/50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-blue-100 outline-none text-sm font-semibold text-slate-700 appearance-none cursor-pointer"
+          >
+            <option value="all">All Categories</option>
+            {categories.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Products Table */}
-      <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-purple-100 overflow-hidden">
+      <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl shadow-blue-100/20 border border-slate-100 overflow-hidden">
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FaBox className="text-gray-400 text-2xl" />
+          <div className="text-center py-20">
+            <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+              <FaBox className="text-slate-300 text-3xl" />
             </div>
-            <p className="text-gray-600">No products found</p>
+            <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No products found</p>
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-100">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Product</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Category</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Seller</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Price</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Stock</th>
-                    <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">Actions</th>
+            <div className="overflow-x-auto custom-scrollbar">
+              <table className="w-full min-w-[900px]">
+                <thead>
+                  <tr className="bg-slate-50/50 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                    <th className="px-6 py-5 text-left">Product Info</th>
+                    <th className="px-6 py-5 text-left md:table-cell hidden">Category</th>
+                    <th className="px-6 py-5 text-left">Seller</th>
+                    <th className="px-6 py-5 text-left">Price</th>
+                    <th className="px-6 py-5 text-left">Stock</th>
+                    <th className="px-6 py-5 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-slate-100">
                   {filteredProducts.map((product) => (
-                    <tr key={product._id} className="hover:bg-purple-50/50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
+                    <tr key={product._id} className="group hover:bg-slate-50/50 transition-all">
+                      <td className="px-6 py-6 border-slate-50">
+                        <div className="flex items-center gap-4">
                           <img 
                             src={product.mainImages?.[0]?.url || 'https://via.placeholder.com/40'} 
                             alt={product.name}
-                            className="w-10 h-10 object-cover rounded-lg border border-gray-200"
+                            className="w-10 h-10 object-cover rounded-xl border border-slate-100 shadow-sm shrink-0"
                           />
-                          <div>
-                            <p className="font-medium text-gray-800 line-clamp-1">{product.name}</p>
-                            <p className="text-xs text-gray-500 line-clamp-1">ID: {product._id.slice(-6)}</p>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-slate-800 text-sm line-clamp-1">{product.name}</p>
+                            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mt-0.5">ID: {product._id.slice(-6).toUpperCase()}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-1 text-sm text-gray-600">
-                          <FaTag size={10} className="text-purple-400" />
+                      <td className="px-6 py-6 md:table-cell hidden">
+                        <span className="px-3 py-1 bg-slate-50 text-slate-500 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-slate-100">
                           {product.category}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2 text-sm text-gray-700">
-                          <FaStore className="text-gray-400" />
-                          <span className="font-medium">{product.seller?.shopName || 'Unknown'}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="font-medium text-gray-900">₹{product.discountPrice.toLocaleString()}</p>
-                        {product.discountPrice && (
-                          <p className="text-xs text-green-600 line-through">₹{product.price.toLocaleString()}</p>
-                        )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          product.stock < 10 
-                            ? 'bg-red-100 text-red-700' 
-                            : 'bg-green-100 text-green-700'
-                        }`}>
-                          {product.stock} Units
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-6">
+                        <div className="flex items-center gap-2">
+                           <span className="font-semibold text-slate-700 text-sm truncate max-w-[120px]">{product.seller?.shopName || 'Unknown'}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-6">
+                        <p className="font-bold text-slate-800 tracking-tight text-sm">₹{product.discountPrice.toLocaleString()}</p>
+                        {product.price > product.discountPrice && (
+                          <p className="text-[10px] text-slate-300 line-through font-semibold mt-0.5">₹{product.price.toLocaleString()}</p>
+                        )}
+                      </td>
+                      <td className="px-6 py-6">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${product.stock < 10 ? 'bg-red-500' : 'bg-green-500'}`}></div>
+                          <span className={`text-[10px] font-bold uppercase tracking-widest ${product.stock < 10 ? 'text-red-500' : 'text-green-600'}`}>
+                            {product.stock} Units
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-6 text-right">
                         <button
                           onClick={() => openDeleteModal(product)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           title="Delete Product"
+                          className="w-8 h-8 md:w-9 md:h-9 bg-rose-50 text-rose-600 rounded-lg flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all ml-auto opacity-0 group-hover:opacity-100 shrink-0"
                         >
-                          <FaTrash />
+                          <FaTrash size={14} />
                         </button>
                       </td>
                     </tr>
@@ -215,7 +224,7 @@ const AdminProducts = () => {
             </div>
 
             {/* Pagination */}
-            <div className="p-4 border-t border-gray-100 bg-gray-50/50">
+            <div className="p-6 border-t border-slate-100 bg-slate-50/50">
               <Pagination 
                 currentPage={currentPage}
                 totalPages={totalPages}

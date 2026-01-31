@@ -91,7 +91,11 @@ export const AppProvider = ({children})=>{
 
     const createBanner = async (bannerData) => {
         try {
-            const res = await API.post("/banner/create", bannerData);
+            const res = await API.post("/banner/create", bannerData, {
+                headers: {
+                    "Content-Type": bannerData instanceof FormData ? "multipart/form-data" : "application/json"
+                }
+            });
             if (res.data.success) {
                 fetchActiveBanners();
             }
@@ -103,7 +107,11 @@ export const AppProvider = ({children})=>{
 
     const updateBanner = async (id, bannerData) => {
         try {
-            const res = await API.put(`/banner/update/${id}`, bannerData);
+            const res = await API.put(`/banner/update/${id}`, bannerData, {
+                headers: {
+                    "Content-Type": bannerData instanceof FormData ? "multipart/form-data" : "application/json"
+                }
+            });
             if (res.data.success) {
                 fetchActiveBanners();
             }
@@ -631,10 +639,9 @@ const getSellerProfile = async () => {
 };
 
 
-// Update seller profile
 const updateSellerProfile = async (formData) => {
   try {
-    const res = await API.put("/seller/profile", formData);
+    const res = await API.put("/seller/update-profile", formData);
     return res.data;
   } catch (error) {
     return error.response?.data || {
@@ -674,9 +681,9 @@ const toggleProductStatus = async (productId) => {
 
 
 // Get seller analytics
-const getSellerAnalytics = async () => {
+const getSellerAnalytics = async (range = "month") => {
   try {
-    const res = await API.get("/seller/analytics");
+    const res = await API.get(`/seller/analytics?range=${range}`);
     return res.data;
   } catch (error) {
     return error.response?.data || {
@@ -797,6 +804,19 @@ const getAdminStats = async () => {
     return error.response?.data || {
       success: false,
       message: "Failed to fetch stats"
+    };
+  }
+};
+
+// Get detailed analytics
+const getAnalytics = async (range = "month") => {
+  try {
+    const res = await API.get(`/admin/analytics?range=${range}`);
+    return res.data;
+  } catch (error) {
+    return error.response?.data || {
+      success: false,
+      message: "Failed to fetch analytics"
     };
   }
 };
@@ -1103,7 +1123,7 @@ const value = {
     // Browse & Review
     addReview, trackActivity, getMyActivity,
     // Admin functions
-    getAdminStats, getMonthlyRevenue, getTopProducts, getRecentOrders, getTodayStats,
+    getAdminStats, getAnalytics, getMonthlyRevenue, getTopProducts, getRecentOrders, getTodayStats,
     getAllOrders, deleteUser, getAdminProducts,
     // Banner functions
     activeBanners, fetchActiveBanners, getBanners, createBanner, updateBanner, deleteBanner,

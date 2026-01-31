@@ -73,112 +73,119 @@ const AdminUsers = () => {
     );
   }
 
+  const StatItem = ({ label, value, color }) => {
+    const colors = {
+      blue: "from-blue-500 to-indigo-600 shadow-blue-100",
+      green: "from-emerald-500 to-teal-600 shadow-emerald-100",
+      red: "from-rose-500 to-pink-600 shadow-rose-100"
+    };
+
+    return (
+      <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl border border-slate-100 shadow-lg shadow-slate-100/50 flex items-center justify-between group transition-all">
+        <div>
+          <p className="text-[10px] font-bold text-slate-400 upper-tracking-widest">{label}</p>
+          <p className="text-xl md:text-2xl font-bold text-slate-800 mt-1 tracking-tight">{value}</p>
+        </div>
+        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br ${colors[color]} shadow-md flex items-center justify-center text-white`}>
+          <FaUser size={16} />
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 md:space-y-8 animate-fadeIn">
       
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Users Management
-        </h1>
-        <p className="text-gray-600 mt-1">Manage platform users and their access</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent uppercase tracking-tight">
+            User Accounts
+          </h1>
+          <p className="text-gray-400 text-xs md:text-sm font-semibold mt-1 uppercase tracking-widest opacity-80">Manage customer access and status</p>
+        </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white/80 backdrop-blur-md rounded-xl shadow p-4 border border-blue-100">
-          <p className="text-sm text-gray-600">Total Users</p>
-          <p className="text-2xl font-bold text-blue-600">{users.length}</p>
-        </div>
-        <div className="bg-white/80 backdrop-blur-md rounded-xl shadow p-4 border border-green-100">
-          <p className="text-sm text-gray-600">Active Users</p>
-          <p className="text-2xl font-bold text-green-600">
-            {users.filter(u => !u.isBlocked).length}
-          </p>
-        </div>
-        <div className="bg-white/80 backdrop-blur-md rounded-xl shadow p-4 border border-red-100">
-          <p className="text-sm text-gray-600">Blocked Users</p>
-          <p className="text-2xl font-bold text-red-600">
-            {users.filter(u => u.isBlocked).length}
-          </p>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <StatItem label="Total Users" value={users.length} color="blue" />
+        <StatItem label="Active" value={users.filter(u => !u.isBlocked).length} color="green" />
+        <StatItem label="Blocked" value={users.filter(u => u.isBlocked).length} color="red" />
       </div>
 
       {/* Users Table */}
-      <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-purple-100 overflow-hidden">
+      <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl shadow-blue-100/20 border border-slate-100 overflow-hidden">
         {users.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FaUser className="text-gray-400 text-2xl" />
+          <div className="text-center py-20">
+            <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+              <FaUser className="text-slate-300 text-3xl" />
             </div>
-            <p className="text-gray-600">No users found</p>
+            <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No users found</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-100">
-                <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">User</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Role</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Joined Date</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">Actions</th>
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full min-w-[700px]">
+              <thead>
+                <tr className="bg-slate-50/50 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                  <th className="px-6 py-5 text-left">User Info</th>
+                  <th className="px-6 py-5 text-left">Role</th>
+                  <th className="px-6 py-5 text-left">Status</th>
+                  <th className="px-6 py-5 text-left md:table-cell hidden">Joined</th>
+                  <th className="px-6 py-5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-slate-50">
                 {users.map((user) => (
-                  <tr key={user._id} className="hover:bg-purple-50/50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
+                  <tr key={user._id} className="group hover:bg-slate-50/50 transition-all">
+                    <td className="px-6 py-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-base shadow-md shadow-blue-100 shrink-0">
                           {user.name?.charAt(0).toUpperCase()}
                         </div>
-                        <div>
-                          <p className="font-medium text-gray-800">{user.name}</p>
-                          <div className="flex items-center gap-1 text-xs text-gray-500">
-                            <FaEnvelope size={10} />
-                            {user.email}
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-800 text-sm truncate">{user.name}</p>
+                          <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-0.5 min-w-0">
+                            <FaEnvelope size={10} className="shrink-0" />
+                            <span className="truncate">{user.email}</span>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <FaShieldAlt className="text-purple-400" />
-                        <span className="capitalize">{user.role}</span>
+                    <td className="px-6 py-6 font-semibold">
+                       <span className="px-3 py-1 bg-slate-100 text-slate-500 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                         {user.role}
+                       </span>
+                    </td>
+                    <td className="px-6 py-6">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${user.isBlocked ? 'bg-red-500' : 'bg-green-500'}`}></div>
+                        <span className={`text-[11px] font-bold uppercase tracking-widest ${user.isBlocked ? 'text-red-500' : 'text-green-500'}`}>
+                          {user.isBlocked ? 'Blocked' : 'Active'}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        user.isBlocked 
-                          ? 'bg-red-100 text-red-700' 
-                          : 'bg-green-100 text-green-700'
-                      }`}>
-                        {user.isBlocked ? 'Blocked' : 'Active'}
-                      </span>
+                    <td className="px-6 py-6 md:table-cell hidden">
+                       <p className="text-xs font-semibold text-slate-400 uppercase">{new Date(user.createdAt).toLocaleDateString()}</p>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-6 py-6">
+                      <div className="flex items-center justify-end gap-2 md:gap-3">
                         <button
                           onClick={() => openModal('block', user)}
-                          className={`p-2 rounded-lg transition-colors ${
+                          title={user.isBlocked ? 'Unblock' : 'Block'}
+                          className={`w-8 h-8 md:w-9 md:h-9 rounded-lg flex items-center justify-center transition-all ${
                             user.isBlocked 
-                              ? 'text-green-600 hover:bg-green-50' 
-                              : 'text-amber-600 hover:bg-amber-50'
+                              ? 'bg-green-50 text-green-600 hover:bg-green-600 hover:text-white' 
+                              : 'bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white'
                           }`}
-                          title={user.isBlocked ? "Unblock User" : "Block User"}
                         >
-                          {user.isBlocked ? <FaCheck /> : <FaBan />}
+                          {user.isBlocked ? <FaCheck size={14} /> : <FaBan size={14} />}
                         </button>
                         <button
                           onClick={() => openModal('delete', user)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete User"
+                          title="Delete"
+                          className="w-8 h-8 md:w-9 md:h-9 bg-red-50 text-red-600 rounded-lg flex items-center justify-center hover:bg-red-600 hover:text-white transition-all"
                         >
-                          <FaTrash />
+                          <FaTrash size={14} />
                         </button>
                       </div>
                     </td>

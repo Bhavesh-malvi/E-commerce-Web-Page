@@ -45,7 +45,8 @@ export const addProduct = async (req, res) => {
       returnable,
       minOrderQty,
       metaTitle,
-      metaDescription
+      metaDescription,
+      shortDescription
     } = req.body;
 
 
@@ -75,6 +76,7 @@ export const addProduct = async (req, res) => {
     // Upload images
     let mainImages = [];
     let variantsData = safeParse(variants, []);
+    let descriptionBlocksData = safeParse(descriptionBlocks, []);
 
     if (req.files?.length) {
 
@@ -84,7 +86,7 @@ export const addProduct = async (req, res) => {
         const result = await cloudinary.uploader.upload(file.path, { folder: "products" });
         const imgObj = { public_id: result.public_id, url: result.secure_url };
 
-        // Check if main image or variant image
+        // Check if main image, variant image, or description image
         if (file.fieldname === 'images') {
            mainImages.push(imgObj);
         } else if (file.fieldname.startsWith('variant_image_')) {
@@ -93,6 +95,12 @@ export const addProduct = async (req, res) => {
            if (variantsData[index]) {
               if (!variantsData[index].images) variantsData[index].images = [];
               variantsData[index].images.push(imgObj);
+           }
+        } else if (file.fieldname.startsWith('description_block_image_')) {
+           // Fieldname format: "description_block_image_INDEX"
+           const index = parseInt(file.fieldname.split('_').pop());
+           if (descriptionBlocksData[index]) {
+              descriptionBlocksData[index].content = imgObj.url;
            }
         }
       }
@@ -114,7 +122,7 @@ export const addProduct = async (req, res) => {
       tags: safeParse(tags),
       badges: safeParse(badges),
 
-      descriptionBlocks: safeParse(descriptionBlocks),
+      descriptionBlocks: descriptionBlocksData,
       specifications: safeParse(specifications),
       variants: variantsData,
 
@@ -129,6 +137,7 @@ export const addProduct = async (req, res) => {
       minOrderQty: Number(minOrderQty) || 1,
       metaTitle,
       metaDescription,
+      shortDescription,
 
       seller: seller._id
     });
@@ -304,7 +313,8 @@ export const updateProduct = async (req, res) => {
       returnable: req.body.returnable !== undefined ? (req.body.returnable === 'true' || req.body.returnable === true) : product.returnable,
       minOrderQty: req.body.minOrderQty ? Number(req.body.minOrderQty) : product.minOrderQty,
       metaTitle: req.body.metaTitle || product.metaTitle,
-      metaDescription: req.body.metaDescription || product.metaDescription
+      metaDescription: req.body.metaDescription || product.metaDescription,
+      shortDescription: req.body.shortDescription || product.shortDescription
     });
 
 
@@ -313,8 +323,9 @@ export const updateProduct = async (req, res) => {
     if (req.body.specifications) product.specifications = safeParse(req.body.specifications);
     if (req.body.descriptionBlocks) product.descriptionBlocks = safeParse(req.body.descriptionBlocks);
     
-    // Handle Variants & Images
+    // Handle Variants, Description Blocks & Images
     let variantsData = req.body.variants ? safeParse(req.body.variants, []) : product.variants;
+    let descriptionBlocksData = req.body.descriptionBlocks ? safeParse(req.body.descriptionBlocks, []) : product.descriptionBlocks;
     let newMainImages = [];
     
     // Process all uploaded files
@@ -331,6 +342,11 @@ export const updateProduct = async (req, res) => {
                if (!variantsData[index].images) variantsData[index].images = [];
                variantsData[index].images.push(imgObj);
             }
+         } else if (file.fieldname.startsWith('description_block_image_')) {
+            const index = parseInt(file.fieldname.split('_').pop());
+            if (descriptionBlocksData[index]) {
+               descriptionBlocksData[index].content = imgObj.url;
+            }
          }
        }
     }
@@ -340,9 +356,9 @@ export const updateProduct = async (req, res) => {
        product.mainImages = newMainImages;
     }
 
-    // Update Variants
+    // Update Variants & Description Blocks
     product.variants = variantsData;
-
+    product.descriptionBlocks = descriptionBlocksData;
 
     await product.save();
 

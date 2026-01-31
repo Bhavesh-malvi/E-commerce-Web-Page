@@ -2,6 +2,7 @@ import User from "../models/UserModel.js";
 import Order from "../models/OrderModel.js";
 import Seller from "../models/SellerModel.js";
 import Product from "../models/ProductModel.js";
+import { startOfDay, startOfMonth, startOfYear, subDays, subMonths, format } from "date-fns";
 
 
 
@@ -9,6 +10,112 @@ import Product from "../models/ProductModel.js";
 const checkAdmin = (req) => {
   if (req.user.role !== "admin") {
     throw new Error("Unauthorized");
+  }
+};
+
+
+
+// ================= DETAILED ANALYTICS =================
+export const getAnalytics = async (req, res) => {
+  try {
+    checkAdmin(req);
+    const { range = "month" } = req.query;
+
+    let startDate;
+    let groupBy;
+
+    const now = new Date();
+    if (range === "week") {
+      startDate = subDays(now, 7);
+      groupBy = { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } };
+    } else if (range === "year") {
+      startDate = startOfYear(now);
+      groupBy = { $dateToString: { format: "%Y-%m", date: "$createdAt" } };
+    } else {
+      startDate = subDays(now, 30);
+      groupBy = { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } };
+    }
+
+    // 1. Revenue & Orders Time-series
+    const timeSeriesData = await Order.aggregate([
+      { $match: { isPaid: true, createdAt: { $gte: startDate } } },
+      {
+        $project: {
+          createdAt: 1,
+          totalPrice: 1,
+          orderCommission: { $sum: "$items.commission" }
+        }
+      },
+      {
+        $group: {
+          _id: groupBy,
+          revenue: { $sum: "$totalPrice" },
+          commission: { $sum: "$orderCommission" },
+          orderCount: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // 2. User & Seller Growth
+    const userGrowth = await User.aggregate([
+      { $match: { role: "user", createdAt: { $gte: startDate } } },
+      { $group: { _id: groupBy, count: { $sum: 1 } } },
+      { $sort: { _id: 1 } }
+    ]);
+
+    const sellerGrowth = await Seller.aggregate([
+      { $match: { createdAt: { $gte: startDate } } },
+      { $group: { _id: groupBy, count: { $sum: 1 } } },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // 3. Top Sellers
+    const topSellers = await Order.aggregate([
+      { $match: { isPaid: true } },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.seller",
+          revenue: { $sum: { $multiply: ["$items.price", "$items.quantity"] } },
+          commission: { $sum: "$items.commission" },
+          sales: { $sum: "$items.quantity" }
+        }
+      },
+      { $sort: { commission: -1 } },
+      { $limit: 10 },
+      {
+        $lookup: {
+          from: "sellers",
+          localField: "_id",
+          foreignField: "_id",
+          as: "seller"
+        }
+      },
+      { $unwind: "$seller" },
+      {
+        $project: {
+          shopName: "$seller.shopName",
+          revenue: 1,
+          commission: 1,
+          sales: 1
+        }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      timeSeries: timeSeriesData,
+      growth: {
+        users: userGrowth,
+        sellers: sellerGrowth
+      },
+      topSellers: topSellers.length > 0 ? topSellers : []
+    });
+
+  } catch (err) {
+    console.log("ANALYTICS ERROR:", err);
+    res.status(500).json({ success: false, message: "Dashboard data error" });
   }
 };
 

@@ -160,6 +160,7 @@ app.use("/api/browse", browseRouter);
 app.use("/api/recommend", recommendRouter);
 app.use("/api/invoice", invoiceRouter);
 app.use("/api/wishlist", wishlistRouter);
+app.use("/api/banner", bannerRouter);
 app.use("/api/megadeal", megaDealRouter);
 
 

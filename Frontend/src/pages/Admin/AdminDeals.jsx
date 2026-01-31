@@ -104,81 +104,85 @@ const AdminDeals = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 md:space-y-8 animate-fadeIn">
       
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent uppercase tracking-tight">
             Deals Management
           </h1>
-          <p className="text-gray-600 mt-1">Create and manage special offers</p>
+          <p className="text-gray-400 text-xs md:text-sm font-semibold mt-1 uppercase tracking-widest opacity-80">Manage special offers and discounts</p>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          className="w-full md:w-auto px-8 py-4 bg-blue-600 text-white rounded-2xl shadow-xl shadow-blue-100/50 hover:bg-blue-700 active:scale-95 transition-all text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-3"
         >
-          <FaPlus /> Create Deal
+          <FaPlus size={14} /> Create Deal
         </button>
       </div>
 
       {/* Deals List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
         {deals.length === 0 && !loading && (
-          <div className="col-span-full text-center py-12 bg-white/50 rounded-2xl border border-gray-200 border-dashed">
-            <p className="text-gray-500">No active deals found. Create one now!</p>
+          <div className="col-span-full py-24 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-100/50 text-center">
+             <div className="bg-slate-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-100">
+               <FaTag className="text-slate-200 text-4xl" />
+             </div>
+             <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No deals found</p>
           </div>
         )}
         
         {deals.map(deal => (
-          <div key={deal._id} className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-purple-100 overflow-hidden group hover:shadow-xl transition-all">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-xl font-bold text-gray-800">{deal.title}</h3>
-                  <span className={`inline-block px-2 py-1 rounded-md text-xs font-medium mt-1 ${
-                    new Date(deal.startDate) > new Date() 
-                      ? 'bg-blue-100 text-blue-700' 
-                      : new Date(deal.endDate) < new Date() 
-                        ? 'bg-gray-100 text-gray-600' 
-                        : 'bg-green-100 text-green-700'
-                  }`}>
-                    {new Date(deal.startDate) > new Date() 
-                      ? 'Upcoming' 
-                      : new Date(deal.endDate) < new Date() 
-                        ? 'Expired' 
-                        : 'Active'}
-                  </span>
+          <div key={deal._id} className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden group hover:shadow-2xl transition-all duration-300">
+            <div className="p-8">
+              <div className="flex justify-between items-start mb-6">
+                <div className="flex-1 pr-4">
+                  <h3 className="text-lg font-bold text-slate-800 uppercase tracking-tight leading-tight">{deal.title}</h3>
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className={`w-2 h-2 rounded-full ${
+                      new Date(deal.startDate) > new Date() ? 'bg-blue-500' : 
+                      new Date(deal.endDate) < new Date() ? 'bg-slate-400' : 'bg-green-500'
+                    }`}></div>
+                    <span className={`text-[10px] font-bold uppercase tracking-widest ${
+                      new Date(deal.startDate) > new Date() ? 'text-blue-600' : 
+                      new Date(deal.endDate) < new Date() ? 'text-slate-400' : 'text-green-600'
+                    }`}>
+                      {new Date(deal.startDate) > new Date() ? 'Upcoming' : 
+                       new Date(deal.endDate) < new Date() ? 'Expired' : 'Active'}
+                    </span>
+                  </div>
                 </div>
-                <div className="bg-pink-100 text-pink-700 px-3 py-1 rounded-full font-bold text-sm">
+                <div className="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold text-xs shadow-lg shadow-blue-100 whitespace-nowrap">
                   {deal.discountPercentage}% OFF
                 </div>
               </div>
               
-              <div className="space-y-2 text-sm text-gray-600 mb-4">
-                <div className="flex items-center gap-2">
-                  <FaCalendarAlt className="text-purple-400" />
-                  <span>
-                    {new Date(deal.startDate).toLocaleDateString()} - {new Date(deal.endDate).toLocaleDateString()}
+              <div className="space-y-3 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 mb-6">
+                <div className="flex items-center gap-3 text-[11px] font-semibold text-slate-500">
+                  <FaCalendarAlt className="text-blue-500" />
+                  <span className="uppercase tracking-wider">
+                    {new Date(deal.startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric'})} — {new Date(deal.endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric'})}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <FaTag className="text-purple-400" />
-                  <span>{deal.products.length} Products Included</span>
+                <div className="flex items-center gap-3 text-[11px] font-semibold text-slate-500">
+                  <FaTag className="text-blue-500" />
+                  <span className="uppercase tracking-widest">{deal.products.length} Product(s) Included</span>
                 </div>
               </div>
 
-              <div className="flex -space-x-2 overflow-hidden mb-4 p-1">
+              <div className="flex -space-x-3 overflow-hidden mb-8 pl-1">
                 {deal.products.slice(0, 5).map((prod, i) => (
-                  <img
-                    key={i}
-                    src={prod.mainImages?.[0]?.url}
-                    alt={prod.name}
-                    className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover"
-                  />
+                  <div key={i} className="h-10 w-10 rounded-2xl ring-4 ring-white shadow-sm overflow-hidden border border-slate-100 bg-slate-100">
+                     <img
+                       src={prod.mainImages?.[0]?.url}
+                       alt=""
+                       className="h-full w-full object-cover"
+                     />
+                  </div>
                 ))}
                 {deal.products.length > 5 && (
-                  <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-medium ring-2 ring-white">
+                  <div className="h-10 w-10 rounded-2xl bg-slate-800 flex items-center justify-center text-[10px] text-white font-bold ring-4 ring-white shadow-lg uppercase tracking-widest">
                     +{deal.products.length - 5}
                   </div>
                 )}
@@ -186,9 +190,9 @@ const AdminDeals = () => {
 
               <button
                 onClick={() => setDeleteModal({ isOpen: true, id: deal._id })}
-                className="w-full py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                className="w-full py-4 bg-rose-50 text-rose-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all shadow-sm border border-rose-50"
               >
-                <FaTrash size={14} /> Delete Deal
+                Delete Deal
               </button>
             </div>
           </div>

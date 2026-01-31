@@ -3,7 +3,8 @@ import Banner from "../models/BannerModel.js";
 // ================= CREATE BANNER =================
 export const createBanner = async (req, res) => {
   try {
-    const { title, subtitle, price, image } = req.body;
+    const { title, subtitle, price } = req.body;
+    const image = req.file ? req.file.path : req.body.image;
 
     if (!title || !subtitle || !price || !image) {
       return res.status(400).json({
@@ -15,7 +16,7 @@ export const createBanner = async (req, res) => {
     const banner = await Banner.create({
       title,
       subtitle,
-      price,
+      price: Number(price),
       image
     });
 
@@ -67,7 +68,17 @@ export const getActiveBanners = async (req, res) => {
 // ================= UPDATE BANNER =================
 export const updateBanner = async (req, res) => {
   try {
-    const banner = await Banner.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updateData = { ...req.body };
+    
+    if (req.file) {
+      updateData.image = req.file.path;
+    }
+    
+    if (updateData.price) {
+      updateData.price = Number(updateData.price);
+    }
+
+    const banner = await Banner.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!banner) {
       return res.status(404).json({
         success: false,
