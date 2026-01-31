@@ -4,7 +4,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
-import Morgan from "morgan";
+import morgan from "morgan";
 import { Server } from "socket.io";
 import http from "http";
 
