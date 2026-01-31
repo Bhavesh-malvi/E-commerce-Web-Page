@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { AppContext } from "../../context/AppContext";
-import API from "../../api/Api";
+import API from "../../Api/Api.js";
 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
