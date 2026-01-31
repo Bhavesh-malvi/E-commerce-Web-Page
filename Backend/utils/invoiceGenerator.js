@@ -147,8 +147,8 @@ export const generateInvoice = async (order, res, sellerInfo = null) => {
       .text(String(index + 1), 50, rowY + 10)
       .text(item.name?.substring(0, 40) || 'Product', 80, rowY + 10, { width: 250 })
       .text(String(item.quantity || 1), 350, rowY + 10, { width: 50, align: 'center' })
-      .text(`₹${(item.price || 0).toLocaleString()}`, 410, rowY + 10, { width: 60, align: 'right' })
-      .text(`₹${itemTotal.toLocaleString()}`, 480, rowY + 10, { width: 60, align: 'right' });
+      .text('Rs.' + (item.price || 0).toLocaleString(), 410, rowY + 10, { width: 60, align: 'right' })
+      .text('Rs.' + itemTotal.toLocaleString(), 480, rowY + 10, { width: 60, align: 'right' });
 
     rowY += rowHeight;
     isAltRow = !isAltRow;
@@ -170,14 +170,14 @@ export const generateInvoice = async (order, res, sellerInfo = null) => {
     .font('Helvetica')
     .text('Subtotal:', 380, totalsY, { width: 70, align: 'right' })
     .fillColor(darkText)
-    .text(`₹${(order.itemsPrice || 0).toLocaleString()}`, 460, totalsY, { width: 80, align: 'right' });
+    .text('Rs.' + (order.itemsPrice || 0).toLocaleString(), 460, totalsY, { width: 80, align: 'right' });
 
   // Shipping
   doc
     .fillColor(grayText)
     .text('Shipping:', 380, totalsY + 15, { width: 70, align: 'right' })
     .fillColor(darkText)
-    .text(`₹${(order.shippingPrice || 0).toLocaleString()}`, 460, totalsY + 15, { width: 80, align: 'right' });
+    .text('Rs.' + (order.shippingPrice || 0).toLocaleString(), 460, totalsY + 15, { width: 80, align: 'right' });
 
   // Tax
   if (order.taxPrice > 0) {
@@ -185,30 +185,29 @@ export const generateInvoice = async (order, res, sellerInfo = null) => {
       .fillColor(grayText)
       .text('Tax:', 380, totalsY + 30, { width: 70, align: 'right' })
       .fillColor(darkText)
-      .text(`₹${(order.taxPrice || 0).toLocaleString()}`, 460, totalsY + 30, { width: 80, align: 'right' });
+      .text('Rs.' + (order.taxPrice || 0).toLocaleString(), 460, totalsY + 30, { width: 80, align: 'right' });
   }
 
   // Coupon Discount
   if (order.coupon?.discount > 0) {
     doc
       .fillColor('#16A34A')
-      .text(`Coupon (${order.coupon.code}):`, 360, totalsY + 45, { width: 90, align: 'right' })
-      .text(`-₹${(order.coupon.discount || 0).toLocaleString()}`, 460, totalsY + 45, { width: 80, align: 'right' });
+      .text('Coupon (' + order.coupon.code + '):', 360, totalsY + 45, { width: 90, align: 'right' })
+      .text('-Rs.' + (order.coupon.discount || 0).toLocaleString(), 460, totalsY + 45, { width: 80, align: 'right' });
   }
 
   // Grand Total
   const grandTotalY = totalsY + (order.coupon?.discount > 0 ? 65 : (order.taxPrice > 0 ? 55 : 40));
 
   doc
-    .rect(370, grandTotalY - 5, 180, 25)
+    .rect(350, grandTotalY - 5, 200, 25)
     .fill(primaryColor);
 
   doc
     .fillColor('#FFFFFF')
     .fontSize(11)
     .font('Helvetica-Bold')
-    .text('GRAND TOTAL:', 380, grandTotalY + 2, { width: 80, align: 'left' })
-    .text(`₹${(order.totalPrice || 0).toLocaleString()}`, 460, grandTotalY + 2, { width: 80, align: 'right' });
+    .text('GRAND TOTAL:  Rs.' + (order.totalPrice || 0).toLocaleString(), 360, grandTotalY + 2, { width: 180, align: 'center' });
 
 
   // ==================== QR CODE SECTION ====================
