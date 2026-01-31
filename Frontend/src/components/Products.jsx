@@ -152,7 +152,12 @@ const Products = ({product}) => {
             })()}
           </div>
           <div className="py-2 sm:py-3 px-2 sm:px-3 flex flex-col gap-1.5 sm:gap-2">
-            <p className='capitalize text-xs sm:text-[14px] text-[#FF8F9C]'>{product.subCategory}</p>
+            <div className="flex justify-between items-center gap-2">
+              <p className='capitalize text-[10px] sm:text-[12px] text-[#FF8F9C] font-semibold'>{product.subCategory}</p>
+              {product.seller?.shopName && (
+                <p className='text-[10px] sm:text-[11px] text-gray-400 font-medium truncate max-w-[50%]'>@{product.seller.shopName}</p>
+              )}
+            </div>
             <p className='text-[#343434] font-medium tracking-wide text-sm sm:text-base'>{truncateText(product.name)}</p>
             <StarRating rating={product.ratings || product.rating} textSize={"18px"} />
             {(() => {

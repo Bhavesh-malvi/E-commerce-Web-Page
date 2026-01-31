@@ -213,7 +213,8 @@ export const getProduct = async (req, res) => {
 
 
     const products = await Product.find(query)
-      .select("name price discountPrice mainImages ratings badges stock category subCategory gender isActive")
+      .select("name price discountPrice mainImages ratings badges stock category subCategory gender isActive seller")
+      .populate("seller", "shopName")
       .sort(sortBy)
       .skip(skip)
       .limit(Number(limit));

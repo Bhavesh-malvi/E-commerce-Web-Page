@@ -166,7 +166,14 @@ const ProductDetails = () => {
           <div className="flex flex-col gap-4 sm:gap-5 md:gap-6">
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{product.name}</h1>
-              {product.brand && <p className="text-sm sm:text-base text-gray-500">{product.brand}</p>}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
+                {product.brand && <p className="text-sm sm:text-base text-gray-500 font-medium">{product.brand}</p>}
+                {product.seller?.shopName && (
+                  <p className="text-xs sm:text-sm text-gray-400">
+                    Sold by: <span className="text-purple-600 font-semibold hover:underline cursor-pointer">{product.seller.shopName}</span>
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="flex gap-2 sm:gap-3 items-center">
