@@ -87,8 +87,8 @@ const ProductReview = ({productData, refreshProduct}) => {
                                 <div key={review._id || index} className="flex flex-col gap-2 sm:gap-3">
                                     {/* User Info */}
                                     <div className="flex items-center gap-2 sm:gap-3">
-                                        {review.user?.avatar ? (
-                                            <img src={review.user.avatar} alt={review.user.name} className="w-7 h-7 sm:w-9 sm:h-9 rounded-full object-cover" />
+                                        {(review.user?.avatar?.url || (typeof review.user?.avatar === 'string' && review.user?.avatar)) ? (
+                                            <img src={review.user.avatar?.url || review.user.avatar} alt={review.user.name} className="w-7 h-7 sm:w-9 sm:h-9 rounded-full object-cover" />
                                         ) : (
                                             <FaUserCircle className="text-2xl sm:text-3xl text-gray-300" />
                                         )}

@@ -11,6 +11,7 @@ import BuyButton from "../UI/BuyButton";
 import ProductsInfo from "../components/ProductDetails/ProductsInfo";
 import ProductReview from "../components/ProductDetails/ProductReview";
 import RecentlyViewed from "../components/ProductDetails/RecentlyViewed";
+import { useToast } from "../components/common/Toast";
 
 
 const ProductDetails = () => {
@@ -18,6 +19,7 @@ const ProductDetails = () => {
   const navigate = useNavigate();
 
   const { currency, convertPrice, getSingleProduct, addToCart, products, trackActivity, wishlist, addToWishlist, removeFromWishlist } = useContext(AppContext);
+  const toast = useToast();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
@@ -72,9 +74,15 @@ const ProductDetails = () => {
 
   const handleBuyNow = async () => {
     try {
-      await addToCart(product._id, 1, selectedVariant);
-      navigate("/cart");
+      const res = await addToCart(product._id, 1, selectedVariant);
+      if (res?.success) {
+        toast.success("Redirecting to cart...");
+        navigate("/cart");
+      } else {
+        toast.error(res?.message || "Login required to purchase");
+      }
     } catch (error) {
+      toast.error("An error occurred. Please try again.");
       console.error("Buy Now Error:", error);
     }
   };

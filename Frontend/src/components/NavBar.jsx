@@ -55,7 +55,9 @@ const NavBar = () => {
                     <li>
                         {user ? <Link to={`${user.role === "admin" ? "/admin" : user.role === "seller" ? "/seller" : "/profile"}`}>
                         {
-                            user?.avatar ? <img src={user.avatar} alt="Avatar" className="w-7 h-7 md:w-8 md:h-8 rounded-full" /> : <div className="border text-sm md:text-[18px] px-2 md:px-2.5 py-0.5 md:py-1 bg-gray-500 rounded-full text-white font-medium">{user.name?.charAt(0)}</div>
+                            (user.avatar?.url || (typeof user.avatar === 'string' && user.avatar)) ? 
+                            <img src={user.avatar?.url || user.avatar} alt="Avatar" className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover" /> : 
+                            <div className="border text-sm md:text-[18px] px-2 md:px-2.5 py-0.5 md:py-1 bg-gray-500 rounded-full text-white font-medium">{user.name?.charAt(0)}</div>
                         }</Link> : <button className='text-sm md:text-[17px] px-4 md:px-7 py-1.5 md:py-2 rounded-full bg-[#FF8F9C] text-white font-medium cursor-pointer whitespace-nowrap' onClick={()=>setOpen(true)}>Login</button>}
                     </li>
                 </ul>
