@@ -73,6 +73,7 @@ const ProductDetails = () => {
   };
 
   const handleBuyNow = async () => {
+    console.log("Buy Now Clicked - Product ID:", product?._id);
     try {
       const res = await addToCart(product._id, 1, selectedVariant);
       if (res?.success) {
