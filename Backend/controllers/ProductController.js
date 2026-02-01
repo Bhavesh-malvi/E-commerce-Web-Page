@@ -2,6 +2,7 @@ import Product from "../models/ProductModel.js";
 import Seller from "../models/SellerModel.js";
 import cloudinary from "../config/cloudinary.js";
 import { updateInterest } from "../utils/updateInterest.js";
+import fs from "fs";
 
 import {
   clearProductCache,
@@ -82,9 +83,25 @@ export const addProduct = async (req, res) => {
 
       for (const file of req.files) {
         
+        // Determine upload options based on field type
+        let options = { folder: "products" };
+        
+        // Apply crop for main images and variants to maintain consistency
+        if (file.fieldname === 'images' || file.fieldname.startsWith('variant_image_')) {
+           options.transformation = [{ width: 400, height: 400, crop: "fill", gravity: "face" }];
+        }
+        // For description_block_image_, we do NOT apply transformation (keeps full banner size)
+
         // Upload to Cloudinary
-        const result = await cloudinary.uploader.upload(file.path, { folder: "products" });
+        const result = await cloudinary.uploader.upload(file.path, options);
         const imgObj = { public_id: result.public_id, url: result.secure_url };
+        
+        // Remove local file
+        try {
+          fs.unlinkSync(file.path);
+        } catch (e) {
+          console.error("Failed to delete local file:", e);
+        }
 
         // Check if main image, variant image, or description image
         if (file.fieldname === 'images') {
@@ -332,8 +349,25 @@ export const updateProduct = async (req, res) => {
     // Process all uploaded files
     if (req.files?.length) {
        for (const file of req.files) {
-         const result = await cloudinary.uploader.upload(file.path, { folder: "products" });
+         
+         // Determine upload options based on field type
+         let options = { folder: "products" };
+        
+         // Apply crop for main images and variants to maintain consistency
+         if (file.fieldname === 'images' || file.fieldname.startsWith('variant_image_')) {
+            options.transformation = [{ width: 400, height: 400, crop: "fill", gravity: "face" }];
+         }
+         // For description_block_image_, we do NOT apply transformation (keeps full banner size)
+
+         const result = await cloudinary.uploader.upload(file.path, options);
          const imgObj = { public_id: result.public_id, url: result.secure_url };
+         
+         // Remove local file
+         try {
+           fs.unlinkSync(file.path);
+         } catch (e) {
+           console.error("Failed to delete local file:", e);
+         }
 
          if (file.fieldname === 'images') {
             newMainImages.push(imgObj);

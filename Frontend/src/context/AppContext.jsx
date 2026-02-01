@@ -134,6 +134,7 @@ export const AppProvider = ({children})=>{
     };
 
 
+
     const newArrival = products.filter((p) => 
         p?.badges?.some(b => b.toLowerCase().includes("new arrivals")) || 
         (p?.isNew === true)
@@ -1023,6 +1024,16 @@ const getMyActivity = async () => {
   }
 };
 
+const getRecommendations = async () => {
+    try {
+        const res = await API.get("/recommend/recommend");
+        return res.data;
+    } catch (error) {
+        console.error("Fetch recommendations error:", error);
+        return { success: false, products: [] };
+    }
+};
+
 
 
 
@@ -1121,7 +1132,7 @@ const value = {
     getAllProducts, getSingleProduct, getSellerProducts, getSellerOrders, updateOrderStatus,
     getSellerProfile, updateSellerProfile, toggleProductStatus, getUniqueCategories, getUniqueSubCategories,
     // Browse & Review
-    addReview, trackActivity, getMyActivity,
+    addReview, trackActivity, getMyActivity, getRecommendations,
     // Admin functions
     getAdminStats, getAnalytics, getMonthlyRevenue, getTopProducts, getRecentOrders, getTodayStats,
     getAllOrders, deleteUser, getAdminProducts,

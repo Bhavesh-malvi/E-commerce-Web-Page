@@ -4,6 +4,7 @@ import { AppContext } from '../../context/AppContext'
 import DealOfTheDaySlider from './DealOfTheDaySlider ';
 import Products from '../Products';
 import { useNavigate } from 'react-router-dom';
+import RecommendedProducts from './RecommendedProducts';
 
 const CategoryProduct = () => {
 const { trendTypeData, truncateText, newProducts, currency, convertPrice } = useContext(AppContext);
@@ -95,6 +96,10 @@ const chunkArray = (array, size) => {
                         })}
                     </div>
                     
+                </div>
+
+                <div className="py-4 sm:py-5 col-span-1 md:col-span-2 lg:col-span-3 mt-3 sm:mt-5">
+                   <RecommendedProducts />
                 </div>
 
             </div>

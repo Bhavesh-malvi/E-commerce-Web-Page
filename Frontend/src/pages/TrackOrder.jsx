@@ -4,9 +4,10 @@ import { FaTruck, FaCheck, FaBox, FaMapMarkerAlt, FaSearch, FaMapMarkedAlt } fro
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import API from '../Api/Api.js';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { io } from 'socket.io-client';
 
 // Fix for default marker icon
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -21,12 +22,24 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
+// Component to recenter map when location changes
+const MapRecenter = ({ lat, lng }) => {
+    const map = useMap();
+    useEffect(() => {
+        if (lat && lng) {
+            map.setView([lat, lng], map.getZoom(), { animate: true });
+        }
+    }, [lat, lng, map]);
+    return null;
+};
+
 const TrackOrder = () => {
     const [searchParams] = useSearchParams();
     const [trackingId, setTrackingId] = useState(searchParams.get('id') || '');
     const [orderData, setOrderData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [localSocket, setLocalSocket] = useState(null);
 
     const [address, setAddress] = useState('');
 
@@ -46,6 +59,51 @@ const TrackOrder = () => {
             setAddress('Address info unavailable');
         }
     };
+
+    // Create standalone socket connection for real-time tracking (works without login)
+    useEffect(() => {
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+        const socketUrl = backendUrl.replace(/\/api$/, "");
+        
+        const newSocket = io(socketUrl, {
+            withCredentials: true,
+            transports: ["websocket", "polling"]
+        });
+
+        newSocket.on("connect", () => {
+            console.log("TrackOrder: Connected to socket for real-time updates");
+        });
+
+        setLocalSocket(newSocket);
+
+        return () => {
+            newSocket.disconnect();
+        };
+    }, []);
+
+    // Socket listener for real-time location updates
+    useEffect(() => {
+        if (!localSocket || !trackingId) return;
+
+        const handleLocationUpdate = (data) => {
+            if (data.trackingId === trackingId) {
+                console.log("Real-time location update received:", data);
+                setOrderData(prev => {
+                    if (!prev) return prev;
+                    return {
+                        ...prev,
+                        location: data.location
+                    };
+                });
+            }
+        };
+
+        localSocket.on("locationUpdated", handleLocationUpdate);
+
+        return () => {
+            localSocket.off("locationUpdated", handleLocationUpdate);
+        };
+    }, [localSocket, trackingId]);
 
     const handleTrack = async (e) => {
         e?.preventDefault();
@@ -218,6 +276,7 @@ const TrackOrder = () => {
                                                     Package is here!
                                                 </Popup>
                                             </Marker>
+                                            <MapRecenter lat={orderData.location.lat} lng={orderData.location.lng} />
                                         </MapContainer>
                                     ) : (
                                         <div className="flex flex-col items-center justify-center h-full text-gray-400 p-8 text-center">

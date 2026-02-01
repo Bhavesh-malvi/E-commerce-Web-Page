@@ -9,7 +9,7 @@ import { useToast } from './common/Toast'
 
 const Products = ({product}) => {
 
-  const {truncateText, currency, convertPrice, wishlist, addToWishlist, removeFromWishlist, addToCart} = useContext(AppContext)
+  const {truncateText, currency, convertPrice, wishlist, addToWishlist, removeFromWishlist, addToCart, user, setOpen} = useContext(AppContext)
   const navigate = useNavigate()
   const toast = useToast()
 
@@ -19,6 +19,10 @@ const Products = ({product}) => {
   );
 
   const toggleWishlist = async () => {
+    if (!user) {
+      setOpen(true);
+      return;
+    }
     if (isInWishlist) {
       const wishItem = wishlist.items.find(item => 
         (item.product?._id === product._id) || (item.product === product._id)
@@ -106,6 +110,10 @@ const Products = ({product}) => {
             <li 
               className={`border border-gray-300 p-0.5 sm:p-1 rounded-[5px] bg-white cursor-pointer shadow-sm ${isAddingToCart ? 'opacity-50 cursor-not-allowed' : ''}`} 
               onClick={async () => {
+                if (!user) {
+                  setOpen(true);
+                  return;
+                }
                 if (isAddingToCart) return;
                 setIsAddingToCart(true);
                 const res = await addToCart(product._id, 1);

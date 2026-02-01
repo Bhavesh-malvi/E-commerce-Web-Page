@@ -20,7 +20,7 @@ const parcelVariants = {
 }
 
 const CartButton = ({ productId, variant, isDisabled }) => {
-  const { addToCart, cart, updateCartQuantity, removeFromCart } = useContext(AppContext)
+  const { addToCart, cart, updateCartQuantity, removeFromCart, user, setOpen } = useContext(AppContext)
   const toast = useToast()
   const [stage, setStage] = useState('idle')
   const [showQty, setShowQty] = useState(false)
@@ -46,6 +46,10 @@ const CartButton = ({ productId, variant, isDisabled }) => {
   }, [cart, productId]);
 
   const handleClick = () => {
+    if (!user) {
+      setOpen(true);
+      return;
+    }
     if (stage !== 'idle' || isDisabled) return
 
     setStage('back')

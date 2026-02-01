@@ -6,7 +6,7 @@ const BuyButton = ({image, onClick}) => {
             <button 
                 type="button"
                 onClick={onClick}
-                className='px-8 h-13.75 flex items-center justify-center gap-2.5 text-white uppercase cursor-pointer font-semibold text-[17px] bg-[#353434] rounded-lg relative transition-all ease duration-500 group active:scale-95'
+                className='px-8 h-14 flex items-center justify-center gap-2.5 text-white uppercase cursor-pointer font-semibold text-[17px] bg-[#353434] rounded-lg relative transition-all ease duration-500 group active:scale-95'
                 style={{ textShadow: '2px 2px rgba(116,116,116,1)' }}
             >
                 {image && (

@@ -753,6 +753,16 @@ export const updateLocationByTracking = async (req, res) => {
 
     await order.save();
 
+    // Emit real-time location update to all clients watching this tracking ID
+    io.emit("locationUpdated", {
+      trackingId,
+      location: {
+        lat,
+        lng,
+        updatedAt: new Date()
+      }
+    });
+
     res.json({ success: true, message: "Location updated" });
 
   } catch (error) {

@@ -13,7 +13,7 @@ const ProductsInfo = ({ product }) => {
 
             {product.specifications?.length > 0 && (
                 <div className="my-8 sm:my-10 mb-16 sm:mb-20 px-3 sm:px-0">
-                    <h1 className="text-base sm:text-lg md:text-[20px] font-semibold text-[#333232] border-b pb-2 border-gray-200 w-fit pr-3 sm:pr-5">Product details & Specifications</h1>
+                    <h1 className="text-base sm:text-lg md:text-[20px] font-semibold text-[#333232] border-b pb-2 border-gray-200 w-fit pr-3 sm:pr-5">Product Specifications</h1>
                 
                     <ul className="mt-4 sm:mt-5 pl-2 sm:pl-4 space-y-2">
                         {product.specifications.map((item, index)=>{

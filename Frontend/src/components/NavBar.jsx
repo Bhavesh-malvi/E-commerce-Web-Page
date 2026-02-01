@@ -36,21 +36,51 @@ const NavBar = () => {
                         </button>
                     </li>
 
-                    <li className='relative p-1.5 md:p-2 cursor-pointer' onClick={() => scrollTo(0,0)}>
-                        <Link to="/wishlist">
-                            <IoIosHeartEmpty className='text-xl md:text-[25px]' />
-                            <div className="text-[11px] md:text-[13px] w-4 h-4 md:w-3.75 md:h-3.75 flex justify-center items-center absolute -top-1 md:top-0 -right-1 md:right-0 bg-[#FF6666] text-white rounded-full">
-                                {wishlist?.items?.length || 0}
-                            </div>
-                        </Link>
+                    <li className='relative p-1.5 md:p-2 cursor-pointer' onClick={(e) => {
+                        if (!user) {
+                            e.preventDefault();
+                            setOpen(true);
+                        } else {
+                            scrollTo(0,0);
+                        }
+                    }}>
+                        {user ? (
+                            <Link to="/wishlist">
+                                <IoIosHeartEmpty className='text-xl md:text-[25px]' />
+                                {wishlist?.items?.length > 0 && (
+                                    <div className="text-[11px] md:text-[13px] w-4 h-4 md:w-3.75 md:h-3.75 flex justify-center items-center absolute -top-1 md:top-0 -right-1 md:right-0 bg-[#FF6666] text-white rounded-full">
+                                        {wishlist.items.length}
+                                    </div>
+                                )}
+                            </Link>
+                        ) : (
+                            <>
+                                <IoIosHeartEmpty className='text-xl md:text-[25px]' />
+                            </>
+                        )}
                     </li>
-                    <li className='relative p-1.5 md:p-2 cursor-pointer' onClick={() => scrollTo(0,0)}>
-                        <Link to="/cart">
-                            <IoBagHandleOutline className="text-xl md:text-[28px]" />
-                            <div className="text-[11px] md:text-[13px] w-4 h-4 md:w-3.75 md:h-3.75 flex justify-center items-center absolute top-0 md:top-1 -right-1 md:right-0 bg-[#FF6666] text-white rounded-full">
-                                {cart?.totalItems || 0}
-                            </div>
-                        </Link>
+                    <li className='relative p-1.5 md:p-2 cursor-pointer' onClick={(e) => {
+                        if (!user) {
+                            e.preventDefault();
+                            setOpen(true);
+                        } else {
+                            scrollTo(0,0);
+                        }
+                    }}>
+                        {user ? (
+                            <Link to="/cart">
+                                <IoBagHandleOutline className="text-xl md:text-[28px]" />
+                                {cart?.totalItems > 0 && (
+                                    <div className="text-[11px] md:text-[13px] w-4 h-4 md:w-3.75 md:h-3.75 flex justify-center items-center absolute top-0 md:top-1 -right-1 md:right-0 bg-[#FF6666] text-white rounded-full">
+                                        {cart.totalItems}
+                                    </div>
+                                )}
+                            </Link>
+                        ) : (
+                            <>
+                                <IoBagHandleOutline className="text-xl md:text-[28px]" />
+                            </>
+                        )}
                     </li>
                     <li>
                         {user ? <Link to={`${user.role === "admin" ? "/admin" : user.role === "seller" ? "/seller" : "/profile"}`}>

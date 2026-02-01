@@ -27,7 +27,7 @@ const RecentlyViewed = ({ currentProductId }) => {
                         seen.add(item.product._id)
                     }
                 })
-
+                
                 setHistory(uniqueProducts.slice(0, 10))
             }
             setLoading(false)
@@ -36,7 +36,18 @@ const RecentlyViewed = ({ currentProductId }) => {
         fetchHistory()
     }, [currentProductId, user, getMyActivity])
 
-    if (!user || history.length === 0) return null
+    if (!user) return null;
+    
+    if (history.length === 0) {
+        return (
+            <div className="my-12 sm:my-16 md:my-20 border-t pt-6 sm:pt-8 md:pt-10 px-3 sm:px-4 md:px-0">
+                <div className="flex items-center justify-between mb-6 sm:mb-8">
+                    <h2 className="text-lg sm:text-xl md:text-[22px] font-bold text-[#333232]">Your Browsing History</h2>
+                </div>
+                <p className="text-gray-500 text-sm">No recently viewed products yet.</p>
+            </div>
+        )
+    }
 
     return (
         <div className="my-12 sm:my-16 md:my-20 border-t pt-6 sm:pt-8 md:pt-10 px-3 sm:px-4 md:px-0">

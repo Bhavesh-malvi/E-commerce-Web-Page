@@ -56,7 +56,7 @@ const SideStatus = () => {
     return (
         <div
             className={`
-                fixed bottom-5 left-5 flex w-80 px-3 py-3 gap-4
+                fixed bottom-2 left-2 md:bottom-5 md:left-5 flex w-64 md:w-80 px-2 md:px-3 py-2 md:py-3 gap-2 md:gap-4
                 bg-white rounded-[7px]
                 shadow-[0_0_15px_rgba(0,0,0,0.25)]
                 transition-all duration-500
@@ -70,18 +70,18 @@ const SideStatus = () => {
                 <RxCross2 />
             </div>
 
-            <div className="w-18 h-18 border flex items-center justify-center p-1 rounded-[7px] border-gray-300">
-                <img src={imageUrl} alt={product.name} />
+            <div className="w-14 h-14 md:w-18 md:h-18 border flex items-center justify-center p-1 rounded-[7px] border-gray-300">
+                <img src={imageUrl} alt={product.name} className="max-w-full max-h-full object-contain" />
             </div>
 
-            <div>
-                <p className='text-[12px] text-[#787878]'>
+            <div className="flex-1 min-w-0">
+                <p className='text-[10px] md:text-[12px] text-[#787878]'>
                     Someone just bought
                 </p>
-                <p className='text-[14px] mt-2.5 text-[#454545] font-medium'>
-                    {truncateText(product.name)}
+                <p className='text-[12px] md:text-[14px] mt-1 md:mt-2.5 text-[#454545] font-medium truncate'>
+                    {product.name}
                 </p>
-                <p className='text-[12px] mt-0.5 text-[#787878]'>
+                <p className='text-[10px] md:text-[12px] mt-0.5 text-[#787878]'>
                     {Math.floor(Math.random() * 5) + 1} minutes ago
                 </p>
             </div>

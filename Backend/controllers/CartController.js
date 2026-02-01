@@ -134,7 +134,7 @@ export const getCart = async (req, res) => {
       user: req.user._id
     }).populate(
       "items.product",
-      "name price discountPrice mainImages stock"
+      "name price discountPrice mainImages stock variants"
     );
 
 
@@ -185,7 +185,7 @@ export const updateQuantity = async (req, res) => {
       user: req.user._id
     }).populate(
       "items.product",
-      "name price discountPrice mainImages stock"
+      "name price discountPrice mainImages stock variants"
     );
 
 
@@ -259,7 +259,7 @@ export const removeFromCart = async (req, res) => {
       user: req.user._id
     }).populate(
       "items.product",
-      "name price discountPrice mainImages stock"
+      "name price discountPrice mainImages stock variants"
     );
 
     if (!cart) {

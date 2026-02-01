@@ -73,10 +73,17 @@ const Cart = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Cart Items */}
                 <div className="lg:col-span-2 space-y-4">
-                    {cart.items.map((item) => (
-                        <div key={item._id} className="bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-4 sm:gap-6">
+                        {cart.items.map((item) => {
+                            // Get correct image: variant image if variant selected, else main image
+                            const variantImage = item.variant?.color 
+                                ? item.product?.variants?.find(v => v.color === item.variant.color)?.images?.[0]?.url
+                                : null;
+                            const displayImage = variantImage || item.product?.mainImages?.[0]?.url;
+                            
+                            return (
+                            <div key={item._id} className="bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-4 sm:gap-6">
                             <img 
-                                src={item.product?.mainImages?.[0]?.url} 
+                                src={displayImage} 
                                 alt={item.product?.name} 
                                 className="w-full sm:w-24 md:w-32 h-48 sm:h-24 md:h-32 object-cover rounded-lg border border-gray-200"
                             />
@@ -119,7 +126,7 @@ const Cart = () => {
                                 </div>
                             </div>
                         </div>
-                    ))}
+                    )})}
                 </div>
 
                 {/* Order Summary */}
