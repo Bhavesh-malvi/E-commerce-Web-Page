@@ -45,6 +45,9 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 const app = express();
+// Enable trust proxy for rate limiting behind proxies (Render, Vercel, etc.)
+app.set("trust proxy", 1); 
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -90,10 +93,13 @@ if (process.env.NODE_ENV === "development") {
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Check if origin is allowed
+    const isAllowed = !origin || allowedOrigins.includes(origin);
+
+    if (isAllowed) {
       callback(null, true);
     } else {
+      console.log(`❌ CORS Blocked Origin: ${origin}`); // Debug log
       callback(new Error('Not allowed by CORS'));
     }
   },
