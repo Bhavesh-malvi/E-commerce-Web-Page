@@ -41,7 +41,7 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://e-commerce-web-page-jogi.vercel.app"
+  "https://e-commerce-web-page-8gyt.vercel.app"
 ].filter(Boolean);
 
 const app = express();
