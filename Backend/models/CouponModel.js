@@ -97,7 +97,7 @@ const couponSchema = new mongoose.Schema({
 
 
 // Index
-couponSchema.index({ code:1 });
+// couponSchema.index({ code:1 });
 
 
 

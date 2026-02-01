@@ -331,8 +331,13 @@ const login = async (email, password) => {
 
     localStorage.setItem("token", data.token);
 
-    setUser(data.user);
+    // Fetch Profile to ensure consistent state (fixes avatar issue)
+    await getProfile();
+    await fetchAddresses(); 
+
+    // setUser(data.user); // getProfile already sets user
     connectSocket(data.user._id || data.user.id);
+    
     // Fetch wishlist after login
     getWishlist();
 
@@ -380,7 +385,11 @@ const register = async (formData) => {
 
       localStorage.setItem("token", data.token);
 
-      setUser(data.user);
+      // Fetch Profile & Addresses
+      await getProfile();
+      await fetchAddresses();
+      
+      // setUser(data.user);
       getWishlist();
     }
 

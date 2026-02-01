@@ -10,7 +10,7 @@ const Checkout = () => {
   const { 
     getCart, placeOrder, applyCoupon, 
     addresses, selectedAddressID, setSelectedAddressID, 
-    addAddress, updateAddress 
+    addAddress, updateAddress, fetchAddresses 
   } = useContext(AppContext);
   
   const toast = useToast();
@@ -33,6 +33,10 @@ const Checkout = () => {
 
   useEffect(() => {
     fetchCart();
+    // Auto-fetch addresses if empty
+    if (addresses.length === 0) {
+      fetchAddresses();
+    }
   }, []);
 
   const fetchCart = async () => {
@@ -275,10 +279,16 @@ const Checkout = () => {
               <h2 className="text-2xl font-black text-gray-900 mb-8 relative">Order Summary</h2>
               
               <div className="space-y-5 mb-8 max-h-[40vh] overflow-y-auto pr-4 custom-scrollbar relative">
-                {cart?.items.map((item, i) => (
+                {cart?.items.map((item, i) => {
+                  const variantImage = item.variant?.color 
+                    ? item.product?.variants?.find(v => v.color === item.variant.color)?.images?.[0]?.url
+                    : null;
+                  const displayImage = variantImage || item.product.mainImages?.[0]?.url;
+
+                  return (
                   <div key={i} className="flex gap-5 items-center group">
                     <div className="w-20 h-20 bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 flex-shrink-0 group-hover:border-[#FF8F9C]/30 transition-colors">
-                      <img src={item.product.mainImages?.[0]?.url} alt="" className="w-full h-full object-cover" />
+                      <img src={displayImage} alt="" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-gray-900 text-sm line-clamp-2 leading-tight">{item.product.name}</p>
@@ -289,7 +299,7 @@ const Checkout = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+                ) })}
               </div>
 
               {/* Coupon Code */}

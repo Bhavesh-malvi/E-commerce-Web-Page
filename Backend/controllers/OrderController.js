@@ -86,12 +86,30 @@ export const placeOrder = async (req, res) => {
 
 
 
+
+      // Resolve Image (Variant vs Main)
+      let finalImage = product.mainImages[0]?.url;
+
+      if (item.variant && (item.variant.color || item.variant.size)) {
+        const matchedVariant = product.variants.find(v => 
+          (v.color === item.variant.color || !item.variant.color) && 
+          (v.size === item.variant.size || !item.variant.size)
+        );
+
+        if (matchedVariant && matchedVariant.images && matchedVariant.images.length > 0) {
+          finalImage = matchedVariant.images[0].url;
+        }
+      }
+
+
       orderItems.push({
 
         product: product._id,
         seller: product.seller,
         name: product.name,
-        image: product.mainImages[0]?.url,
+        image: finalImage,
+        
+        variant: item.variant, // Store variant details too
 
         quantity: item.quantity,
         price,
