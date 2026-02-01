@@ -1,48 +1,57 @@
 /* eslint-disable react-hooks/purity */
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useRef } from 'react'
 import { AppContext } from '../context/AppContext'
 import { RxCross2 } from 'react-icons/rx'
 
 const SideStatus = () => {
 
-    const { dealOfTheDay,truncateText } = useContext(AppContext)
+    const { activeMegaDeal, products, truncateText } = useContext(AppContext)
 
-    const [isVisible, setIsVisible] = useState(true)
+    const [isVisible, setIsVisible] = useState(false)
     const [currentIndex, setCurrentIndex] = useState(0)
+    const timerRef = useRef(null)
+
+    // Use mega deal products if available, otherwise use products as fallback
+    const megaDealProducts = activeMegaDeal?.products || []
+    const displayProducts = megaDealProducts.length > 0 ? megaDealProducts : (products?.slice(0, 10) || [])
+
 
     useEffect(() => {
-    if (!dealOfTheDay?.length) return
+        if (!displayProducts?.length) return
 
-    let timer
+        const runCycle = () => {
+            // Step 1: Show (slide in)
+            setIsVisible(true)
 
-    const startCycle = () => {
+            // Step 2: After 5 seconds, hide (slide out)
+            timerRef.current = setTimeout(() => {
+                setIsVisible(false)
 
-        setIsVisible(true)
+                // Step 3: After 2 seconds (hidden), change product and show again
+                timerRef.current = setTimeout(() => {
+                    setCurrentIndex(prev => (prev + 1) % displayProducts.length)
+                    runCycle() // Restart cycle
+                }, 2000)
 
-        timer = setTimeout(() => {
+            }, 5000)
+        }
 
-            setIsVisible(false)
+        // Start first cycle after a small delay
+        timerRef.current = setTimeout(() => {
+            runCycle()
+        }, 1000)
 
-            timer = setTimeout(() => {
-                setCurrentIndex(i => (i + 1) % dealOfTheDay.length)
-            }, 1000)
-
-            // total hide = 3 sec
-            timer = setTimeout(() => {
-                startCycle()
-            }, 3000)
-
-        }, 5000)
-    }
-
-    startCycle()
-
-    return () => clearTimeout(timer)
-}, [dealOfTheDay])
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current)
+        }
+    }, [displayProducts?.length])
 
 
-    const product = dealOfTheDay?.[currentIndex]
+    const product = displayProducts?.[currentIndex]
     if (!product) return null
+
+    // Get image URL - handle mainImages array from backend
+    const imageUrl = product.mainImages?.[0]?.url || product.mainImages?.[0] || product.image?.[0] || ''
 
     return (
         <div
@@ -62,7 +71,7 @@ const SideStatus = () => {
             </div>
 
             <div className="w-18 h-18 border flex items-center justify-center p-1 rounded-[7px] border-gray-300">
-                <img src={product.image?.[0]} alt={product.name} />
+                <img src={imageUrl} alt={product.name} />
             </div>
 
             <div>
