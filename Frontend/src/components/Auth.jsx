@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Auth = () => {
 
@@ -24,6 +25,9 @@ const Auth = () => {
   // Messages
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  
+  // Show / Hide Password
+  const [showPassword, setShowPassword] = useState(false);
 
 
   /* ================= Change ================= */
@@ -185,15 +189,25 @@ const Auth = () => {
 
 
               {/* Password */}
-              <input
-                type="password"
-                placeholder="Password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="border p-2 rounded-md"
-                required
-              />
+              {/* Password */}
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full border p-2 pr-10 rounded-md"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
 
 
               {/* Button */}

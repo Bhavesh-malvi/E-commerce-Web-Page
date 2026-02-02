@@ -7,7 +7,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const UpdatePassword = () => {
 
-  const { loading } = useContext(AppContext);
+  const { loading, user, forgotPassword } = useContext(AppContext);
 
 
   const [oldPassword, setOldPassword] = useState("");
@@ -67,6 +67,26 @@ const UpdatePassword = () => {
       );
     }
   };
+  
+  
+    /* ================= Forgot ================= */
+    const handleForgot = async () => {
+  
+      if(!user?.email) return;
+  
+      if(!window.confirm(`Send password reset link to ${user.email}?`)) return;
+  
+      setError("");
+      setSuccess("");
+  
+      const res = await forgotPassword(user.email);
+  
+      if (res?.success) {
+        setSuccess("Password reset link sent to your email 📩");
+      } else {
+        setError(res?.message || "Failed to send reset link");
+      }
+    };
 
 
   return (
@@ -162,6 +182,20 @@ const UpdatePassword = () => {
         </button>
 
       </form>
+
+      {/* Forgot Password Link */}
+      <div className="mt-6 border-t pt-4 text-center">
+        <p className="text-sm text-gray-600 mb-2">
+          Forgot your current password?
+        </p>
+        <button
+          type="button"
+          onClick={handleForgot}
+          className="text-[#FF8F9C] text-sm font-medium hover:underline"
+        >
+          Send Reset Link to Email
+        </button>
+      </div>
 
     </div>
   );

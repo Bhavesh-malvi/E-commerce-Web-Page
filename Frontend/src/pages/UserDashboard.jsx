@@ -13,6 +13,20 @@ import { MdDashboard, MdLock, MdShoppingBag, MdLocationOn, MdStorefront, MdLogou
 const UserDashboard = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  const handleTabChange = (tab) => {
+    if (tab === "logout") {
+      setShowLogoutConfirm(true);
+    } else {
+      setActiveTab(tab);
+    }
+  };
+
+  const confirmLogout = () => {
+    setShowLogoutConfirm(false);
+    setActiveTab("logout");
+  };
 
   useEffect(() => {
     if (location.pathname === "/orders") {
@@ -40,14 +54,14 @@ const UserDashboard = () => {
             label="Dashboard"
             value="dashboard"
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={handleTabChange}
             icon={MdDashboard}
           />
           <SidebarItem
             label="Update Password"
             value="update-password"
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={handleTabChange}
             icon={MdLock}
           />
 
@@ -55,7 +69,7 @@ const UserDashboard = () => {
             label="Orders"
             value="orders"
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={handleTabChange}
             icon={MdShoppingBag}
           />
 
@@ -63,14 +77,14 @@ const UserDashboard = () => {
             label="Addresses"
             value="address"
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={handleTabChange}
             icon={MdLocationOn}
           />
           <SidebarItem
             label="Become Seller"
             value="seller"
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={handleTabChange}
             icon={MdStorefront}
           />
           
@@ -79,7 +93,7 @@ const UserDashboard = () => {
             label="Logout"
             value="logout"
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={handleTabChange}
             icon={MdLogout}
           />
 
@@ -104,6 +118,32 @@ const UserDashboard = () => {
         {activeTab === "logout" && <Logout />}
 
       </div>
+
+
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm">
+            <h3 className="text-lg font-bold text-gray-800 mb-2">Confirm Logout</h3>
+            <p className="text-gray-600 mb-6">Are you sure you want to log out?</p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmLogout}
+                className="px-4 py-2 bg-[#FF8F9C] text-white rounded-md font-medium hover:opacity-90"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
