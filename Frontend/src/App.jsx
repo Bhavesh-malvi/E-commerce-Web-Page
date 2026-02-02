@@ -50,6 +50,8 @@ import AdminBanners from "./pages/Admin/AdminBanners";
 import TrackOrder from "./pages/TrackOrder";
 import DeliveryUpdate from "./pages/Delivery/DeliveryUpdate";
 
+import ResetPassword from "./pages/ResetPassword";
+
 const App = () => {
 
   const { open, authLoading  } = useContext(AppContext);
@@ -85,6 +87,8 @@ const App = () => {
           <Route path="/blog" element={<Blog />} />
 
           <Route path="/hotOffer" element={<HotOffers />} />
+
+          <Route path="/reset/:token" element={<ResetPassword />} />
 
           <Route path="/profile" element={
             <UserRoute>
