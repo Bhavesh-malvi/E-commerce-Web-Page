@@ -59,17 +59,11 @@ const UpdatePassword = ({ token }) => {
 
       if (token) {
         // Reset Password Mode
-        const res = await axios.put(
-          `${import.meta.env.VITE_BACKEND_URL}/auth/password/reset/${token}`,
-          { password: newPassword }
-        );
+        const res = await API.put(`/auth/password/reset/${token}`, { password: newPassword });
         data = res.data;
       } else {
         // Update Password Mode (Authenticated)
-        const res = await API.put("/auth/change-password", {
-          oldPassword,
-          newPassword,
-        });
+        const res = await API.put("/auth/change-password", { oldPassword, newPassword });
         data = res.data;
       }
 
