@@ -108,7 +108,10 @@ const Orders = () => {
               <div className="flex-1 min-w-0 divide-y divide-gray-50">
                 {order.items.map((item, i) => (
                   <div key={i} className="flex gap-5 py-4 first:pt-0 last:pb-0 group/item">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 bg-gray-50 rounded-xl overflow-hidden border border-gray-100 group-hover/item:border-[#FF8F9C]/30 transition-colors">
+                    <div 
+                      onClick={() => navigate(`/productDetails/${item.product?._id}/${item.product?.category}`)}
+                      className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 bg-gray-50 rounded-xl overflow-hidden border border-gray-100 group-hover/item:border-[#FF8F9C]/30 transition-colors cursor-pointer"
+                    >
                       <img 
                         src={item.image || item.product?.mainImages?.[0]?.url || 'https://via.placeholder.com/80'} 
                         alt={item.name} 
@@ -117,7 +120,10 @@ const Orders = () => {
                     </div>
                     <div className="flex-1 min-w-0 py-1 flex flex-col justify-between">
                       <div>
-                        <h4 className="font-bold text-gray-900 truncate hover:text-[#FF8F9C] transition-colors cursor-pointer text-base">
+                        <h4 
+                          onClick={() => navigate(`/productDetails/${item.product?._id}/${item.product?.category}`)}
+                          className="font-bold text-gray-900 truncate hover:text-[#FF8F9C] transition-colors cursor-pointer text-base"
+                        >
                           {item.name}
                         </h4>
                         <div className="flex items-center gap-3 mt-1.5">

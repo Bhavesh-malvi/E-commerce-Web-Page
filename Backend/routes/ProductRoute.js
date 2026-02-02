@@ -9,7 +9,8 @@ import {
   deleteProduct,
   getUniqueCategories,
   getUniqueSubCategories,
-  getSellerProducts
+  getSellerProducts,
+  subscribeToRestock
 } from "../controllers/ProductController.js";
 
 import AuthUser from "../middleware/AuthUser.js";
@@ -68,6 +69,9 @@ router.get("/categories", getUniqueCategories);
 
 // Get unique subcategories
 router.get("/subcategories", getUniqueSubCategories);
+
+// Notify Restock
+router.post("/notify-restock", subscribeToRestock);
 
 
 export default router;

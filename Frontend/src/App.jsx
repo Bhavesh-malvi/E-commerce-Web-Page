@@ -18,6 +18,7 @@ import Category from "./pages/Category";
 import ProductDetails from "./pages/ProductDetails";
 import Blog from "./pages/Blog";
 import HotOffers from "./pages/HotOffers";
+import Search from "./pages/Search";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminUsers from "./pages/Admin/AdminUsers";
@@ -80,6 +81,8 @@ const App = () => {
           <Route path="/categoryPage/:category" element={<Category />} />
 
           <Route path="/categoryPage/:gender/:category" element={<Category />} />
+
+          <Route path="/search" element={<Search />} />
 
           <Route path="/productDetails/:id/:category" element={<ProductDetails />}/>
 

@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { IoBagHandleOutline, IoSearchOutline } from "react-icons/io5";
 import { assets } from '../assets/assets';
 import { IoIosHeartEmpty } from 'react-icons/io';
 import { HiMenuAlt3 } from 'react-icons/hi';
 import { IoClose } from 'react-icons/io5';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 
@@ -12,20 +12,54 @@ const NavBar = () => {
 
     const {setOpen, user, wishlist, cart, activeMegaDeal} = useContext(AppContext);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (searchTerm.trim()) {
+                navigate(`/search?keyword=${encodeURIComponent(searchTerm.trim())}`);
+            } else if (window.location.pathname === "/search") {
+                // Optional: If search cleared while on search page, maybe show all or go back?
+                // For now, let's just do nothing or maybe reset params
+                // navigate("/search"); 
+            }
+        }, 300); // 300ms debounce to prevent lag on every keystroke
+
+        return () => clearTimeout(timeoutId);
+    }, [searchTerm, navigate]);
+
+    // Handle initial close of mobile menu if needed, but usually search is separate
+    
+    // Manual trigger not strictly needed with useEffect, but good for immediate action
+    const handleManualSearch = () => {
+        if(searchTerm.trim()) {
+            navigate(`/search?keyword=${encodeURIComponent(searchTerm.trim())}`);
+            setMobileMenuOpen(false);
+        }
+    };
 
     
     return (
         <>
             {/* Top Nav Bar */}
-            <nav className='px-4 sm:px-8 md:px-16 lg:px-25 border border-gray-300 flex justify-between items-center py-4 md:py-7 gap-2 sm:gap-3 md:gap-5'>
+            <nav className='sticky top-0 z-50 bg-white px-4 sm:px-8 md:px-16 lg:px-25 border-b border-gray-300 flex justify-between items-center py-4 md:py-7 gap-2 sm:gap-3 md:gap-5 shadow-sm'>
                 <Link to="/" onClick={() => setMobileMenuOpen(false)}>
                     <img src={assets.logo} alt="" className="w-20 sm:w-24 md:w-28 lg:w-[120px]" />
                 </Link>
                 
-                {/* Search Bar - Hidden on small mobile, visible from sm */}
                 <div className="hidden sm:flex group w-full md:w-[70%] items-center rounded-md relative">
-                    <input type="text" placeholder='Enter your product name...' className='w-full h-8 md:h-10 border border-gray-300 px-3 rounded-md text-sm md:text-base'/>
-                    <IoSearchOutline className='text-base md:text-[20px] absolute right-3' />
+                    <input 
+                        type="text" 
+                        placeholder='Enter your product name...' 
+                        className='w-full h-8 md:h-10 border border-gray-300 px-3 rounded-md text-sm md:text-base outline-none focus:border-[#FF8F9C] transition-colors'
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <IoSearchOutline 
+                        className='text-base md:text-[20px] absolute right-3 cursor-pointer hover:text-[#FF8F9C]' 
+                        onClick={handleManualSearch}
+                    />
                 </div>
 
                 <ul className='flex text-xl md:text-[28px] gap-3 md:gap-5 items-center justify-center'>
@@ -96,8 +130,17 @@ const NavBar = () => {
             {/* Mobile Search Bar - Only visible on xs screens */}
             <div className="sm:hidden px-4 py-3 border-b border-gray-300">
                 <div className="flex items-center rounded-md relative">
-                    <input type="text" placeholder='Search products...' className='w-full h-9 border border-gray-300 px-3 rounded-md text-sm'/>
-                    <IoSearchOutline className='text-lg absolute right-3' />
+                    <input 
+                        type="text" 
+                        placeholder='Search products...' 
+                        className='w-full h-9 border border-gray-300 px-3 rounded-md text-sm outline-none focus:border-[#FF8F9C]'
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <IoSearchOutline 
+                        className='text-lg absolute right-3 cursor-pointer' 
+                        onClick={handleManualSearch}
+                    />
                 </div>
             </div>
 

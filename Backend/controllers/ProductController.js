@@ -3,6 +3,7 @@ import Seller from "../models/SellerModel.js";
 import cloudinary from "../config/cloudinary.js";
 import { updateInterest } from "../utils/updateInterest.js";
 import fs from "fs";
+import sendMail from "../config/email.js";
 
 import {
   clearProductCache,
@@ -203,7 +204,14 @@ export const getProduct = async (req, res) => {
 
 
     if (keyword) {
-      query.$text = { $search: keyword };
+      const searchRegex = { $regex: keyword, $options: "i" };
+      query.$or = [
+        { name: searchRegex },
+        { tags: searchRegex },
+        { category: searchRegex },
+        { subCategory: searchRegex },
+        { brand: searchRegex }
+      ];
     }
 
 
@@ -317,6 +325,9 @@ export const updateProduct = async (req, res) => {
     }
 
 
+    const oldStock = product.stock; // Capture old stock
+
+
     Object.assign(product, {
       name: req.body.name || product.name,
       category: req.body.category || product.category,
@@ -403,6 +414,38 @@ export const updateProduct = async (req, res) => {
     clearHomeCache();
 
 
+    // 🔔 CHECK RESTOCK & NOTIFY
+    if (oldStock === 0 && product.stock > 0 && product.restockSubscribers?.length > 0) {
+      console.log(`🔔 Sending restock notifications for ${product.name} to ${product.restockSubscribers.length} users`);
+      
+      const subject = `Back in Stock: ${product.name} is available now!`;
+      const message = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">Good News!</h2>
+          <p>The product you were waiting for, <strong>${product.name}</strong>, is back in stock.</p>
+          <p>Don't miss out – grab it before it's gone again!</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <img src="${product.mainImages[0]?.url}" alt="${product.name}" style="width: 200px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+          </div>
+          <div style="text-align: center;">
+            <a href="${process.env.FRONTEND_URL}/productDetails/${product._id}/${product.category}" style="background-color: #FF8F9C; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Buy Now</a>
+          </div>
+          <p style="margin-top: 30px; font-size: 12px; color: #888;">You received this email because you requested to be notified when this product is back in stock.</p>
+        </div>
+      `;
+
+      // Send emails in parallel
+      Promise.all(product.restockSubscribers.map(sub => 
+        sendMail({ email: sub.email, subject, message }).catch(e => console.error(`Failed to notify ${sub.email}`, e))
+      )).then(async () => {
+        // Clear subscribers after notifying
+        product.restockSubscribers = [];
+        await product.save();
+        console.log("✅ Restock notifications sent and list cleared.");
+      });
+    }
+
+
     res.json({
       success: true,
       message: "Updated successfully",
@@ -417,7 +460,53 @@ export const updateProduct = async (req, res) => {
 };
 
 
-// ================= DELETE PRODUCT =================
+
+
+
+// ================= SUBSCRIBE TO RESTOCK =================
+export const subscribeToRestock = async (req, res) => {
+  try {
+    const { productId, email } = req.body;
+    
+    // If authenticated, prefer user email
+    const userEmail = req.user ? req.user.email : email;
+    const userId = req.user ? req.user._id : undefined;
+
+    if (!userEmail) {
+      return res.status(400).json({ success: false, message: "Email is required" });
+    }
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    // Check if duplicate
+    const alreadySubscribed = product.restockSubscribers.some(
+      sub => sub.email === userEmail
+    );
+
+    if (alreadySubscribed) {
+      return res.status(400).json({ success: false, message: "You are already subscribed!" });
+    }
+
+    product.restockSubscribers.push({
+      user: userId,
+      email: userEmail
+    });
+
+    await product.save();
+
+    res.json({
+      success: true,
+      message: "You will be notified when this product is back in stock!"
+    });
+
+  } catch (error) {
+    console.error("SUBSCRIBE ERROR:", error);
+    res.status(500).json({ success: false, message: "Failed to subscribe" });
+  }
+};
 export const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);

@@ -2,6 +2,7 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { IoIosCheckmarkCircleOutline, IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
+import API from "../Api/Api";
 
 import StarRating from "../UI/StarRating";
 import { AppContext } from "../context/AppContext";
@@ -24,6 +25,29 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [notifyEmail, setNotifyEmail] = useState("");
+
+  const handleNotify = async () => {
+    try {
+      const email = user ? user.email : notifyEmail;
+      if (!email) {
+        toast.error("Please enter your email");
+        return;
+      }
+      
+      const res = await API.post("/product/notify-restock", {
+        productId: product._id,
+        email
+      });
+      
+      if (res.data.success) {
+        toast.success(res.data.message);
+        setNotifyEmail("");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong");
+    }
+  };
 
   useEffect(() => {
     fetchProduct();
@@ -299,25 +323,45 @@ const ProductDetails = () => {
               </p>
             </div>
 
-            <div className="flex sm:flex-row  items-stretch sm:items-center gap-3">
-              <div 
-                className={`${(selectedVariant?.stock || product.stock) === 0 ? "opacity-30 pointer-events-none" : ""}`}
-              >
-                <CartButton 
-                  productId={product._id} 
-                  variant={selectedVariant} 
-                  isDisabled={(selectedVariant?.stock || product.stock) === 0} 
-                />
-              </div>
-              
-              <div
-                className={`${(selectedVariant?.stock || product.stock) === 0 ? "opacity-30 pointer-events-none" : ""}`}
-              >
-                <BuyButton 
-                  image={currentImages[0] || ""} 
-                  onClick={handleBuyNow}
-                />
-              </div>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              {(selectedVariant?.stock ?? product.stock) === 0 ? (
+                 <div className="w-full max-w-md bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <p className="text-sm font-semibold text-gray-800 mb-3">Notify me when available:</p>
+                    <div className="flex gap-2">
+                       {!user && (
+                         <input 
+                           type="email" 
+                           placeholder="Enter your email" 
+                           className="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-[#FF8F9C]"
+                           value={notifyEmail}
+                           onChange={(e) => setNotifyEmail(e.target.value)}
+                         />
+                       )}
+                       <button 
+                         onClick={handleNotify}
+                         className="bg-[#FF8F9C] hover:bg-[#ff7b8b] text-white font-bold py-2 px-6 rounded-lg transition-all shadow-md active:scale-95 whitespace-nowrap"
+                       >
+                         Notify Me 🔔
+                       </button>
+                    </div>
+                 </div>
+              ) : (
+                <>
+                  <div>
+                    <CartButton 
+                      productId={product._id} 
+                      variant={selectedVariant} 
+                    />
+                  </div>
+                  
+                  <div>
+                    <BuyButton 
+                      image={currentImages[0] || ""} 
+                      onClick={handleBuyNow}
+                    />
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

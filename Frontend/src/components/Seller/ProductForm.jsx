@@ -66,7 +66,10 @@ const ProductForm = ({ initialData = null, isEdit = false }) => {
     metaTitle: initialData?.metaTitle || '',
     metaDescription: initialData?.metaDescription || '',
     specifications: initialData?.specifications || [],
-    variants: initialData?.variants || [],
+    variants: initialData?.variants?.map(v => ({
+      ...v,
+      variantImages: v.images || []
+    })) || [],
     descriptionBlocks: initialData?.descriptionBlocks || [],
     shortDescription: initialData?.shortDescription || ''
   });

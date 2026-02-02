@@ -98,17 +98,17 @@ const Products = ({product}) => {
 
           
           {/* Action Icons - Always visible on mobile/tablet, hover on large desktop */}
-          <ul className='absolute right-1 sm:right-1.5 top-1.5 sm:top-2 flex flex-col gap-0.5 sm:gap-1 translate-x-0 lg:translate-x-10 lg:group-hover:translate-x-0 transition-all duration-300 z-20'>
-            <li className={`border border-gray-300 p-0.5 sm:p-1 rounded-[5px] bg-white cursor-pointer transition-colors shadow-sm ${isInWishlist ? 'text-red-500 bg-red-50 border-red-200' : ''}`} onClick={toggleWishlist}>
+          <ul className='absolute right-1 sm:right-1.5 top-1.5 sm:top-2 flex flex-col gap-1.5 sm:gap-1 translate-x-0 lg:translate-x-10 lg:group-hover:translate-x-0 transition-all duration-300 z-20'>
+            <li className={`border border-gray-300 p-1.5 sm:p-1 rounded-[5px] bg-white cursor-pointer transition-colors shadow-sm ${isInWishlist ? 'text-red-500 bg-red-50 border-red-200' : ''}`} onClick={toggleWishlist}>
               {isInWishlist ? (
-                <IoIosHeart className="text-base sm:text-[20px] text-red-500" />
+                <IoIosHeart className="text-xl sm:text-[20px] text-red-500" />
               ) : (
-                <IoIosHeartEmpty className="text-base sm:text-[20px]" />
+                <IoIosHeartEmpty className="text-xl sm:text-[20px]" />
               )}
             </li>
-            <li className='border border-gray-300 p-0.5 sm:p-1 rounded-[5px] bg-white cursor-pointer shadow-sm' onClick={() => {navigate(`/productDetails/${product._id}/${product.category}`); scrollTo(0,0)}}><IoEyeOutline  className='text-base sm:text-[20px]'/></li>
+            <li className='border border-gray-300 p-1.5 sm:p-1 rounded-[5px] bg-white cursor-pointer shadow-sm' onClick={() => {navigate(`/productDetails/${product._id}/${product.category}`); scrollTo(0,0)}}><IoEyeOutline  className='text-xl sm:text-[20px]'/></li>
             <li 
-              className={`border border-gray-300 p-0.5 sm:p-1 rounded-[5px] bg-white cursor-pointer shadow-sm ${isAddingToCart ? 'opacity-50 cursor-not-allowed' : ''}`} 
+              className={`border border-gray-300 p-1.5 sm:p-1 rounded-[5px] bg-white cursor-pointer shadow-sm ${isAddingToCart ? 'opacity-50 cursor-not-allowed' : ''}`} 
               onClick={async () => {
                 if (!user) {
                   setOpen(true);
@@ -126,9 +126,9 @@ const Products = ({product}) => {
               }}
             >
               {isAddingToCart ? (
-                <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-gray-600"></div>
+                <div className="animate-spin rounded-full h-5 w-5 sm:h-5 sm:w-5 border-b-2 border-gray-600"></div>
               ) : (
-                <IoBagAddOutline className='text-base sm:text-[20px]'/>
+                <IoBagAddOutline className='text-xl sm:text-[20px]'/>
               )}
             </li>
           </ul>

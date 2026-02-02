@@ -241,7 +241,15 @@ const productSchema = new mongoose.Schema({
     ref:"Admin"
   },
 
-  isActive:{ type:Boolean, default:true }
+  isActive:{ type:Boolean, default:true },
+
+  restockSubscribers: [
+    {
+      user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      email: { type: String, required: true },
+      createdAt: { type: Date, default: Date.now }
+    }
+  ]
 
 },{
   timestamps:true
@@ -252,10 +260,14 @@ const productSchema = new mongoose.Schema({
 
 // INDEXES
 productSchema.index({ seller:1 });
-productSchema.index({ name:"text", brand:1 });
-productSchema.index({ category:1, subCategory:1 });
+productSchema.index({ 
+  name: "text", 
+  tags: "text", 
+  category: "text", 
+  subCategory: "text",
+  brand: "text" 
+});
 productSchema.index({ price:1, discountPrice:1 });
-productSchema.index({ tags:1 });
 productSchema.index({ sold:-1 });
 productSchema.index({ createdAt:-1 });
 

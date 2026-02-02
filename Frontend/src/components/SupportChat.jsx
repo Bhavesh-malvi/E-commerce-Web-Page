@@ -39,12 +39,36 @@ const SupportChat = () => {
         }
     }, [isOpen]);
 
+    // Auto-clear chat every 1 minute check
+    useEffect(() => {
+        const checkAndClearChat = () => {
+             if (messages.length > 0) {
+                 const lastMsg = messages[messages.length - 1];
+                 const lastMsgTime = new Date(lastMsg.createdAt).getTime();
+                 const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+                 
+                 // If the *last* message is older than 5 minutes, clear the chat (Session Expired)
+                 if (lastMsgTime < fiveMinutesAgo) {
+                     setMessages([]);
+                 }
+             }
+        };
+
+        const interval = setInterval(checkAndClearChat, 60000); // Check every minute
+        return () => clearInterval(interval);
+    }, [messages]);
+
     const fetchChatHistory = async () => {
         try {
             setHistoryLoading(true);
             const res = await API.get('/support/history');
             if (res.data.success) {
-                setMessages(res.data.messages || []);
+                // Filter messages: Only show those from the last 5 minutes
+                const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+                const recentMessages = (res.data.messages || []).filter(msg => 
+                    new Date(msg.createdAt) > fiveMinutesAgo
+                );
+                setMessages(recentMessages);
             }
         } catch (error) {
             console.error('Error fetching chat history:', error);

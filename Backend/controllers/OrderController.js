@@ -376,6 +376,10 @@ export const myOrders = async (req, res) => {
 
     const orders = await Order
       .find({ user: req.user._id })
+      .populate({
+        path: "items.product",
+        select: "name mainImages category"
+      })
       .sort({ createdAt: -1 });
 
 
