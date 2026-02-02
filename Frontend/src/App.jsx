@@ -3,7 +3,6 @@ import { Route, Routes } from "react-router-dom";
 
 import { AppContext } from "./context/AppContext";
 
-import Popup from "./UI/Popup";
 import Auth from "./components/Auth";
 import ScrollToTop from "./components/ScrollToTop";
 
