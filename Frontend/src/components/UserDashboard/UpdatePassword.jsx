@@ -59,7 +59,7 @@ const UpdatePassword = ({ token }) => {
 
       if (token) {
         // Reset Password Mode
-        const res = await API.put(`/auth/password/reset/${token}`, { password: newPassword });
+        const res = await API.put(`/auth/reset-password/${token}`, { password: newPassword });
         data = res.data;
       } else {
         // Update Password Mode (Authenticated)
