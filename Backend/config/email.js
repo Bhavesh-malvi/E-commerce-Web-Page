@@ -14,7 +14,7 @@ const sendMail = async ({ email, subject, message }) => {
       family: 4 // Force IPv4
     });
 
-    await transporter.verify();
+
 
     const info = await transporter.sendMail({
       from: `"E-Shop" <${process.env.EMAIL_USER}>`,
