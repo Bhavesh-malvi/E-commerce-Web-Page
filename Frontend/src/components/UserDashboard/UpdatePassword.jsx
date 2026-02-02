@@ -60,7 +60,7 @@ const UpdatePassword = ({ token }) => {
       if (token) {
         // Reset Password Mode
         const res = await axios.put(
-          `${import.meta.env.VITE_BACKEND_URL}/api/auth/password/reset/${token}`,
+          `${import.meta.env.VITE_BACKEND_URL}/auth/password/reset/${token}`,
           { password: newPassword }
         );
         data = res.data;
