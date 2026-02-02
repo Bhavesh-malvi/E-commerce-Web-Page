@@ -40,7 +40,7 @@ router.put("/change-password", AuthUser, changePassword);
 
 router.post("/forgot-password", forgotPassword);
 
-router.post("/reset-password/:token", resetPassword);
+router.put("/reset-password/:token", resetPassword);
 
 router.post("/register-admin", registerAdmin);
 
