@@ -51,7 +51,7 @@ const productBannerStorage = new CloudinaryStorage({
 
 
 const upload = multer({
-  storage: storage, // Use DiskStorage by default
+  storage: cloudinaryStorage, // Switch to Cloudinary
   limits: {
     fileSize: 10 * 1024 * 1024 // 10MB
   }

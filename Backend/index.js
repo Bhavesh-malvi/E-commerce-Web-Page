@@ -144,6 +144,8 @@ app.get("/health", (req, res)=>{
 
 /* ================= ROUTES ================= */
 
+app.use('/uploads', express.static('uploads')); // Serve uploaded images
+
 app.use("/api",apiLimiter);
 
 app.use("/api/auth",authLimiter, userRouter);

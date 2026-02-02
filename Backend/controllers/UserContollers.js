@@ -218,6 +218,7 @@ export const updateProfile = async (req, res) => {
 
 
     if (req.file) {
+      // Cloudinary returns the full URL in .path
       data.avatar = req.file.path;
     }
 

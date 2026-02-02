@@ -59,10 +59,14 @@ const DashboardHome = () => {
       setEmail(user.email || "");
       setPhone(user.phone || "");
 
-      // ✅ Handle both object & string avatar
-      setPreview(
-        user.avatar?.url || user.avatar || null
-      );
+      // ✅ Handle object/string avatar & construct full URL if relative
+      let avatarUrl = user.avatar?.url || user.avatar || null;
+      if (avatarUrl && !avatarUrl.startsWith('http')) {
+          // Remove '/api' from the backend URL to get the base URL
+          const baseUrl = import.meta.env.VITE_BACKEND_URL.replace('/api', '');
+          avatarUrl = `${baseUrl}/${avatarUrl}`;
+      }
+      setPreview(avatarUrl);
 
     }
 
@@ -114,9 +118,12 @@ const DashboardHome = () => {
     setEmail(user?.email || "");
     setPhone(user?.phone || "");
 
-    setPreview(
-      user?.avatar?.url || user?.avatar || null
-    );
+    let avatarUrl = user?.avatar?.url || user?.avatar || null;
+    if (avatarUrl && !avatarUrl.startsWith('http')) {
+        const baseUrl = import.meta.env.VITE_BACKEND_URL.replace('/api', '');
+        avatarUrl = `${baseUrl}/${avatarUrl}`;
+    }
+    setPreview(avatarUrl);
 
     setAvatar(null);
     setEditMode(false);

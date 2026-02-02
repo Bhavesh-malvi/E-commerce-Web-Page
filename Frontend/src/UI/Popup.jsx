@@ -8,7 +8,7 @@ const Popup = () => {
     const {setIsShow} = useContext(AppContext)
 
     return (
-        <div className='w-full h-screen fixed bg-black/40 top-0 left-0 z-30 flex justify-center items-center px-4'>
+        <div className='w-full h-screen fixed bg-black/40 top-0 left-0 z-100 flex justify-center items-center px-4'>
             <div className="w-full sm:w-[85%] md:w-[70%] lg:w-[60%] xl:w-[49%] grid grid-cols-1 md:grid-cols-2 rounded-xl overflow-hidden relative bg-white">
                 <div className="absolute right-2 sm:right-3 top-2 sm:top-3 px-1.5 py-1.5 rounded-[5px] bg-[#FF8F9C] text-white cursor-pointer hover:bg-[#ff7b8b] z-10" onClick={()=> setIsShow(false)}>
                     <RxCross2 className="text-lg sm:text-xl" />

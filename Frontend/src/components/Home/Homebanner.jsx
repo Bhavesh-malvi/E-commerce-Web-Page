@@ -12,11 +12,11 @@ const HomeBanner = () => {
     const totalSlides = activeBanners.length > 0 ? activeBanners.length : 3;
 
     const next = () => {
-        setIndex((prev) => (prev === totalSlides - 1 ? 0 : prev + 1));
+        setIndex((i) => (i === totalSlides - 1 ? 0 : i + 1));
     };
 
     const prev = () => {
-        setIndex((prev) => (prev === 0 ? totalSlides - 1 : prev - 1));
+        setIndex((i) => (i === 0 ? totalSlides - 1 : i - 1));
     };
 
     useEffect(() => {
