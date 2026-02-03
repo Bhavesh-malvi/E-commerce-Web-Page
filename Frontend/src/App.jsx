@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, Suspense, lazy } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { AppContext } from "./context/AppContext";
@@ -13,44 +13,43 @@ import AdminRoute from "./Routes/AdminRoute";
 import SellerRoute from "./Routes/SellerRoute";
 
 
-import Home from "./pages/Home";
-import Category from "./pages/Category";
-import ProductDetails from "./pages/ProductDetails";
-import Blog from "./pages/Blog";
-import HotOffers from "./pages/HotOffers";
-import Search from "./pages/Search";
-import UserDashboard from "./pages/UserDashboard";
-import AdminDashboard from "./pages/Admin/AdminDashboard";
-import AdminUsers from "./pages/Admin/AdminUsers";
-import UserRoute from "./Routes/UserRoute";
-import AdminSellers from "./pages/Admin/AdminSellers";
-import Checkout from "./pages/Checkout";
-import Wishlist from "./pages/Wishlist";
-import Cart from "./pages/Cart";
-import Verify from "./pages/Verify";
-
-// Seller Pages
-import SellerDashboard from "./pages/Seller/SellerDashboard";
-import SellerProducts from "./pages/Seller/SellerProducts";
-import AddProduct from "./pages/Seller/AddProduct";
-import EditProduct from "./pages/Seller/EditProduct";
-import SellerOrders from "./pages/Seller/SellerOrders";
-import SellerAnalytics from "./pages/Seller/SellerAnalytics";
-import SellerProfile from "./pages/Seller/SellerProfile";
+// Lazy Load Pages
+const Home = lazy(() => import("./pages/Home"));
+const Category = lazy(() => import("./pages/Category"));
+const ProductDetails = lazy(() => import("./pages/ProductDetails"));
+const Blog = lazy(() => import("./pages/Blog"));
+const HotOffers = lazy(() => import("./pages/HotOffers"));
+const Search = lazy(() => import("./pages/Search"));
+const UserDashboard = lazy(() => import("./pages/UserDashboard"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Verify = lazy(() => import("./pages/Verify"));
+const TrackOrder = lazy(() => import("./pages/TrackOrder"));
+const DeliveryUpdate = lazy(() => import("./pages/Delivery/DeliveryUpdate"));
 
 // Admin Pages
-import AdminProducts from "./pages/Admin/AdminProducts";
-import AdminOrders from "./pages/Admin/AdminOrders";
-import AdminDeals from "./pages/Admin/AdminDeals";
-import AdminMegaDeals from "./pages/Admin/AdminMegaDeals";
-import AdminCoupons from "./pages/Admin/AdminCoupons";
-import AdminBanners from "./pages/Admin/AdminBanners";
+const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
+const AdminUsers = lazy(() => import("./pages/Admin/AdminUsers"));
+const AdminSellers = lazy(() => import("./pages/Admin/AdminSellers"));
+const AdminProducts = lazy(() => import("./pages/Admin/AdminProducts"));
+const AdminOrders = lazy(() => import("./pages/Admin/AdminOrders"));
+const AdminDeals = lazy(() => import("./pages/Admin/AdminDeals"));
+const AdminMegaDeals = lazy(() => import("./pages/Admin/AdminMegaDeals"));
+const AdminCoupons = lazy(() => import("./pages/Admin/AdminCoupons"));
+const AdminBanners = lazy(() => import("./pages/Admin/AdminBanners"));
+const UserRoute = lazy(() => import("./Routes/UserRoute"));
 
+// Seller Pages
+const SellerDashboard = lazy(() => import("./pages/Seller/SellerDashboard"));
+const SellerProducts = lazy(() => import("./pages/Seller/SellerProducts"));
+const AddProduct = lazy(() => import("./pages/Seller/AddProduct"));
+const EditProduct = lazy(() => import("./pages/Seller/EditProduct"));
+const SellerOrders = lazy(() => import("./pages/Seller/SellerOrders"));
+const SellerAnalytics = lazy(() => import("./pages/Seller/SellerAnalytics"));
+const SellerProfile = lazy(() => import("./pages/Seller/SellerProfile"));
 
-import TrackOrder from "./pages/TrackOrder";
-import DeliveryUpdate from "./pages/Delivery/DeliveryUpdate";
-
-import ResetPassword from "./pages/ResetPassword";
 
 const App = () => {
 
@@ -72,107 +71,113 @@ const App = () => {
       {open && <Auth />}
 
 
-      <Routes>
-        {/* ================= USER WEBSITE ================= */}
-          <Route element={<MainLayout />}>
+      <Suspense fallback={
+        <div className="h-screen flex justify-center items-center">
+          <p className="text-xl font-semibold">Loading...</p>
+        </div>
+      }>
+        <Routes>
+          {/* ================= USER WEBSITE ================= */}
+            <Route element={<MainLayout />}>
 
-          <Route path="/" element={<Home />} />
+            <Route path="/" element={<Home />} />
 
-          <Route path="/categoryPage/:category" element={<Category />} />
+            <Route path="/categoryPage/:category" element={<Category />} />
 
-          <Route path="/categoryPage/:gender/:category" element={<Category />} />
+            <Route path="/categoryPage/:gender/:category" element={<Category />} />
 
-          <Route path="/search" element={<Search />} />
+            <Route path="/search" element={<Search />} />
 
-          <Route path="/productDetails/:id/:category" element={<ProductDetails />}/>
+            <Route path="/productDetails/:id/:category" element={<ProductDetails />}/>
 
-          <Route path="/blog" element={<Blog />} />
+            <Route path="/blog" element={<Blog />} />
 
-          <Route path="/hotOffer" element={<HotOffers />} />
+            <Route path="/hotOffer" element={<HotOffers />} />
 
-          <Route path="/reset/:token" element={<ResetPassword />} />
+            <Route path="/reset/:token" element={<ResetPassword />} />
 
-          <Route path="/profile" element={
-            <UserRoute>
-              <UserDashboard />
-            </UserRoute>
-          } />
+            <Route path="/profile" element={
+              <UserRoute>
+                <UserDashboard />
+              </UserRoute>
+            } />
 
-          <Route path="/orders" element={
-            <UserRoute>
-              <UserDashboard />
-            </UserRoute>
-          } />
+            <Route path="/orders" element={
+              <UserRoute>
+                <UserDashboard />
+              </UserRoute>
+            } />
 
-          <Route path="/wishlist" element={
-            <UserRoute>
-              <Wishlist />
-            </UserRoute>
-          } />
+            <Route path="/wishlist" element={
+              <UserRoute>
+                <Wishlist />
+              </UserRoute>
+            } />
 
-          <Route path="/cart" element={
-            <UserRoute>
-              <Cart />
-            </UserRoute>
-          } />
+            <Route path="/cart" element={
+              <UserRoute>
+                <Cart />
+              </UserRoute>
+            } />
 
-          <Route path="/checkout" element={
-            <UserRoute>
-              <Checkout />
-            </UserRoute>
-          } />
-
-
-          <Route path="/verify" element={<Verify />} />
-
-           {/* Advanced Tracking */}
-           <Route path="/track-order" element={<TrackOrder />} />
-           <Route path="/delivery/update/:trackingId" element={<DeliveryUpdate />} />
-
-        </Route>
+            <Route path="/checkout" element={
+              <UserRoute>
+                <Checkout />
+              </UserRoute>
+            } />
 
 
-        {/* ================= SELLER PANEL ================= */}
-        <Route path="/seller"
-          element={
-            <SellerRoute>
-              <SellerLayout />
-            </SellerRoute>
-          }
-        >
-          <Route index element={<SellerDashboard />} />
-          <Route path="products" element={<SellerProducts />} />
-          <Route path="products/add" element={<AddProduct />} />
-          <Route path="products/edit/:id" element={<EditProduct />} />
-          <Route path="orders" element={<SellerOrders />} />
-          <Route path="analytics" element={<SellerAnalytics />} />
-          <Route path="profile" element={<SellerProfile />} />
-        </Route>
+            <Route path="/verify" element={<Verify />} />
+
+             {/* Advanced Tracking */}
+             <Route path="/track-order" element={<TrackOrder />} />
+             <Route path="/delivery/update/:trackingId" element={<DeliveryUpdate />} />
+
+          </Route>
 
 
-        {/* ================= ADMIN PANEL ================= */}
-        <Route path="/admin"
-          element={
-            <AdminRoute>
-              <AdminLayout />
-            </AdminRoute>
-          }
-        >
-
-          <Route index element={<AdminDashboard />} />
-          <Route path="users" element={<AdminUsers />} />
-          <Route path="sellers" element={<AdminSellers />} />
-          <Route path="products" element={<AdminProducts />} />
-          <Route path="orders" element={<AdminOrders />} />
-          <Route path="deals" element={<AdminDeals />} />
-          <Route path="megadeals" element={<AdminMegaDeals />} />
-          <Route path="coupons" element={<AdminCoupons />} />
-          <Route path="banners" element={<AdminBanners />} />
-
-        </Route>
+          {/* ================= SELLER PANEL ================= */}
+          <Route path="/seller"
+            element={
+              <SellerRoute>
+                <SellerLayout />
+              </SellerRoute>
+            }
+          >
+            <Route index element={<SellerDashboard />} />
+            <Route path="products" element={<SellerProducts />} />
+            <Route path="products/add" element={<AddProduct />} />
+            <Route path="products/edit/:id" element={<EditProduct />} />
+            <Route path="orders" element={<SellerOrders />} />
+            <Route path="analytics" element={<SellerAnalytics />} />
+            <Route path="profile" element={<SellerProfile />} />
+          </Route>
 
 
-      </Routes>
+          {/* ================= ADMIN PANEL ================= */}
+          <Route path="/admin"
+            element={
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            }
+          >
+
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="sellers" element={<AdminSellers />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="deals" element={<AdminDeals />} />
+            <Route path="megadeals" element={<AdminMegaDeals />} />
+            <Route path="coupons" element={<AdminCoupons />} />
+            <Route path="banners" element={<AdminBanners />} />
+
+          </Route>
+
+
+        </Routes>
+      </Suspense>
 
     </div>
   );

@@ -1,6 +1,6 @@
 import User from "../models/UserModel.js";
 import jwt from "jsonwebtoken";
-import sendMail from "../config/email.js";
+import { sendEmailApi } from "../config/emailApi.js";
 import crypto from "crypto";
 
 
@@ -21,45 +21,112 @@ const generateToken = (id) => {
 /* ================================
    REGISTER
 ================================ */
+/* ================================
+   SEND OTP
+================================ */
+export const sendOtp = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ success: false, message: "All fields required" });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ success: false, message: "Password must be 6+ chars" });
+    }
+
+    let user = await User.findOne({ email });
+
+    if (user && user.isVerified) {
+      return res.status(400).json({ success: false, message: "User already exists" });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    const otpExpire = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+
+    if (user) {
+      // Update existing unverified user
+      user.name = name;
+      user.password = password; // Will be hashed by pre-save hook
+      user.otp = otp;
+      user.otpExpire = otpExpire;
+      await user.save();
+    } else {
+      // Create new unverified user
+      await User.create({
+        name,
+        email,
+        password,
+        otp,
+        otpExpire,
+        isVerified: false
+      });
+    }
+
+    await sendEmailApi({
+      email,
+      subject: "E-commerce OTP Verification",
+      message: `Your Verification Code is: ${otp}`,
+    });
+
+    res.status(200).json({ success: true, message: "OTP sent successfully" });
+
+  } catch (error) {
+    console.log("SEND OTP ERROR:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
+/* ================================
+   REGISTER (VERIFY OTP)
+================================ */
 export const registerUser = async (req, res) => {
 
   try {
 
-    const { name, email, password } = req.body;
+    const { email, otp } = req.body;
 
 
-    if (!name || !email || !password) {
+    if (!email || !otp) {
       return res.status(400).json({
         success: false,
-        message: "All fields required",
+        message: "Email and OTP required",
       });
     }
 
 
-    if (password.length < 6) {
+    const user = await User.findOne({ email });
+
+    if (!user) {
       return res.status(400).json({
         success: false,
-        message: "Password must be 6+ chars",
+        message: "User not found",
+      });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "User already verified",
       });
     }
 
 
-    const exist = await User.findOne({ email });
-
-    if (exist) {
+    if (user.otp !== Number(otp) || user.otpExpire < Date.now()) {
       return res.status(400).json({
         success: false,
-        message: "User already exists",
+        message: "Invalid or expired OTP",
       });
     }
 
 
-    // Create user
-    const user = await User.create({
-      name,
-      email,
-      password,
-    });
+    // Verify User
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpire = undefined;
+    await user.save();
 
 
     // Generate token
@@ -347,7 +414,7 @@ export const forgotPassword = async (req, res) => {
       `${process.env.FRONTEND_URL}/reset/${token}`;
 
 
-    await sendMail({
+    await sendEmailApi({
       email: user.email,
       subject: "Reset Password",
       message: `Reset your password: ${link}`,

@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "E-commerce-Web-Page Docs": {
+      "type": "sse",
+      "url": "https://gitmcp.io/Bhavesh-malvi/E-commerce-Web-Page"
+    }
+  }
+}

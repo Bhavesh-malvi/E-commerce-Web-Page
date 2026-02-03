@@ -795,7 +795,7 @@ export const updateLocationByTracking = async (req, res) => {
 
 
 // ================= DELIVERY OTP CHECK =================
-import { sendEmail } from "../utils/email.js";
+import { sendEmailApi } from "../config/emailApi.js";
 
 export const sendDeliveryOTP = async (req, res) => {
   try {
@@ -822,7 +822,11 @@ export const sendDeliveryOTP = async (req, res) => {
     `;
 
     // Attempt to send email
-    const emailRes = await sendEmail(order.user.email, "Your Delivery OTP 📦", message, html);
+    const emailRes = await sendEmailApi({
+      email: order.user.email,
+      subject: "Your Delivery OTP 📦",
+      html: html
+    });
 
     console.log(`[DEV] OTP for ${order._id}: ${otp}`); // Keep log for dev backup
 

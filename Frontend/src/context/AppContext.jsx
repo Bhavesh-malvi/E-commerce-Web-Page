@@ -373,6 +373,19 @@ const login = async (email, password) => {
 
 
 
+
+const sendOtp = async (formData) => {
+  try {
+    setLoading(true);
+    const { data } = await API.post("/auth/send-otp", formData);
+    return data;
+  } catch (error) {
+    return error.response?.data || { success: false, message: "Server error" };
+  } finally {
+    setLoading(false);
+  }
+};
+
 const register = async (formData) => {
 
   try {
@@ -1131,7 +1144,7 @@ const value = {
     currency, setCurrency, convertPrice, setIsShow, isShow,
     filteredData, setFilteredData, baseCategoryData, setBaseCategoryData,
     products, setProducts, fetchProducts,
-    open, setOpen, user, login, register, getProfile, loading, updateProfile,setUser,
+    open, setOpen, user, login, register, sendOtp, getProfile, loading, updateProfile,setUser,
     forgotPassword, getAllUsers, authLoading, blockUser, applySeller, getAllSellers, approveSeller,
     socket,
     // Active Deals & Mega Deal

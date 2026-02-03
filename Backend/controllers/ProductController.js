@@ -3,7 +3,7 @@ import Seller from "../models/SellerModel.js";
 import cloudinary from "../config/cloudinary.js";
 import { updateInterest } from "../utils/updateInterest.js";
 import fs from "fs";
-import sendMail from "../config/email.js";
+import { sendEmailApi } from "../config/emailApi.js";
 
 import {
   clearProductCache,
@@ -436,7 +436,7 @@ export const updateProduct = async (req, res) => {
 
       // Send emails in parallel
       Promise.all(product.restockSubscribers.map(sub => 
-        sendMail({ email: sub.email, subject, message }).catch(e => console.error(`Failed to notify ${sub.email}`, e))
+        sendEmailApi({ email: sub.email, subject, html: message }).catch(e => console.error(`Failed to notify ${sub.email}`, e))
       )).then(async () => {
         // Clear subscribers after notifying
         product.restockSubscribers = [];

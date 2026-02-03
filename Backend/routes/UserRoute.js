@@ -2,6 +2,7 @@ import express from "express";
 
 import {
   registerUser,
+  sendOtp,
   loginUser,
   updateProfile,
   getProfile,
@@ -19,6 +20,7 @@ const router = express.Router();
 
 
 // ================= AUTH =================
+router.post("/send-otp", sendOtp);
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/logout", AuthUser, logoutUser);

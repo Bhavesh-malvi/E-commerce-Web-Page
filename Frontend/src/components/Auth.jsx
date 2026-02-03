@@ -5,7 +5,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Auth = () => {
 
-  const { setOpen, login, register, forgotPassword, loading, } = useContext(AppContext);
+  const { setOpen, login, register, sendOtp, forgotPassword, loading } = useContext(AppContext);
 
 
   const [isRegister, setIsRegister] = useState(false);
@@ -17,7 +17,10 @@ const Auth = () => {
     name: "",
     email: "",
     password: "",
+    otp: ""
   });
+
+  const [isOtpSent, setIsOtpSent] = useState(false); // Track OTP status
 
   const [forgotEmail, setForgotEmail] = useState("");
 
@@ -45,34 +48,44 @@ const Auth = () => {
 
   /* ================= Submit ================= */
   const handleSubmit = async (e) => {
-
     e.preventDefault();
-
     setError("");
     setSuccess("");
 
-
     if (isRegister) {
-
-      const res = await register(formData);
-
-      if (res?.success) {
-        setSuccess("Account created successfully ✅");
-        setIsRegister(false);
-        setOpen(false);
+      // REGISTER FLOW
+      if (!isOtpSent) {
+        // Step 1: Send OTP
+        const res = await sendOtp(formData);
+        
+        if (res?.success) {
+          setSuccess("OTP sent to your email 📩");
+          setIsOtpSent(true);
+        } else {
+          setError(res?.message || "Failed to send OTP");
+        }
       } else {
-        setError(res?.message || "Registration failed");
+        // Step 2: Verify OTP & Register
+        const res = await register(formData);
+
+        if (res?.success) {
+          setSuccess("Account created successfully ✅");
+          setIsRegister(false);
+          setIsOtpSent(false); // Reset OTP state
+          setOpen(false);
+        } else {
+          setError(res?.message || "Registration failed");
+        }
       }
 
     } else {
-
+      // LOGIN FLOW
       const res = await login(
         formData.email,
         formData.password,
       );
 
       if (res?.success) {
-
         if (res.user.role === "admin") {
           navigate("/admin");
         }
@@ -82,19 +95,11 @@ const Auth = () => {
         else {
           navigate("/");
         }
-
         setOpen(false);
-      }else {
+      } else {
         setError(res?.message || "Invalid email or password");
       }
     }
-
-
-    setFormData({
-      name: "",
-      email: "",
-      password: "",
-    });
   };
 
 
@@ -172,6 +177,7 @@ const Auth = () => {
                   onChange={handleChange}
                   className="border p-2 rounded-md"
                   required
+                  disabled={isOtpSent} // Disable after OTP sent
                 />
               )}
 
@@ -185,10 +191,10 @@ const Auth = () => {
                 onChange={handleChange}
                 className="border p-2 rounded-md"
                 required
+                disabled={isRegister && isOtpSent} // Disable after OTP sent
               />
 
 
-              {/* Password */}
               {/* Password */}
               <div className="relative">
                 <input
@@ -199,15 +205,30 @@ const Auth = () => {
                   onChange={handleChange}
                   className="w-full border p-2 pr-10 rounded-md"
                   required
+                  disabled={isRegister && isOtpSent} // Disable after OTP sent
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                  disabled={isRegister && isOtpSent}
                 >
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
+
+              {/* OTP Input (Only during Register & After OTP Sent) */}
+              {isRegister && isOtpSent && (
+                <input
+                  type="number"
+                  placeholder="Enter 6-digit OTP"
+                  name="otp"
+                  value={formData.otp}
+                  onChange={handleChange}
+                  className="border p-2 rounded-md font-bold tracking-widest text-center"
+                  required
+                />
+              )}
 
 
               {/* Button */}
@@ -218,9 +239,20 @@ const Auth = () => {
                 {loading
                   ? "Please wait..."
                   : isRegister
-                  ? "Register"
+                  ? (isOtpSent ? "Verified & Register" : "Send OTP")
                   : "Login"}
               </button>
+              
+              {/* Back to Edit (If OTP sent) */}
+              {isRegister && isOtpSent && !loading && (
+                 <button 
+                  type="button"
+                  onClick={() => { setIsOtpSent(false); setSuccess(""); setError(""); }}
+                  className="text-gray-500 text-sm hover:underline"
+                 >
+                   Back to Edit Details
+                 </button>
+              )}
 
             </form>
 
@@ -283,7 +315,12 @@ const Auth = () => {
               <>
                 Already have an account?{" "}
                 <span
-                  onClick={() => setIsRegister(false)}
+                  onClick={() => {
+                    setIsRegister(false);
+                    setIsOtpSent(false); // Reset
+                    setError("");
+                    setSuccess("");
+                  }}
                   className="text-[#FF8F9C] cursor-pointer"
                 >
                   Login
@@ -295,7 +332,12 @@ const Auth = () => {
               <>
                 Don&apos;t have an account?{" "}
                 <span
-                  onClick={() => setIsRegister(true)}
+                  onClick={() => {
+                    setIsRegister(true);
+                     setIsOtpSent(false); // Reset
+                     setError("");
+                     setSuccess("");
+                  }}
                   className="text-[#FF8F9C] cursor-pointer"
                 >
                   Register

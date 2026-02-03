@@ -1,6 +1,6 @@
 import Support from "../models/SupportModel.js";
 import Order from "../models/OrderModel.js";
-import sendMail from "../config/email.js";
+import { sendEmailApi } from "../config/emailApi.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Initialize Gemini AI
@@ -309,7 +309,7 @@ const escalate = async(ticket,user,msg)=>{
  await ticket.save();
 
 
- await sendMail({
+ await sendEmailApi({
   email:process.env.ADMIN_EMAIL,
   subject:"🚨 Support Escalation",
   message:`
