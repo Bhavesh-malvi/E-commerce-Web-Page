@@ -62,13 +62,25 @@ export const sendOtp = async (req, res) => {
         otpExpire,
         isVerified: false
       });
+      await User.create({
+        name,
+        email,
+        password,
+        otp,
+        otpExpire,
+        isVerified: false
+      });
     }
 
-    await sendEmailApi({
+    const emailRes = await sendEmailApi({
       email,
       subject: "E-commerce OTP Verification",
       message: `Your Verification Code is: ${otp}`,
     });
+
+    if (!emailRes.success) {
+      return res.status(500).json({ success: false, message: "Failed to send OTP. Check server logs." });
+    }
 
     res.status(200).json({ success: true, message: "OTP sent successfully" });
 

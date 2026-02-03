@@ -127,7 +127,7 @@ const NavBar = () => {
                                 }
                                 return avatarUrl ? 
                                     <img src={avatarUrl} alt="Avatar" className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover" /> : 
-                                    <div className="border text-sm md:text-[18px] px-2 md:px-2.5 py-0.5 md:py-1 bg-gray-500 rounded-full text-white font-medium">{user.name?.charAt(0)}</div>
+                                    <div className="border text-sm md:text-[18px] h-8 w-8 flex justify-center items-center xl:h-10 xl:w-10 md:h-10 md:w-10 lg:h-10 lg:w-10 sm:h-8 sm:w-8  bg-gray-500 rounded-full text-white font-medium">{user.name?.charAt(0)}</div>
                             })()
                         }</Link> : <button className='text-sm md:text-[17px] px-4 md:px-7 py-1.5 md:py-2 rounded-full bg-[#FF8F9C] text-white font-medium cursor-pointer whitespace-nowrap' onClick={()=>setOpen(true)}>Login</button>}
                     </li>
