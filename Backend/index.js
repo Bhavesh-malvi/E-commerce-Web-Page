@@ -37,6 +37,19 @@ import errorHandler from "./middleware/errorHandler.js";
 
 
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "https://e-commerce-web-page-yekr.vercel.app"
+].filter(Boolean);
+
+const app = express();
+// Enable trust proxy for rate limiting behind proxies (Render, Vercel, etc.)
+app.set("trust proxy", 1); 
+
+const server = http.createServer(app);
+
 // ================= DATABASE CONNECTION =================
 // Ensure DB is connected for every request in Vercel environment
 app.use(async (req, res, next) => {
@@ -44,12 +57,7 @@ app.use(async (req, res, next) => {
   next();
 });
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "https://e-commerce-web-page-yekr.vercel.app"
-].filter(Boolean);
+
 
 // ================= CORS =================
 app.use(cors({
