@@ -230,7 +230,7 @@ export const aiChat = async (req,res)=>{
       } catch (err) {
         if (err.status === 429 && attempt < maxRetries) {
           const waitTime = Math.pow(2, attempt) * 1000;
-          console.log(`Rate limited, waiting ${waitTime}ms before retry ${attempt + 1}`);
+
           await delay(waitTime);
         } else {
           throw err;
@@ -243,7 +243,7 @@ export const aiChat = async (req,res)=>{
     const prompt = `You are a friendly customer support assistant. Keep response to 1-2 sentences. User: "${message}"`;
     reply = await callAIWithRetry(prompt);
   } catch(aiErr) {
-    console.log("AI DOWN:", aiErr);
+    console.error("AI DOWN:", aiErr);
 
     // Smart fallback responses
     const lowerMsg = message.toLowerCase();
@@ -272,7 +272,7 @@ export const aiChat = async (req,res)=>{
 
  }catch(err){
 
-  console.log("AI ERROR:",err);
+  console.error("AI ERROR:",err);
 
   res.status(500).json({
    success:false,

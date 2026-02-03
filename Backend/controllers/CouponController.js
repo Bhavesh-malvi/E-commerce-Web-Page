@@ -65,16 +65,9 @@ export const createCoupon = async (req, res) => {
     }
 
 
-    // ... (previous code)
-
-    console.log("Creating coupon with data:", {
-      code, type, value, expiry, createdBy: req.user?._id
-    });
-
     const coupon = await Coupon.create({
 
       code: code.toUpperCase(),
-
       type,
       value,
 
@@ -238,7 +231,7 @@ export const applyCoupon = async (req, res) => {
 
   } catch (err) {
 
-    console.log("APPLY COUPON ERROR:", err);
+    console.error("APPLY COUPON ERROR:", err);
 
     res.status(500).json({
       success: false,

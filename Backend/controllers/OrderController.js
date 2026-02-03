@@ -352,7 +352,7 @@ export const placeOrder = async (req, res) => {
 
     await session.abortTransaction();
 
-    console.log("ORDER ERROR:", err);
+    console.error("ORDER ERROR:", err);
 
     res.status(500).json({
       success: false,
@@ -828,7 +828,7 @@ export const sendDeliveryOTP = async (req, res) => {
       html: html
     });
 
-    console.log(`[DEV] OTP for ${order._id}: ${otp}`); // Keep log for dev backup
+
 
     if(emailRes.success) {
         res.json({ success: true, message: "OTP sent to registered email!" });
@@ -854,7 +854,7 @@ export const verifyDelivery = async (req, res) => {
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
     // Debug log
-    console.log(`[VERIFY] Received: '${otp}' | Stored: '${order.deliveryOTP}'`);
+
 
     const receivedOTP = otp ? otp.toString().trim() : '';
     const storedOTP = order.deliveryOTP ? order.deliveryOTP.toString().trim() : '';

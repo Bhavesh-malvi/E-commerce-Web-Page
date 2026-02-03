@@ -61,11 +61,11 @@ API.interceptors.response.use(
       }
 
 
-      console.log("API Error:", error.response.data);
+
 
     } else {
 
-      console.log("Network Error");
+
 
     }
 

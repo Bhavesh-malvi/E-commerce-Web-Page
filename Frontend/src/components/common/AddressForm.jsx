@@ -191,9 +191,11 @@ const AddressForm = ({ initialData, onSubmit, onCancel, loading }) => {
                     <button 
                         disabled={loading}
                         type="submit"
-                        className="bg-gray-900 text-white px-6 sm:px-8 py-3 rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] hover:bg-black transition-all shadow-xl shadow-gray-200 disabled:opacity-50 active:scale-95"
+                        className="bg-gray-900 text-white px-6 sm:px-8 py-3 rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] hover:bg-black transition-all shadow-xl shadow-gray-200 disabled:opacity-50 active:scale-95 flex items-center justify-center gap-2"
                     >
-                        {loading ? '...' : 'Save Address'}
+                        {loading ? (
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        ) : 'Save Address'}
                     </button>
                 </div>
             </form>

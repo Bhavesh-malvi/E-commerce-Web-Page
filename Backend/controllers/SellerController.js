@@ -54,7 +54,7 @@ export const applySeller = async (req, res) => {
 
   } catch (err) {
 
-    console.log("APPLY SELLER:", err);
+    console.error("APPLY SELLER:", err);
 
     res.status(500).json({
       success: false,
@@ -111,7 +111,7 @@ export const verifySeller = async (req, res) => {
 
   } catch (err) {
 
-    console.log("VERIFY SELLER:", err);
+    console.error("VERIFY SELLER:", err);
 
     res.status(500).json({
       success: false,
@@ -152,7 +152,7 @@ export const mySellerAccount = async (req, res) => {
 
   } catch (err) {
 
-    console.log("MY SELLER:", err);
+    console.error("MY SELLER:", err);
 
     res.status(500).json({
       success: false,
@@ -197,7 +197,7 @@ export const updateSellerProfile = async (req, res) => {
     });
 
   } catch (err) {
-    console.log("UPDATE SELLER PROFILE:", err);
+    console.error("UPDATE SELLER PROFILE:", err);
     res.status(500).json({
       success: false,
       message: "Server error"

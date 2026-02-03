@@ -22,7 +22,7 @@ const Cart = () => {
 
     const handleQuantityChange = async (productId, newQty) => {
         if (newQty < 1) return;
-        console.log("Updating quantity:", { productId, newQty });
+
         const res = await updateCartQuantity(productId, newQty);
         if (!res?.success) {
             toast.error(res?.message || "Failed to update quantity");

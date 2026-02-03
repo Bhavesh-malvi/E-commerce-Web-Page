@@ -75,7 +75,7 @@ export const createDeal = async (req, res) => {
     });
 
   } catch (err) {
-    console.log("CREATE DEAL ERROR:", err);
+    console.error("CREATE DEAL ERROR:", err);
     res.status(500).json({ 
         success: false, 
         message: err.message || "Failed to create deal" 
@@ -119,7 +119,7 @@ export const getActiveDeals = async (req, res) => {
     });
 
   } catch (err) {
-    console.log("GET ACTIVE DEALS ERROR:", err);
+    console.error("GET ACTIVE DEALS ERROR:", err);
     res.status(500).json({ success: false, message: "Failed to fetch deals" });
   }
 };

@@ -38,7 +38,7 @@ export const AppProvider = ({children})=>{
             const data = await getAllProducts({ limit: 1000 });
             if (data.success) {
                 setProducts(data.products);
-                console.log("Fetched Products:", data.products);
+
             }
         } catch (error) {
             console.error("Error fetching products:", error);
@@ -50,7 +50,7 @@ export const AppProvider = ({children})=>{
             const res = await API.get("/deal/active");
             if (res.data.success) {
                 setActiveDeals(res.data.deals);
-                console.log("Active Deals:", res.data.deals);
+
             }
         } catch (error) {
             console.error("Error fetching active deals:", error);
@@ -62,7 +62,7 @@ export const AppProvider = ({children})=>{
             const res = await API.get("/megadeal/active");
             if (res.data.success) {
                 setActiveMegaDeal(res.data.megaDeal);
-                console.log("Active Mega Deal:", res.data.megaDeal);
+
             }
         } catch (error) {
             console.error("Error fetching mega deal:", error);
@@ -137,18 +137,19 @@ export const AppProvider = ({children})=>{
 
     const newArrival = products.filter((p) => 
         p?.badges?.some(b => b.toLowerCase().includes("new arrivals")) || 
-        (p?.isNew === true)
-    ).sort((a, b) => new Date(b.listedAt || b.createdAt) - new Date(a.listedAt || a.createdAt));
+        (p?.isNew === true) ||
+        (new Date(p.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)) // Last 30 days
+    ).sort((a, b) => new Date(b.listedAt || b.createdAt) - new Date(a.listedAt || a.createdAt)).slice(0, 20);
 
     const trending = products.filter((p) => 
         p?.badges?.some(b => b.toLowerCase().includes("trending")) || 
-        (p?.sold > 5)
-    ).sort((a, b) => (b.sold || 0) - (a.sold || 0));
+        ((Number(p.sold) || 0) >= 1) // Show if even 1 sold
+    ).sort((a, b) => (Number(b.sold) || 0) - (Number(a.sold) || 0)).slice(0, 20);
 
     const topRated = products.filter((p) => 
         p?.badges?.some(b => b.toLowerCase().includes("top rated")) || 
-        (p?.ratings >= 4.5 && p?.numOfReviews > 0)
-    ).sort((a, b) => (b.ratings || 0) - (a.ratings || 0));
+        ((Number(p.ratings) || 0) >= 4 && (Number(p.numOfReviews) || 0) > 0)
+    ).sort((a, b) => (Number(b.ratings) || 0) - (Number(a.ratings) || 0)).slice(0, 20);
 
     const dealOfTheDay = products.filter((p) => 
         p?.badges?.some(b => b.toLowerCase().includes("deal of the day"))
@@ -157,12 +158,13 @@ export const AppProvider = ({children})=>{
     const newProducts = products.filter((p) => 
         p?.badges?.some(b => b.toLowerCase().includes("new products")) || 
         (p?.isNew === true)
-    );
+    ).sort((a, b) => new Date(b.listedAt || b.createdAt) - new Date(a.listedAt || a.createdAt)).slice(0, 20);
 
+    // Sidebar Best Seller (Limit 4-5 as per sidebar, but this list is general. We'll limit 20 here)
     const bestSeller = products.filter((p) => 
         p?.badges?.some(b => b.toLowerCase().includes("best sellers")) || 
-        (p?.sold > 10)
-    ).sort((a, b) => (b.sold || 0) - (a.sold || 0));
+        ((Number(p.sold) || 0) >= 1)
+    ).sort((a, b) => (Number(b.sold) || 0) - (Number(a.sold) || 0)).slice(0, 20);
 
 
     
@@ -279,12 +281,12 @@ export const AppProvider = ({children})=>{
         });
 
         newSocket.on("connect", () => {
-            console.log("Connected to socket:", newSocket.id);
+
             newSocket.emit("join", userId);
         });
 
         newSocket.on("orderStatusUpdated", (data) => {
-            console.log("Real-time Update:", data);
+
             // Trigger a re-fetch of orders or update toast
             // For now, let's keep it simple: inform the user
             // In a real app, you might update the specific order in state
@@ -461,7 +463,7 @@ const register = async (formData) => {
         return data
 
     } catch (error) {
-        console.log("Profle Update time Error", error);
+
         
     }finally{
         setLoading(false);
@@ -507,7 +509,7 @@ const blockUser = async (id) => {
 
   } catch (error) {
 
-    console.log("Block Error:", error);
+
 
     return error.response?.data;
   }

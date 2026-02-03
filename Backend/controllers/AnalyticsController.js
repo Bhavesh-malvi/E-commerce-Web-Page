@@ -146,7 +146,7 @@ export const adminAnalytics = async (req, res) => {
 
   } catch (error) {
 
-    console.log("ADMIN ANALYTICS ERROR:", error);
+    console.error("ADMIN ANALYTICS ERROR:", error);
 
     res.status(500).json({
       success: false,

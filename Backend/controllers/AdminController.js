@@ -114,7 +114,7 @@ export const getAnalytics = async (req, res) => {
     });
 
   } catch (err) {
-    console.log("ANALYTICS ERROR:", err);
+    console.error("ANALYTICS ERROR:", err);
     res.status(500).json({ success: false, message: "Dashboard data error" });
   }
 };
@@ -174,7 +174,7 @@ export const getAdminStats = async (req, res) => {
 
   } catch (err) {
 
-    console.log("ADMIN STATS ERROR:", err);
+    console.error("ADMIN STATS ERROR:", err);
 
     res.status(403).json({
       success: false,
@@ -220,7 +220,7 @@ export const monthlyRevenue = async (req, res) => {
 
   } catch (err) {
 
-    console.log("MONTHLY ERROR:", err);
+    console.error("MONTHLY ERROR:", err);
 
     res.status(500).json({ success: false });
   }
@@ -283,7 +283,7 @@ export const topProducts = async (req, res) => {
 
   } catch (err) {
 
-    console.log("TOP PRODUCT ERROR:", err);
+    console.error("TOP PRODUCT ERROR:", err);
 
     res.status(500).json({ success: false });
   }
@@ -309,7 +309,7 @@ export const sellerPerformance = async (req, res) => {
 
   } catch (err) {
 
-    console.log("SELLER ERROR:", err);
+    console.error("SELLER ERROR:", err);
 
     res.status(500).json({ success: false });
   }
@@ -337,7 +337,7 @@ export const recentOrders = async (req, res) => {
 
   } catch (err) {
 
-    console.log("RECENT ERROR:", err);
+    console.error("RECENT ERROR:", err);
 
     res.status(500).json({ success: false });
   }
@@ -389,7 +389,7 @@ try{
 
 }catch(err){
 
- console.log("TODAY STATS ERROR:",err);
+ console.error("TODAY STATS ERROR:",err);
 
  res.status(500).json({ success:false });
 }
@@ -426,7 +426,7 @@ export const getAllSellers = async (req,res)=>{
 
  }catch(err){
 
-  console.log("GET SELLERS:",err);
+  console.error("GET SELLERS:",err);
 
   res.status(500).json({
    success:false,
@@ -485,11 +485,11 @@ export const toggleBlockUser = async (req, res) => {
 
   try {
 
-    console.log("USER ID:", req.params.id);
+
 
     const user = await User.findById(req.params.id);
 
-    console.log("USER FOUND:", user);
+
 
     if (!user) {
       return res.status(404).json({
@@ -503,7 +503,7 @@ export const toggleBlockUser = async (req, res) => {
 
     await user.save();
 
-    console.log("UPDATED:", user.isBlocked);
+
 
 
     res.json({
@@ -515,7 +515,7 @@ export const toggleBlockUser = async (req, res) => {
 
   } catch (error) {
 
-    console.log("BLOCK ERROR:", error); // 👈 VERY IMPORTANT
+    console.error("BLOCK ERROR:", error);
 
     res.status(500).json({
       success: false,

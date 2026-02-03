@@ -66,12 +66,7 @@ export const createMegaDeal = async (req, res) => {
         const cappedDiscountAmount = maxDiscount ? Math.min(discountAmount, (basePrice * maxDiscount) / 100) : discountAmount;
         const dealDiscountPrice = Math.round(basePrice - cappedDiscountAmount);
         
-        console.log(`\n🔍 MegaDeal Product Update:`);
-        console.log(`Product: ${product.name}`);
-        console.log(`Base Price: ₹${basePrice}`);
-        console.log(`Discount %: ${discountPercentage}%`);
-        console.log(`Deal Discount Price: ₹${dealDiscountPrice}`);
-        console.log(`Original Discount Price: ₹${product.discountPrice || 'None'}`);
+
         
         const updateData = {
           $addToSet: { badges: "mega-sale" },
@@ -88,15 +83,15 @@ export const createMegaDeal = async (req, res) => {
         // This is saved only once when first deal is applied
         if (product.discountPrice && !product.originalDiscountPrice) {
           updateData.originalDiscountPrice = product.discountPrice;
-          console.log(`✅ Saving original discount: ₹${product.discountPrice}`);
+
         } else if (!product.discountPrice && !product.originalDiscountPrice) {
           // No original discount exists, save null/undefined to mark baseline
           updateData.originalDiscountPrice = null;
-          console.log(`✅ No original discount to save`);
+
         }
 
         await Product.findByIdAndUpdate(product._id, updateData);
-        console.log(`✅ Product updated with activeDeal\n`);
+
       }
     }
 
@@ -107,7 +102,7 @@ export const createMegaDeal = async (req, res) => {
     });
 
   } catch (err) {
-    console.log("CREATE MEGA DEAL ERROR:", err);
+    console.error("CREATE MEGA DEAL ERROR:", err);
     res.status(500).json({ 
       success: false, 
       message: err.message || "Failed to create mega deal" 
@@ -132,7 +127,7 @@ export const getActiveMegaDeal = async (req, res) => {
     });
 
   } catch (err) {
-    console.log("GET ACTIVE MEGA DEAL ERROR:", err);
+    console.error("GET ACTIVE MEGA DEAL ERROR:", err);
     res.status(500).json({ 
       success: false, 
       message: "Failed to fetch mega deal" 

@@ -71,7 +71,7 @@ const TrackOrder = () => {
         });
 
         newSocket.on("connect", () => {
-            console.log("TrackOrder: Connected to socket for real-time updates");
+
         });
 
         setLocalSocket(newSocket);
@@ -87,7 +87,7 @@ const TrackOrder = () => {
 
         const handleLocationUpdate = (data) => {
             if (data.trackingId === trackingId) {
-                console.log("Real-time location update received:", data);
+
                 setOrderData(prev => {
                     if (!prev) return prev;
                     return {

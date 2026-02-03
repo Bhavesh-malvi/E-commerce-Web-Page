@@ -299,11 +299,13 @@ const DashboardHome = () => {
           <button
             disabled={loading}
             onClick={handleSave}
-            className="px-4 py-1.5 bg-[#FF8F9C] text-white rounded hover:opacity-90"
+            className="px-4 py-1.5 bg-[#FF8F9C] text-white rounded hover:opacity-90 flex items-center gap-2"
           >
             <FaSave className="inline mr-1" />
 
-            {loading ? "Saving..." : "Save"}
+            {loading ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : "Save"}
 
           </button>
 

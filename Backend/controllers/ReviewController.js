@@ -134,7 +134,7 @@ export const addReview = async (req, res) => {
 
   } catch (err) {
 
-    console.log("ADD REVIEW:", err);
+    console.error("ADD REVIEW:", err);
 
     res.status(500).json({
       success: false,
@@ -263,7 +263,7 @@ export const updateReview = async (req, res) => {
 
   } catch (err) {
 
-    console.log("UPDATE REVIEW:", err);
+    console.error("UPDATE REVIEW:", err);
 
     res.status(500).json({ success: false });
   }
@@ -321,7 +321,7 @@ export const markHelpful = async (req, res) => {
 
   } catch (err) {
 
-    console.log("HELPFUL ERR:", err);
+    console.error("HELPFUL ERR:", err);
 
     res.status(500).json({ success: false });
   }

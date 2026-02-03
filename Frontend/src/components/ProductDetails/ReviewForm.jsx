@@ -43,6 +43,8 @@ const ReviewForm = ({productData, setIsOpen, refreshProduct}) => {
         })
     }
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -50,6 +52,8 @@ const ReviewForm = ({productData, setIsOpen, refreshProduct}) => {
             toast.error("Please select a rating");
             return;
         }
+
+        setIsSubmitting(true);
 
         try {
             const formData = new FormData();
@@ -82,8 +86,10 @@ const ReviewForm = ({productData, setIsOpen, refreshProduct}) => {
             }
 
         } catch (error) {
-            console.log(error);
+
             toast.error("Something went wrong");
+        } finally {
+            setIsSubmitting(false);
         }
     }  
 
@@ -132,8 +138,13 @@ const ReviewForm = ({productData, setIsOpen, refreshProduct}) => {
                             <textarea className='w-full min-h-20 sm:min-h-25 border outline-0 p-3 rounded-[10px] text-sm sm:text-base border-gray-400 focus:border-gray-400' value={reviewData.comment} name="comment" onChange={handleChange} placeholder='What should other customers know?' required></textarea>
                         </div>
 
-                        <button type='submit' className='px-8 sm:px-10 py-2 sm:py-3 text-xs sm:text-sm md:text-[14px] rounded-full mt-6 sm:mt-8 bg-[#FF8F9C] hover:opacity-90 text-white font-bold shadow-md transform active:scale-95 transition-all'>
-                            Submit Review
+                        <button type='submit' disabled={isSubmitting} className='px-8 sm:px-10 py-2 sm:py-3 text-xs sm:text-sm md:text-[14px] rounded-full mt-6 sm:mt-8 bg-[#FF8F9C] hover:opacity-90 text-white font-bold shadow-md transform active:scale-95 transition-all disabled:opacity-70 disabled:active:scale-100 flex items-center gap-2'>
+                            {isSubmitting ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    Submitting...
+                                </>
+                            ) : "Submit Review"}
                         </button>
                     </form>
                 </div>

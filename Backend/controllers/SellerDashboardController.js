@@ -69,7 +69,7 @@ export const sellerDashboard = async (req,res)=>{
  }
  catch(err){
 
-  console.log("SELLER DASH ERR:",err);
+  console.error("SELLER DASH ERR:",err);
 
   res.status(500).json({
    success:false,
@@ -134,7 +134,7 @@ export const sellerStats = async (req,res)=>{
 
  }catch(err){
 
-  console.log("SELLER STATS ERR:",err);
+  console.error("SELLER STATS ERR:",err);
 
   res.status(500).json({ success:false });
  }

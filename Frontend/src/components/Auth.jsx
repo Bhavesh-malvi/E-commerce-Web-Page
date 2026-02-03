@@ -236,11 +236,16 @@ const Auth = () => {
                 disabled={loading}
                 className="bg-[#FF8F9C] text-white p-2 rounded-md font-medium hover:opacity-90 transition"
               >
-                {loading
-                  ? "Please wait..."
-                  : isRegister
-                  ? (isOtpSent ? "Verified & Register" : "Send OTP")
-                  : "Login"}
+                {loading ? (
+                    <div className="flex items-center justify-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Please wait...
+                    </div>
+                ) : isRegister ? (
+                    isOtpSent ? "Verified & Register" : "Send OTP"
+                ) : (
+                    "Login"
+                )}
               </button>
               
               {/* Back to Edit (If OTP sent) */}

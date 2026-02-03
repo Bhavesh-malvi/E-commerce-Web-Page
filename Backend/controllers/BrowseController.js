@@ -92,7 +92,7 @@ export const trackActivity = async (req, res) => {
 
   } catch (err) {
 
-    console.log("TRACK ERROR:", err);
+    console.error("TRACK ERROR:", err);
 
     res.status(500).json({
       success: false,
@@ -189,7 +189,7 @@ export const adminAnalytics = async (req, res) => {
 
   } catch (err) {
 
-    console.log("ADMIN ANALYTICS ERROR:", err);
+    console.error("ADMIN ANALYTICS ERROR:", err);
 
     res.status(500).json({
       success: false,

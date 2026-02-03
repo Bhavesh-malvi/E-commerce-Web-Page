@@ -136,7 +136,10 @@ const Orders = () => {
                         </div>
                       </div>
                        {user?.role === 'user' && order.orderStatus === 'Delivered' && (
-                        <button className="text-xs text-[#FF8F9C] font-bold hover:text-[#ff7a8a] mt-2 flex items-center gap-1.5 w-fit bg-[#FF8F9C]/10 px-3 py-1 rounded-full hover:bg-[#FF8F9C]/20 transition-all">
+                        <button 
+                          onClick={() => navigate(`/productDetails/${item.product?._id}/${item.product?.category}`, { state: { openReview: true } })}
+                          className="text-xs text-[#FF8F9C] font-bold hover:text-[#ff7a8a] mt-2 flex items-center gap-1.5 w-fit bg-[#FF8F9C]/10 px-3 py-1 rounded-full hover:bg-[#FF8F9C]/20 transition-all"
+                        >
                           <span>Write a Product Review</span>
                           <span className="text-base text-[#FF8F9C]/60">→</span>
                         </button>

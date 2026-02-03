@@ -69,9 +69,7 @@ const AdminDashboard = () => {
 
     useEffect(() => {
         if (!loading) {
-            console.log("ADMIN_STATS:", stats);
-            console.log("ADMIN_ANALYTICS:", analytics);
-            console.log("RECENT_ORDERS:", recentOrders);
+
         }
     }, [loading, stats, analytics, recentOrders]);
 

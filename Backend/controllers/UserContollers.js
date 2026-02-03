@@ -85,7 +85,7 @@ export const sendOtp = async (req, res) => {
     res.status(200).json({ success: true, message: "OTP sent successfully" });
 
   } catch (error) {
-    console.log("SEND OTP ERROR:", error);
+    console.error("SEND OTP ERROR:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -170,7 +170,7 @@ export const registerUser = async (req, res) => {
 
   } catch (err) {
 
-    console.log("REGISTER:", err);
+    console.error("REGISTER:", err);
 
     res.status(500).json({
       success: false,
@@ -258,7 +258,7 @@ export const loginUser = async (req, res) => {
 
   } catch (err) {
 
-    console.log("LOGIN:", err);
+    console.error("LOGIN:", err);
 
     res.status(500).json({
       success: false,
@@ -567,7 +567,7 @@ export const registerAdmin = async (req, res) => {
 
   } catch (error) {
 
-    console.log("REGISTER ADMIN ERROR:", error);
+    console.error("REGISTER ADMIN ERROR:", error);
 
     res.status(500).json({
       success: false,

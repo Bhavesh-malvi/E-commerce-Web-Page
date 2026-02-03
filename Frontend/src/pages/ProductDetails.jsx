@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/purity */
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { IoIosCheckmarkCircleOutline, IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import API from "../Api/Api";
 
 import StarRating from "../UI/StarRating";
@@ -18,6 +18,7 @@ import { useToast } from "../components/common/Toast";
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { currency, convertPrice, getSingleProduct, addToCart, products, trackActivity, wishlist, addToWishlist, removeFromWishlist, user, setOpen } = useContext(AppContext);
   const toast = useToast();
@@ -101,7 +102,7 @@ const ProductDetails = () => {
       setOpen(true);
       return;
     }
-    console.log("Buy Now Clicked - Product ID:", product?._id);
+
     try {
       const res = await addToCart(product._id, 1, selectedVariant);
       if (res?.success) {
@@ -125,22 +126,33 @@ const ProductDetails = () => {
     return product.mainImages?.map(img => img.url) || [];
   }, [product, selectedVariant]);
 
+  // Track activity to LocalStorage (LIFO)
+  useEffect(() => {
+    if (product) {
+      const history = JSON.parse(localStorage.getItem("browsingHistory") || "[]");
+      const newHistory = [product._id, ...history.filter(id => id !== product._id)].slice(0, 15);
+      localStorage.setItem("browsingHistory", JSON.stringify(newHistory));
+    }
+  }, [product]);
+
   const relatedProducts = useMemo(() => {
     if (!product || !products) return [];
     
     const targetGender = product.gender?.toLowerCase();
+    const targetSubCategory = product.subCategory?.toLowerCase(); // Strict check
     
     return products
       .filter((p) => {
         const isSameCategory = p.category === product.category;
         const isDifferentProduct = p._id !== product._id;
         
-        // If gender exists on both, match case-insensitively
-        // If one is missing, we might still want to show it if category matches, 
-        // but here the user specifically wants gender separation.
+        // Strict Gender Check
         const isSameGender = !targetGender || p.gender?.toLowerCase() === targetGender;
+
+        // Strict SubCategory Check (if available)
+        const isSameSubCategory = !targetSubCategory || p.subCategory?.toLowerCase() === targetSubCategory;
         
-        return isSameCategory && isDifferentProduct && isSameGender;
+        return isSameCategory && isDifferentProduct && isSameGender && isSameSubCategory;
       })
       .slice(0, 5);
   }, [product, products]);
@@ -384,7 +396,7 @@ const ProductDetails = () => {
       </div>
 
 
-      <ProductReview productData={product} refreshProduct={fetchProduct} />
+      <ProductReview productData={product} refreshProduct={fetchProduct} initialOpen={location.state?.openReview} />
 
       {/* DESCRIPTION BLOCKS */}
       {product.descriptionBlocks?.length > 0 && (

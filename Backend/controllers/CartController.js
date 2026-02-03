@@ -9,7 +9,7 @@ export const addToCart = async (req, res) => {
   try {
 
     const { productId, quantity = 1, variant } = req.body;
-    console.log("ADD TO CART REQUEST:", { productId, quantity, variant, body: req.body });
+
 
     // Validate
     if (!productId || quantity < 1) {
@@ -114,7 +114,7 @@ export const addToCart = async (req, res) => {
 
   } catch (error) {
 
-    console.log("ADD CART ERROR:", error);
+    console.error("ADD CART ERROR:", error);
 
     res.status(500).json({
       success: false,
@@ -153,7 +153,7 @@ export const getCart = async (req, res) => {
 
   } catch (error) {
 
-    console.log("GET CART ERROR:", error);
+    console.error("GET CART ERROR:", error);
 
     res.status(500).json({
       success: false,
@@ -170,7 +170,7 @@ export const updateQuantity = async (req, res) => {
   try {
 
     const { productId, quantity } = req.body;
-    console.log("UPDATE QTY REQUEST:", { productId, quantity, body: req.body });
+
 
 
     if (!productId || quantity < 1) {
@@ -237,7 +237,7 @@ export const updateQuantity = async (req, res) => {
 
   } catch (error) {
 
-    console.log("UPDATE QTY ERROR:", error);
+    console.error("UPDATE QTY ERROR:", error);
 
     res.status(500).json({
       success: false,
@@ -285,7 +285,7 @@ export const removeFromCart = async (req, res) => {
 
   } catch (err) {
 
-    console.log("REMOVE CART ERROR:", err);
+    console.error("REMOVE CART ERROR:", err);
 
     res.status(500).json({
       success: false
@@ -313,7 +313,7 @@ export const clearCart = async (req, res) => {
 
   } catch (error) {
 
-    console.log("CLEAR CART ERROR:", error);
+    console.error("CLEAR CART ERROR:", error);
 
     res.status(500).json({
       success: false,

@@ -123,7 +123,7 @@ try{
 
 }catch(err){
 
- console.log("INVOICE ERROR:",err);
+ console.error("INVOICE ERROR:",err);
 
  res.status(500).json({
   success:false,
@@ -184,7 +184,7 @@ try{
 
 }catch(err){
 
- console.log("DOWNLOAD ERROR:",err);
+ console.error("DOWNLOAD ERROR:",err);
 
  res.status(500).json({
   success:false,

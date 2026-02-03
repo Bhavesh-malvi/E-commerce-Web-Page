@@ -99,7 +99,7 @@ export const getRecommendations = async (req,res)=>{
 
  }catch(err){
 
-  console.log("RECO ERROR:",err);
+  console.error("RECO ERROR:",err);
 
   res.status(500).json({
    success:false,

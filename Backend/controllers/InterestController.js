@@ -49,7 +49,7 @@ export const getMyInterest = async (req, res) => {
 
   } catch (err) {
 
-    console.log("INTEREST ERROR:", err);
+    console.error("INTEREST ERROR:", err);
 
     res.status(500).json({
       success: false,

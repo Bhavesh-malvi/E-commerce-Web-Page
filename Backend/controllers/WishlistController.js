@@ -91,7 +91,7 @@ export const addToWishlist = async(req,res)=>{
 
  }catch(err){
 
-  console.log("WISHLIST ADD:",err);
+  console.error("WISHLIST ADD:",err);
 
   res.status(500).json({
    success:false,
@@ -161,7 +161,7 @@ export const removeFromWishlist = async(req,res)=>{
 
  }catch(err){
 
-  console.log("WISHLIST REMOVE:",err);
+  console.error("WISHLIST REMOVE:",err);
 
   res.status(500).json({ success:false });
  }
@@ -174,7 +174,7 @@ export const clearWishlist = async(req,res)=>{
     await Wishlist.findOneAndDelete({ user:req.user._id });
     res.json({ success:true, message:"Wishlist cleared" });
   }catch(err){
-    console.log("CLEAR WISHLIST ERROR:", err);
+    console.error("CLEAR WISHLIST ERROR:", err);
     res.status(500).json({ success:false });
   }
 };

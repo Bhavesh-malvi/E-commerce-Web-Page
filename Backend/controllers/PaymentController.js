@@ -127,7 +127,7 @@ export const verifyStripePayment = async (req, res) => {
 
     await session.abortTransaction();
 
-    console.log("STRIPE VERIFY ERROR:", err);
+    console.error("STRIPE VERIFY ERROR:", err);
 
     res.status(500).json({
       success: false,

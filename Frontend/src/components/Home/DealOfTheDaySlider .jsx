@@ -26,8 +26,7 @@ const DealOfTheDaySlider = () => {
     })
   ) : [];
 
-  console.log("Active Deals in Slider:", activeDeals);
-  console.log("Flattened Products:", productsWithDeals);
+
 
   useEffect(() => {
     if (productsWithDeals.length === 0) return;

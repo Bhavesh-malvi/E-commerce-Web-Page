@@ -82,7 +82,7 @@ export const homeData = async (req, res) => {
 
   } catch (err) {
 
-    console.log("HOME DATA ERROR:", err);
+    console.error("HOME DATA ERROR:", err);
 
     res.status(500).json({
       success: false,

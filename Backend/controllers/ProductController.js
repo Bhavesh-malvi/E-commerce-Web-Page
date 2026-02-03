@@ -175,7 +175,7 @@ export const addProduct = async (req, res) => {
 
   } catch (err) {
 
-    console.log("ADD PRODUCT:", err);
+    console.error("ADD PRODUCT:", err);
 
     res.status(500).json({ success: false });
   }
@@ -238,7 +238,7 @@ export const getProduct = async (req, res) => {
 
 
     const products = await Product.find(query)
-      .select("name price discountPrice mainImages ratings badges stock category subCategory gender isActive seller")
+      .select("name price discountPrice mainImages ratings badges stock category subCategory gender isActive seller sold numOfReviews isNew createdAt")
       .populate("seller", "shopName")
       .sort(sortBy)
       .skip(skip)
@@ -259,7 +259,7 @@ export const getProduct = async (req, res) => {
 
   } catch (err) {
 
-    console.log("GET PRODUCT:", err);
+    console.error("GET PRODUCT:", err);
 
     res.status(500).json({ success: false });
   }
@@ -416,7 +416,7 @@ export const updateProduct = async (req, res) => {
 
     // 🔔 CHECK RESTOCK & NOTIFY
     if (oldStock === 0 && product.stock > 0 && product.restockSubscribers?.length > 0) {
-      console.log(`🔔 Sending restock notifications for ${product.name} to ${product.restockSubscribers.length} users`);
+
       
       const subject = `Back in Stock: ${product.name} is available now!`;
       const message = `
@@ -441,7 +441,7 @@ export const updateProduct = async (req, res) => {
         // Clear subscribers after notifying
         product.restockSubscribers = [];
         await product.save();
-        console.log("✅ Restock notifications sent and list cleared.");
+
       });
     }
 
@@ -454,7 +454,7 @@ export const updateProduct = async (req, res) => {
 
 
   } catch (err) {
-    console.log("UPDATE PRODUCT ERROR:", err);
+    console.error("UPDATE PRODUCT ERROR:", err);
     res.status(500).json({ success: false, message: "Failed to update product" });
   }
 };
@@ -541,7 +541,7 @@ export const deleteProduct = async (req, res) => {
 
 
   } catch (err) {
-    console.log("DELETE PRODUCT ERROR:", err);
+    console.error("DELETE PRODUCT ERROR:", err);
     res.status(500).json({ success: false, message: "Failed to delete product" });
   }
 };
@@ -598,7 +598,7 @@ export const getSellerProducts = async (req, res) => {
     });
 
   } catch (error) {
-    console.log("GET SELLER PRODUCTS ERROR:", error);
+    console.error("GET SELLER PRODUCTS ERROR:", error);
     res.status(500).json({ success: false, message: "Failed to fetch seller products" });
   }
 };

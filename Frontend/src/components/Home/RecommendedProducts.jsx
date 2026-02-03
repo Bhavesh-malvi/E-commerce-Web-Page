@@ -3,25 +3,66 @@ import { AppContext } from '../../context/AppContext';
 import Products from '../Products';
 
 const RecommendedProducts = () => {
-  const { getRecommendations, user } = useContext(AppContext);
+  const { products, user, convertPrice, currency } = useContext(AppContext);
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchReco = async () => {
-      // Fetch regardless of user status (backend handles new vs existing users)
-      const res = await getRecommendations();
-      if (res && res.success) {
-        setRecommendations(res.products || []);
-      }
-      setLoading(false);
+    const generateRecommendations = () => {
+        if (!products || products.length === 0) return;
+
+        // 1. Get Browsing History from LocalStorage
+        const historyIds = JSON.parse(localStorage.getItem("browsingHistory") || "[]");
+        
+        let recommended = [];
+
+        if (historyIds.length > 0) {
+            // Logic: Find categories/subcategories of viewed items
+            const viewedProducts = historyIds
+                .map(id => products.find(p => p._id === id))
+                .filter(p => p !== undefined);
+
+            const viewedCategories = [...new Set(viewedProducts.map(p => p.category))];
+            const viewedSubCategories = [...new Set(viewedProducts.map(p => p.subCategory).filter(Boolean))];
+
+            // Filter similar products
+            recommended = products.filter(p => {
+                // Exclude already viewed
+                if (historyIds.includes(p._id)) return false;
+
+                // Match SubCategory (High priority) or Category (Medium priority)
+                const matchesSub = p.subCategory && viewedSubCategories.includes(p.subCategory);
+                const matchesCat = viewedCategories.includes(p.category);
+
+                return matchesSub || matchesCat;
+            });
+
+            // Sort: Prioritize SubCategory match, then High Rating/Sales
+            recommended.sort((a, b) => {
+                const aSub = a.subCategory && viewedSubCategories.includes(a.subCategory) ? 1 : 0;
+                const bSub = b.subCategory && viewedSubCategories.includes(b.subCategory) ? 1 : 0;
+                if (aSub !== bSub) return bSub - aSub;
+                
+                return (b.sold || 0) - (a.sold || 0); // Then Sales
+            });
+
+        } else {
+             // Fallback: Show Trending or Best Sellers if no history
+             recommended = products.filter(p => (p.sold || 0) > 0 || (p.ratings || 0) >= 4)
+                           .sort((a,b) => (b.sold || 0) - (a.sold || 0));
+        }
+
+        // Limit to 8 items
+        setRecommendations(recommended.slice(0, 8));
+        setLoading(false);
     };
 
-    fetchReco();
-  }, [getRecommendations]);
+    generateRecommendations();
 
-  if (loading) return null; // Or a skeleton loader
-  if (!recommendations || recommendations.length === 0) return null;
+  }, [products]);
+
+  if (loading) return null;
+  if (recommendations.length === 0) return null;
 
   return (
     <div className='w-full'>

@@ -1,12 +1,47 @@
-import React, { useState, useMemo, useContext } from 'react'
+import React, { useState, useMemo, useContext, useEffect } from 'react'
 import { AppContext } from '../../context/AppContext';
 import StarRating from '../../UI/StarRating'
 import ReviewForm from "./ReviewForm";
 import { FaUserCircle, FaThumbsUp, FaCheckCircle } from 'react-icons/fa';
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { RxCross2 } from "react-icons/rx";
 
-const ProductReview = ({productData, refreshProduct}) => {
+const ProductReview = ({productData, refreshProduct, initialOpen}) => {
     const { user, setOpen } = useContext(AppContext);
     const [isOpen, setIsOpen] = useState(false);
+    
+    useEffect(() => {
+        if (initialOpen) {
+            const element = document.getElementById("review-section");
+            if (element) {
+                element.scrollIntoView({ behavior: "smooth" });
+            }
+            if (user) {
+                setIsOpen(true);
+            } else {
+                setOpen(true);
+            }
+        }
+    }, [initialOpen, user, setOpen]);
+    
+    // Lightbox State
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+    const [currentMedia, setCurrentMedia] = useState([]);
+
+    const openLightbox = (media, index) => {
+        setCurrentMedia(media);
+        setActiveMediaIndex(index);
+        setLightboxOpen(true);
+    };
+
+    const navigateMedia = (direction) => {
+        if (direction === 'next') {
+            setActiveMediaIndex((prev) => (prev + 1) % currentMedia.length);
+        } else {
+            setActiveMediaIndex((prev) => (prev - 1 + currentMedia.length) % currentMedia.length);
+        }
+    };
 
     // Calculate rating percentages dynamically
     const stats = useMemo(() => {
@@ -32,7 +67,7 @@ const ProductReview = ({productData, refreshProduct}) => {
 
     return (
         <>
-            <div className="flex flex-col md:flex-row gap-8 sm:gap-12 md:gap-16 my-10 sm:my-12 md:my-15 border-t pt-6 sm:pt-8 md:pt-10 px-3 sm:px-0">
+            <div id="review-section" className="flex flex-col md:flex-row gap-8 sm:gap-12 md:gap-16 my-10 sm:my-12 md:my-15 border-t pt-6 sm:pt-8 md:pt-10 px-3 sm:px-0">
                 {/* LEFT SIDE: STATS & SUMMARY */}
                 <div className="w-full md:w-1/3">
                     <h1 className="text-base sm:text-lg md:text-[20px] font-semibold text-[#333232] border-b pb-2 border-gray-200 w-fit pr-3 sm:pr-5">Customer reviews</h1>
@@ -122,9 +157,26 @@ const ProductReview = ({productData, refreshProduct}) => {
                                         <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2">
                                             {review.media.map((item, idx) => (
                                                 item.type === 'image' ? (
-                                                    <img key={idx} src={item.url} alt="Review" className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md border border-gray-200 cursor-pointer hover:opacity-90" />
+                                                    <img 
+                                                        key={idx} 
+                                                        src={item.url} 
+                                                        alt="Review" 
+                                                        onClick={() => openLightbox(review.media, idx)}
+                                                        className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md border border-gray-200 cursor-pointer hover:opacity-90 hover:border-gray-400 transition-all" 
+                                                    />
                                                 ) : (
-                                                    <video key={idx} src={item.url} className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md border border-gray-200" />
+                                                    <div 
+                                                        key={idx} 
+                                                        className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-md border border-gray-200 cursor-pointer overflow-hidden group"
+                                                        onClick={() => openLightbox(review.media, idx)}
+                                                    >
+                                                        <video src={item.url} className="w-full h-full object-cover" />
+                                                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 flex items-center justify-center transition-all">
+                                                            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-black/50 rounded-full flex items-center justify-center pl-1">
+                                                                <div className="w-0 h-0 border-t-[4px] border-t-transparent border-l-[8px] border-l-white border-b-[4px] border-b-transparent"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 )
                                             ))}
                                         </div>
@@ -151,6 +203,65 @@ const ProductReview = ({productData, refreshProduct}) => {
                 </div>
             </div>
             {isOpen && <ReviewForm productData={productData} setIsOpen={setIsOpen} refreshProduct={refreshProduct} />}
+            
+            {/* LIGHTBOX MODAL */}
+            {lightboxOpen && currentMedia.length > 0 && (
+                <div className="fixed inset-0 z-[120] bg-black/95 flex items-center justify-center p-4">
+                    <button 
+                        onClick={() => setLightboxOpen(false)}
+                        className="absolute top-5 right-5 text-white/70 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all z-[130]"
+                    >
+                        <RxCross2 className="text-3xl sm:text-4xl" />
+                    </button>
+
+                    <div className="relative w-full max-w-5xl h-full flex items-center justify-center">
+                        {/* PREV BUTTON */}
+                        {currentMedia.length > 1 && (
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); navigateMedia('prev'); }}
+                                className="absolute left-2 sm:left-4 z-[125] text-white/70 hover:text-white p-2 sm:p-3 rounded-full hover:bg-white/10 transition-all"
+                            >
+                                <IoIosArrowBack className="text-3xl sm:text-5xl" />
+                            </button>
+                        )}
+
+                        {/* MEDIA CONTENT */}
+                        <div className="max-h-[85vh] max-w-full flex items-center justify-center overflow-hidden">
+                            {currentMedia[activeMediaIndex].type === 'video' ? (
+                                <video 
+                                    src={currentMedia[activeMediaIndex].url} 
+                                    controls 
+                                    autoPlay 
+                                    className="max-h-[85vh] max-w-full object-contain rounded-md"
+                                />
+                            ) : (
+                                <img 
+                                    src={currentMedia[activeMediaIndex].url} 
+                                    alt="Review Fullscreen" 
+                                    className="max-h-[85vh] max-w-full object-contain rounded-md select-none"
+                                />
+                            )}
+                        </div>
+
+                        {/* NEXT BUTTON */}
+                        {currentMedia.length > 1 && (
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); navigateMedia('next'); }}
+                                className="absolute right-2 sm:right-4 z-[125] text-white/70 hover:text-white p-2 sm:p-3 rounded-full hover:bg-white/10 transition-all"
+                            >
+                                <IoIosArrowForward className="text-3xl sm:text-5xl" />
+                            </button>
+                        )}
+                        
+                        {/* COUNTER */}
+                        {currentMedia.length > 1 && (
+                            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/50 px-4 py-1 rounded-full text-white text-sm font-medium">
+                                {activeMediaIndex + 1} / {currentMedia.length}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </>
     )
 }
