@@ -37,6 +37,13 @@ import errorHandler from "./middleware/errorHandler.js";
 
 
 
+// ================= DATABASE CONNECTION =================
+// Ensure DB is connected for every request in Vercel environment
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
+
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   "http://localhost:5173",
@@ -44,42 +51,36 @@ const allowedOrigins = [
   "https://e-commerce-web-page-yekr.vercel.app"
 ].filter(Boolean);
 
-const app = express();
-// Enable trust proxy for rate limiting behind proxies (Render, Vercel, etc.)
-app.set("trust proxy", 1); 
+// ================= CORS =================
+app.use(cors({
+  origin: (origin, callback) => {
+    // Check if origin is allowed
+    const isAllowed = !origin || 
+                      allowedOrigins.includes(origin) || 
+                      origin.endsWith(".vercel.app"); // Allow all Vercel previews
 
-const server = http.createServer(app);
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.log(`❌ CORS Blocked Origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      const isAllowed = !origin || 
+                        allowedOrigins.includes(origin) || 
+                        origin.endsWith(".vercel.app");
+      if(isAllowed) callback(null, true);
+      else callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   },
 });
-
-// Socket logic
-io.on("connection", (socket) => {
-  console.log("Client connected:", socket.id);
-
-  socket.on("join", (userId) => {
-    socket.join(userId);
-    console.log(`User ${userId} joined room`);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Client disconnected");
-  });
-});
-
-// Export io for controllers
-export { io };
-
-
-
-/* ================= SECURITY ================= */
-
-app.use(helmet());
-
-
 
 /* ================= LOGGER ================= */
 
@@ -87,41 +88,11 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-
-
-/* ================= CORS ================= */
-
-app.use(cors({
-  origin: (origin, callback) => {
-    // Check if origin is allowed
-    const isAllowed = !origin || allowedOrigins.includes(origin);
-
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      console.log(`❌ CORS Blocked Origin: ${origin}`); // Debug log
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
-}));
-
-
-
-
-
-
-
-
-
-
 /* ================= BODY ================= */
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
-
 
 /* ================= HEALTH CHECK ================= */
 
@@ -132,15 +103,13 @@ app.get("/", (req, res) => {
   });
 });
 
-
 app.get("/health", (req, res)=>{
   res.json({
     status:"ok",
     uptime: process.uptime(),
     memory: process.memoryUsage(),
   });
-})
-
+});
 
 /* ================= ROUTES ================= */
 
@@ -171,52 +140,61 @@ app.use("/api/wishlist", wishlistRouter);
 app.use("/api/banner", bannerRouter);
 app.use("/api/megadeal", megaDealRouter);
 
-
-
 /* ================= 404 HANDLER ================= */
 
 app.use((req, res) => {
-
   res.status(404).json({
     success: false,
     message: "Route not found"
   });
-
 });
-
-
 
 /* ================= ERROR HANDLER ================= */
 
 app.use(errorHandler);
 
+/* ================= SOCKET ================= */
+
+io.on("connection", (socket) => {
+  console.log("Client connected:", socket.id);
+  socket.on("join", (userId) => {
+    socket.join(userId);
+    // console.log(`User ${userId} joined room`);
+  });
+  socket.on("disconnect", () => {
+    // console.log("Client disconnected");
+  });
+});
+
+// Export io for controllers
+export { io };
 
 
 /* ================= START ================= */
 
 const PORT = process.env.PORT || 5000;
 
-const startServer = async () => {
-  try {
-    await connectDB();
-
-    if (process.env.NODE_ENV !== "production") {
+// Local Development Server
+if (process.env.NODE_ENV !== "production") {
+  const startServer = async () => {
+    try {
+      await connectDB();
       server.listen(PORT, () => {
         console.log(`
 =================================
- 🚀 Server Started Successfully
+ 🚀 Local Server Started
  🌍 http://localhost:${PORT}
  📦 Mode: ${process.env.NODE_ENV}
 =================================
         `);
       });
+    } catch (error) {
+      console.error("❌ SERVER START FAILED:", error);
+      process.exit(1);
     }
-  } catch (error) {
-    console.error("❌ SERVER START FAILED:", error);
-    process.exit(1);
-  }
-};
+  };
+  startServer();
+}
 
-startServer();
-
+// Vercel Serverless Function Export
 export default app;
