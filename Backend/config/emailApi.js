@@ -14,7 +14,7 @@ export const sendEmailApi = async ({ email, subject, message, html }) => {
 
         sendSmtpEmail.subject = subject;
         sendSmtpEmail.htmlContent = html || `<html><body><p>${message}</p></body></html>`;
-        sendSmtpEmail.sender = { name: "E-Commerce App", email: process.env.EMAIL_USER }; // Use verified sender
+        sendSmtpEmail.sender = { name: "E-Shop", email: process.env.EMAIL_USER}; // Use verified sender
         sendSmtpEmail.to = [{ email: email }];
 
         const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
