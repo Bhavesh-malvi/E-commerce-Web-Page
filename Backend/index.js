@@ -196,33 +196,27 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-
 const startServer = async () => {
-
   try {
-
     await connectDB();
 
-    server.listen(PORT, () => {
-
-      console.log(`
+    if (process.env.NODE_ENV !== "production") {
+      server.listen(PORT, () => {
+        console.log(`
 =================================
  🚀 Server Started Successfully
  🌍 http://localhost:${PORT}
  📦 Mode: ${process.env.NODE_ENV}
 =================================
-      `);
-
-    });
-
+        `);
+      });
+    }
   } catch (error) {
-
     console.error("❌ SERVER START FAILED:", error);
-
     process.exit(1);
   }
-
 };
 
-
 startServer();
+
+export default app;
