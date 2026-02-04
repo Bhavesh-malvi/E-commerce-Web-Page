@@ -9,6 +9,7 @@ import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import Popup from "../UI/Popup";
 import { Navigate } from "react-router-dom";
+import Preloader from "../components/common/Preloader";
 
 
 const MainLayout = () => {
@@ -16,9 +17,7 @@ const MainLayout = () => {
 
   // Don't render MainLayout while auth is loading
   if (authLoading) {
-    return <div className="h-screen flex justify-center items-center">
-      <p className="text-xl font-semibold">Loading...</p>
-    </div>;
+    return <Preloader />;
   }
 
   // Redirect admins to admin panel

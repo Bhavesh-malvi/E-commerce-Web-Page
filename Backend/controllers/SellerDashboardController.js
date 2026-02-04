@@ -28,9 +28,10 @@ export const sellerDashboard = async (req,res)=>{
   });
 
 
-  // Total orders (using item.seller)
+  // Total orders (using item.seller) - Excluding Cancelled
   const orders = await Order.countDocuments({
-   "items.seller": seller._id
+   "items.seller": seller._id,
+   orderStatus: { $ne: "Cancelled" }
   });
 
 
@@ -101,7 +102,8 @@ export const sellerStats = async (req,res)=>{
 
   const orders = await Order.find({
    isPaid:true,
-   "items.seller": seller._id
+   "items.seller": seller._id,
+   orderStatus: { $ne: "Cancelled" }
   }).select("items createdAt");
 
 
@@ -113,7 +115,7 @@ export const sellerStats = async (req,res)=>{
 
    o.items.forEach(i=>{
 
-    if(i.seller?.toString() === seller._id.toString()){
+    if(i.seller?.toString() === seller._id.toString() && i.returnStatus !== "refunded"){
 
      total += i.sellerEarning || 0;
      totalOrders++;

@@ -3,13 +3,25 @@ import { AppContext } from '../../context/AppContext';
 import { FaBoxOpen } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../common/Toast';
+import ReturnRequestModal from '../Order/ReturnRequestModal';
 
 const Orders = () => {
   const { getMyOrders, currency, convertPrice, user, socket } = useContext(AppContext);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
   const toast = useToast();
+  
+  const [returnModalOpen, setReturnModalOpen] = useState(false);
+  const [selectedReturnItem, setSelectedReturnItem] = useState(null);
+  const [selectedReturnOrderId, setSelectedReturnOrderId] = useState(null);
+
+  const openReturnModal = (orderId, item) => {
+    setSelectedReturnOrderId(orderId);
+    setSelectedReturnItem(item);
+    setReturnModalOpen(true);
+  };
 
   useEffect(() => {
     fetchOrders();
@@ -144,10 +156,27 @@ const Orders = () => {
                           <span className="text-base text-[#FF8F9C]/60">→</span>
                         </button>
                       )}
+
+                       {/* Return Button */}
+                       {user?.role === 'user' && order.orderStatus === 'Delivered' && (!item.returnStatus || item.returnStatus === 'none') && (
+                         <button 
+                           onClick={() => openReturnModal(order._id, item)}
+                           className="text-xs text-gray-500 font-bold hover:text-gray-800 mt-2 flex items-center gap-1.5 w-fit hover:bg-gray-100 px-3 py-1 rounded-full transition-all border border-gray-200"
+                         >
+                           <span>Request Return</span>
+                         </button>
+                       )}
+                       {item.returnStatus && item.returnStatus !== 'none' && (
+                           <p className="text-xs font-bold text-amber-600 mt-2 bg-amber-50 px-2 py-1 rounded inline-block w-fit">
+                               Return: {item.returnStatus}
+                           </p>
+                       )}
                     </div>
                   </div>
                 ))}
               </div>
+
+
 
               {/* Status Sidebar */}
               <div className="w-full md:w-52 flex flex-col md:items-end justify-start gap-4 pt-1 border-t md:border-t-0 md:border-l border-gray-50 md:pl-8 mt-4 md:mt-0">
@@ -192,6 +221,17 @@ const Orders = () => {
           </div>
         ))}
       </div>
+
+      <ReturnRequestModal 
+        isOpen={returnModalOpen}
+        onClose={() => setReturnModalOpen(false)}
+        orderId={selectedReturnOrderId}
+        item={selectedReturnItem}
+        onSuccess={(msg) => {
+            toast.success(msg);
+            fetchOrders();
+        }}
+      />
     </div>
   );
 };

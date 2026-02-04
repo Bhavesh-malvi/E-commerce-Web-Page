@@ -5,6 +5,7 @@ import { AppContext } from "./context/AppContext";
 
 import Auth from "./components/Auth";
 import ScrollToTop from "./components/ScrollToTop";
+import Preloader from "./components/common/Preloader";
 
 import MainLayout from "./layout/MainLayout";
 import AdminLayout from "./layout/AdminLayout";
@@ -47,6 +48,7 @@ const SellerProducts = lazy(() => import("./pages/Seller/SellerProducts"));
 const AddProduct = lazy(() => import("./pages/Seller/AddProduct"));
 const EditProduct = lazy(() => import("./pages/Seller/EditProduct"));
 const SellerOrders = lazy(() => import("./pages/Seller/SellerOrders"));
+const SellerReturns = lazy(() => import("./pages/Seller/SellerReturns"));
 const SellerAnalytics = lazy(() => import("./pages/Seller/SellerAnalytics"));
 const SellerProfile = lazy(() => import("./pages/Seller/SellerProfile"));
 
@@ -58,9 +60,7 @@ const App = () => {
 
   if (authLoading) {
     return (
-      <div className="h-screen flex justify-center items-center">
-        <p className="text-xl font-semibold">Loading...</p>
-      </div>
+      <Preloader />
     );
   }
 
@@ -71,11 +71,7 @@ const App = () => {
       {open && <Auth />}
 
 
-      <Suspense fallback={
-        <div className="h-screen flex justify-center items-center">
-          <p className="text-xl font-semibold">Loading...</p>
-        </div>
-      }>
+      <Suspense fallback={<Preloader />}>
         <Routes>
           {/* ================= USER WEBSITE ================= */}
             <Route element={<MainLayout />}>
@@ -149,6 +145,7 @@ const App = () => {
             <Route path="products/add" element={<AddProduct />} />
             <Route path="products/edit/:id" element={<EditProduct />} />
             <Route path="orders" element={<SellerOrders />} />
+            <Route path="returns" element={<SellerReturns />} />
             <Route path="analytics" element={<SellerAnalytics />} />
             <Route path="profile" element={<SellerProfile />} />
           </Route>

@@ -16,7 +16,7 @@ import {
 import { format } from 'date-fns';
 
 const SellerOrders = () => {
-  const { getSellerOrders, updateOrderStatus, getInvoice, sendDeliveryOTP, verifyDeliveryOrder } = useContext(AppContext);
+  const { getSellerOrders, updateOrderStatus, updateReturnStatus, getInvoice, sendDeliveryOTP, verifyDeliveryOrder } = useContext(AppContext);
   const toast = useToast();
 
   const [orders, setOrders] = useState([]);

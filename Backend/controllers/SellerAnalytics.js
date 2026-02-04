@@ -36,11 +36,12 @@ export const sellerAnalytics = async (req, res) => {
         $match: { 
           isPaid: true, 
           createdAt: { $gte: startDate },
+          orderStatus: { $ne: "Cancelled" },
           "items.seller": seller._id 
         } 
       },
       { $unwind: "$items" },
-      { $match: { "items.seller": seller._id } },
+      { $match: { "items.seller": seller._id, "items.returnStatus": { $ne: "refunded" } } },
       {
         $group: {
           _id: groupBy,
@@ -54,9 +55,9 @@ export const sellerAnalytics = async (req, res) => {
 
     // 2. Top Selling Products
     const topProducts = await Order.aggregate([
-      { $match: { isPaid: true, "items.seller": seller._id } },
+      { $match: { isPaid: true, "items.seller": seller._id, orderStatus: { $ne: "Cancelled" } } },
       { $unwind: "$items" },
-      { $match: { "items.seller": seller._id } },
+      { $match: { "items.seller": seller._id, "items.returnStatus": { $ne: "refunded" } } },
       {
         $group: {
           _id: "$items.product",
@@ -104,9 +105,9 @@ export const sellerAnalytics = async (req, res) => {
 
     // 5. General Stats
     const totalStats = await Order.aggregate([
-      { $match: { isPaid: true, "items.seller": seller._id } },
+      { $match: { isPaid: true, "items.seller": seller._id, orderStatus: { $ne: "Cancelled" } } },
       { $unwind: "$items" },
-      { $match: { "items.seller": seller._id } },
+      { $match: { "items.seller": seller._id, "items.returnStatus": { $ne: "refunded" } } },
       {
         $group: {
           _id: null,

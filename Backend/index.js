@@ -31,6 +31,8 @@ import invoiceRouter from "./routes/InvoiceRoute.js";
 import wishlistRouter from "./routes/WishlistRoute.js";
 import megaDealRouter from "./routes/MegaDealRoute.js";
 import bannerRouter from "./routes/BannerRoute.js";
+import walletRouter from "./routes/WalletRoute.js";
+import uploadRouter from "./routes/UploadRoute.js";
 
 // Middleware
 import errorHandler from "./middleware/errorHandler.js";
@@ -147,6 +149,8 @@ app.use("/api/invoice", invoiceRouter);
 app.use("/api/wishlist", wishlistRouter);
 app.use("/api/banner", bannerRouter);
 app.use("/api/megadeal", megaDealRouter);
+app.use("/api/wallet", walletRouter);
+app.use("/api/upload", uploadRouter);
 
 /* ================= 404 HANDLER ================= */
 

@@ -80,7 +80,9 @@ export const AppProvider = ({children})=>{
         }
     };
 
-    const getBanners = async () => {
+
+
+const getBanners = async () => {
         try {
             const res = await API.get("/banner/all");
             return res.data;
@@ -636,6 +638,20 @@ const getSellerOrders = async () => {
 };
 
 
+// Update return status (Seller)
+const updateReturnStatus = async (orderId, itemId, status) => {
+  try {
+    const res = await API.put(`/order/${orderId}/return-status`, { itemId, status });
+    return res.data;
+  } catch (error) {
+    return error.response?.data || {
+      success: false,
+      message: "Failed to update return status"
+    };
+  }
+};
+
+
 // Update order status
 const updateOrderStatus = async (orderId, status) => {
   try {
@@ -940,6 +956,9 @@ const updateCartQuantity = async (productId, quantity) => {
 const placeOrder = async (data) => {
   try {
     const res = await API.post("/order/place", data);
+    if (res.data.success) {
+      setCart({ items: [], totalPrice: 0, totalItems: 0 });
+    }
     return res.data;
   } catch (error) {
     return error.response?.data;
@@ -1153,7 +1172,7 @@ const value = {
     activeDeals, activeMegaDeal, fetchActiveMegaDeal,
     // Seller functions
     getSellerDashboard, getSellerAnalytics, addProduct, updateProduct, deleteProduct, 
-    getAllProducts, getSingleProduct, getSellerProducts, getSellerOrders, updateOrderStatus,
+    getAllProducts, getSingleProduct, getSellerProducts, getSellerOrders, updateOrderStatus, updateReturnStatus,
     getSellerProfile, updateSellerProfile, toggleProductStatus, getUniqueCategories, getUniqueSubCategories,
     // Browse & Review
     addReview, trackActivity, getMyActivity, getRecommendations,

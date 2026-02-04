@@ -302,7 +302,7 @@ const ProductDetails = () => {
               {/* Stock Status with Progress Bar */}
               {(() => {
                 const currentStock = selectedVariant?.stock ?? product.stock ?? 0;
-                const soldCount = selectedVariant ? 0 : (product.sold || 0); // Variants don't track sold separately
+                const soldCount = selectedVariant ? (selectedVariant.sold || 0) : (product.sold || 0);
                 const totalStock = currentStock + soldCount;
                 const soldPercent = totalStock > 0 ? (soldCount / totalStock) * 100 : 0;
 

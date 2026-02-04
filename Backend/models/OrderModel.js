@@ -44,7 +44,17 @@ const orderSchema = new mongoose.Schema({
 
 
       commission:Number,
-      sellerEarning:Number
+      sellerEarning:Number,
+
+      // Return System
+      returnStatus:{
+        type:String,
+        default:"none",
+        enum:["none","requested","approved","rejected","picked","returned","refunded"]
+      },
+      returnReason:String,
+      returnImages:[String],
+      returnDescription:String
     }
   ],
 

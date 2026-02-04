@@ -19,7 +19,8 @@ import {
   getInvoice,
   sendDeliveryOTP,
   verifyDelivery,
-  getPublicTrackingInfo
+  getPublicTrackingInfo,
+  updateReturnStatus
 } from "../controllers/OrderController.js";
 
 import { verifyStripePayment } from "../controllers/PaymentController.js";
@@ -70,6 +71,9 @@ router.post("/return/:id", AuthUser, requestReturn);
 
 // ================= SELLER / ADMIN =================
 router.get("/seller", AuthUser, getSellerOrders);
+// Update Return Status
+router.put("/:id/return-status", AuthUser, updateReturnStatus);
+
 router.put("/:id/status", AuthUser, updateOrderStatus);
 
 

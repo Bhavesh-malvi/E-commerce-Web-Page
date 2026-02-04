@@ -9,7 +9,8 @@ import {
   FaUser,
   FaSignOutAlt,
   FaBars,
-  FaTimes
+  FaTimes, // Add missing comma if needed
+  FaUndo
 } from "react-icons/fa";
 
 const SellerLayout = () => {
@@ -74,6 +75,7 @@ const SellerLayout = () => {
             <div className="py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest px-5 mt-6 mb-1">Management</div>
             <SidebarLink to="/seller/products" icon={<FaBox />} label="Inventory" active={isActive('/seller/products')} onClick={closeSidebar} />
             <SidebarLink to="/seller/orders" icon={<FaShoppingCart />} label="Orders" active={isActive('/seller/orders')} onClick={closeSidebar} />
+            <SidebarLink to="/seller/returns" icon={<FaUndo />} label="Return Requests" active={isActive('/seller/returns')} onClick={closeSidebar} />
             
             <div className="py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest px-5 mt-6 mb-1">Analytics</div>
             <SidebarLink to="/seller/analytics" icon={<FaChartLine />} label="Insights" active={isActive('/seller/analytics')} onClick={closeSidebar} />

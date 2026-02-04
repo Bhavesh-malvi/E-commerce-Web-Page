@@ -5,9 +5,11 @@ import DashboardHome from "../components/UserDashboard/DashboardHome";
 import UpdatePassword from "../components/UserDashboard/UpdatePassword";
 import Orders from "../components/UserDashboard/Orders";
 import Address from "../components/UserDashboard/Address";
+
+import Wallet from "../components/UserDashboard/Wallet";
 import Logout from "../components/UserDashboard/Logout";
 import BecomeSeller from "../components/UserDashboard/BecomeSeller";
-import { MdDashboard, MdLock, MdShoppingBag, MdLocationOn, MdStorefront, MdLogout } from "react-icons/md";
+import { MdDashboard, MdLock, MdShoppingBag, MdLocationOn, MdStorefront, MdLogout, MdAccountBalanceWallet } from "react-icons/md";
 
 
 const UserDashboard = () => {
@@ -74,6 +76,14 @@ const UserDashboard = () => {
           />
 
           <SidebarItem
+            label="My Wallet"
+            value="wallet"
+            activeTab={activeTab}
+            setActiveTab={handleTabChange}
+            icon={MdAccountBalanceWallet}
+          />
+
+          <SidebarItem
             label="Addresses"
             value="address"
             activeTab={activeTab}
@@ -112,6 +122,8 @@ const UserDashboard = () => {
         {activeTab === "orders" && <Orders />}
 
         {activeTab === "address" && <Address />}
+
+        {activeTab === "wallet" && <Wallet />}
 
         {activeTab === "seller" && <BecomeSeller />}
 

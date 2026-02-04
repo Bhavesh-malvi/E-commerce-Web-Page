@@ -149,6 +149,7 @@ const productSchema = new mongoose.Schema({
       size:String,
       price:Number,      // Override base price
       stock:Number,
+      sold:{ type:Number, default:0 },
       images:[
         {
           public_id:String,

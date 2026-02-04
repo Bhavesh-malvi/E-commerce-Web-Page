@@ -1,3 +1,5 @@
+import User from "../models/UserModel.js";
+import Product from "../models/ProductModel.js";
 import Order from "../models/OrderModel.js";
 import Cart from "../models/CartModel.js";
 import Coupon from "../models/CouponModel.js";
@@ -92,20 +94,29 @@ export const placeOrder = async (req, res) => {
       let matchedVariant = null;
 
       if (item.variant && (item.variant.color || item.variant.size)) {
-        matchedVariant = product.variants.find(v => 
-          (v.color === item.variant.color || !item.variant.color) && 
-          (v.size === item.variant.size || !item.variant.size)
-        );
+        matchedVariant = product.variants.find(v => {
+            const variantColor = (v.color || "").toLowerCase().trim();
+            const itemColor = (item.variant.color || "").toLowerCase().trim();
+            
+            // Color must match
+            if (variantColor !== itemColor) return false;
+            
+            const variantSize = (v.size || "").toLowerCase().trim();
+            const itemSize = (item.variant.size || "").toLowerCase().trim();
+            
+            // If DB variant has no size, valid match (ignore input size)
+            if (variantSize === "") return true;
+            
+            // Otherwise, strictly match size
+            return variantSize === itemSize;
+        });
 
         if (matchedVariant) {
-             // Variant Stock Check
+             // Variant Stock Check (In Memory Check)
              if (item.quantity > matchedVariant.stock) {
                  throw new Error(`${product.name} (${item.variant.color} ${item.variant.size}) out of stock`);
              }
-
-             // Update Variant Stock
-             matchedVariant.stock -= item.quantity;
-
+             
              if (matchedVariant.images && matchedVariant.images.length > 0) {
                  finalImage = matchedVariant.images[0].url;
              }
@@ -130,15 +141,36 @@ export const placeOrder = async (req, res) => {
       });
 
 
-
-      // Update Main Stock
-      product.stock -= item.quantity;
-      product.sold += item.quantity;
+      // UPDATE STOCK (ATOMICALLY)
+      if (matchedVariant) {
+          // Update Specific Variant Stock ONLY (Main 'sold' increases for popularity)
+          await import("../models/ProductModel.js").then(mod => mod.default.updateOne(
+              { 
+                  _id: product._id, 
+                  "variants._id": matchedVariant._id 
+              },
+              {
+                  $inc: {
+                      "sold": item.quantity,  // Total sold count still increases
+                      "variants.$.stock": -item.quantity,
+                      "variants.$.sold": item.quantity
+                  }
+              }
+          ).session(session));
+      } else {
+          // No Variant Selected -> Update Main Product Stock
+          await import("../models/ProductModel.js").then(mod => mod.default.updateOne(
+              { _id: product._id },
+              {
+                  $inc: {
+                      "stock": -item.quantity,
+                      "sold": item.quantity
+                  }
+              }
+          ).session(session));
+      }
       
-      // Make sure we save the modified subdocument (variant) changes
-      product.markModified('variants');
-
-      await product.save({ session });
+      // Removed product.save() to prevent race conditions
 
 
 
@@ -668,6 +700,62 @@ export const updateOrderStatus = async (req, res) => {
         return res.status(403).json({ success: false, message: "Unauthorized" });
       }
       
+      // If status is being changed to Cancelled, restore stock
+      if (status === "Cancelled" && order.orderStatus !== "Cancelled") {
+        
+        for (const item of order.items) {
+          const product = await Product.findById(item.product);
+          
+          if (product) {
+            let matchedVariant = null;
+            
+            if (item.variant && (item.variant.color || item.variant.size)) {
+               matchedVariant = product.variants.find(v => {
+                  const variantColor = (v.color || "").toLowerCase().trim();
+                  const itemColor = (item.variant.color || "").toLowerCase().trim();
+                  
+                  // Color must match
+                  if (variantColor !== itemColor) return false;
+                  
+                  const variantSize = (v.size || "").toLowerCase().trim();
+                  const itemSize = (item.variant.size || "").toLowerCase().trim();
+                  
+                  // If DB variant has no size, valid match (ignore input size)
+                  if (variantSize === "") return true;
+                  
+                  // Otherwise, strictly match size
+                  return variantSize === itemSize;
+              });
+            }
+            
+            if (matchedVariant) {
+               // Restore Variant Stock & Decrease Sold
+               await Product.updateOne(
+                   { _id: product._id, "variants._id": matchedVariant._id },
+                   { 
+                       $inc: { 
+                           "sold": -item.quantity,          // Decrease global sold
+                           "variants.$.stock": item.quantity, // Increase variant stock
+                           "variants.$.sold": -item.quantity  // Decrease variant sold
+                       }
+                   }
+               );
+            } else {
+               // Restore Main Product Stock & Decrease Sold
+               await Product.updateOne(
+                   { _id: product._id },
+                   { 
+                       $inc: { 
+                           "stock": item.quantity, 
+                           "sold": -item.quantity 
+                       }
+                   }
+               );
+            }
+          }
+        }
+      }
+
       order.orderStatus = status;
     }
 
@@ -691,51 +779,158 @@ export const updateOrderStatus = async (req, res) => {
 };
 
 
-export const requestReturn = async (req, res) => {
-
+    export const requestReturn = async (req, res) => {
   try {
-
+    const { items } = req.body; // Array of { itemId, reason, images, description }
     const order = await Order.findById(req.params.id);
 
-
     if (!order) {
-      return res.status(404).json({
-        success: false
-      });
+      return res.status(404).json({ success: false, message: "Order not found" });
     }
-
 
     if (order.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({
-        success: false
-      });
+      return res.status(403).json({ success: false, message: "Unauthorized" });
     }
 
+    if (order.orderStatus !== "Delivered") {
+        return res.status(400).json({ success: false, message: "Order must be delivered first" });
+    }
 
+    // Update specific items
+    let updatedCount = 0;
+    
+    // items from body might be array or single object if not handled safely, ensuring array
+    const returnItems = Array.isArray(items) ? items : [items];
+
+    for (const returnItem of returnItems) {
+        const orderItem = order.items.id(returnItem.itemId);
+        if (orderItem) {
+            orderItem.returnStatus = "requested";
+            orderItem.returnReason = returnItem.reason;
+            orderItem.returnImages = returnItem.images || [];
+            orderItem.returnDescription = returnItem.description;
+            updatedCount++;
+        }
+    }
+
+    if (updatedCount === 0) {
+        return res.status(400).json({ success: false, message: "No valid items found to return" });
+    }
+
+    // Also update global status for legacy support/easier filtering
     order.returnRequest = {
       status: "requested",
-      reason: req.body.reason
+      reason: "Partial/Full Return Requested"
     };
-
-
-    order.orderStatus = "Cancelled";
-
 
     await order.save();
 
-
     res.json({
       success: true,
-      message: "Return requested"
+      message: "Return requested successfully"
     });
-
 
   } catch (err) {
-
-    res.status(500).json({
-      success: false
-    });
+    res.status(500).json({ success: false, message: "Server Error" });
   }
+};
+
+
+// ================= UPDATE RETURN STATUS =================
+export const updateReturnStatus = async (req, res) => {
+    try {
+        const { itemId, status } = req.body; // status: approved, rejected, picked, returned, refunded
+        const order = await Order.findById(req.params.id);
+
+        if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+        // Verify Seller
+        const seller = await Seller.findOne({ user: req.user._id });
+        if (!seller) return res.status(403).json({ success: false, message: "Unauthorized" });
+
+        const item = order.items.id(itemId);
+        if (!item) return res.status(404).json({ success: false, message: "Item not found" });
+
+        if (item.seller.toString() !== seller._id.toString()) {
+            return res.status(403).json({ success: false, message: "Unauthorized (Not your product)" });
+        }
+
+        const oldStatus = item.returnStatus;
+        item.returnStatus = status;
+
+        // IF REFUNDED => CREDIT WALLET & RESTORE STOCK
+        if (status === "refunded" && oldStatus !== "refunded") {
+            
+            // 1. Credit Wallet
+            // We use item.price (unit price) * item.quantity
+            // Note: If partial quantity return is needed later, we'd need more logic. 
+            // Assuming full item line return for now.
+            
+            const refundAmount = item.price * item.quantity;
+            
+            const user = await User.findById(order.user);
+            if (user) {
+                user.wallet.balance += refundAmount;
+                user.wallet.transactions.push({
+                    amount: refundAmount,
+                    type: "credit",
+                    description: `Refund for Order #${order._id.toString().slice(-6)}`,
+                    date: new Date()
+                });
+                await user.save();
+            }
+
+            // 2. Restore Stock (Reuse logic)
+            const product = await Product.findById(item.product);
+          
+            if (product) {
+                let matchedVariant = null;
+                
+                if (item.variant && (item.variant.color || item.variant.size)) {
+                   matchedVariant = product.variants.find(v => {
+                      const variantColor = (v.color || "").toLowerCase().trim();
+                      const itemColor = (item.variant.color || "").toLowerCase().trim();
+                      if (variantColor !== itemColor) return false;
+                      const variantSize = (v.size || "").toLowerCase().trim();
+                      const itemSize = (item.variant.size || "").toLowerCase().trim();
+                      if (variantSize === "") return true;
+                      return variantSize === itemSize;
+                  });
+                }
+                
+                if (matchedVariant) {
+                   await Product.updateOne(
+                       { _id: product._id, "variants._id": matchedVariant._id },
+                       { 
+                           $inc: { 
+                               "sold": -item.quantity,
+                               "variants.$.stock": item.quantity,
+                               "variants.$.sold": -item.quantity
+                           }
+                       }
+                   );
+                } else {
+                   await Product.updateOne(
+                       { _id: product._id },
+                       { 
+                           $inc: { 
+                               "stock": item.quantity, 
+                               "sold": -item.quantity 
+                           }
+                       }
+                   );
+                }
+            }
+        }
+
+        await order.save();
+
+        res.json({ success: true, message: `Return status updated to ${status}` });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
 };
 
 
