@@ -65,7 +65,7 @@ export const placeOrder = async (req, res) => {
       }
 
 
-      // Stock check
+      // Stock check (Main Product)
       if (item.quantity > product.stock) {
         throw new Error(`${product.name} out of stock`);
       }
@@ -87,17 +87,28 @@ export const placeOrder = async (req, res) => {
 
 
 
-      // Resolve Image (Variant vs Main)
+      // Resolve Image & Update Variant Stock
       let finalImage = product.mainImages[0]?.url;
+      let matchedVariant = null;
 
       if (item.variant && (item.variant.color || item.variant.size)) {
-        const matchedVariant = product.variants.find(v => 
+        matchedVariant = product.variants.find(v => 
           (v.color === item.variant.color || !item.variant.color) && 
           (v.size === item.variant.size || !item.variant.size)
         );
 
-        if (matchedVariant && matchedVariant.images && matchedVariant.images.length > 0) {
-          finalImage = matchedVariant.images[0].url;
+        if (matchedVariant) {
+             // Variant Stock Check
+             if (item.quantity > matchedVariant.stock) {
+                 throw new Error(`${product.name} (${item.variant.color} ${item.variant.size}) out of stock`);
+             }
+
+             // Update Variant Stock
+             matchedVariant.stock -= item.quantity;
+
+             if (matchedVariant.images && matchedVariant.images.length > 0) {
+                 finalImage = matchedVariant.images[0].url;
+             }
         }
       }
 
@@ -120,9 +131,12 @@ export const placeOrder = async (req, res) => {
 
 
 
-      // Update stock
+      // Update Main Stock
       product.stock -= item.quantity;
       product.sold += item.quantity;
+      
+      // Make sure we save the modified subdocument (variant) changes
+      product.markModified('variants');
 
       await product.save({ session });
 
