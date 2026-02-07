@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Project Documentation</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Mermaid.js for Diagrams -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+    </script>
+    <style>
+        .mermaid {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+        }
+        h2 { border-bottom: 2px solid #FF8F9C; padding-bottom: 10px; margin-top: 40px; }
+        .code-block { background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 6px; overflow-x: auto; font-family: monospace; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans leading-relaxed">
+
+    <div class="max-w-6xl mx-auto p-4 md:p-10 bg-white shadow-xl my-10 rounded-lg">
+        
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">E-Commerce Web Application</h1>
+            <p class="text-lg text-gray-600">Technical Documentation & ER Diagrams</p>
+            <p class="text-sm text-gray-500 mt-2">Generated on: <script>document.write(new Date().toLocaleDateString())</script></p>
+        </header>
+
+        <!-- Tech Stack -->
+        <section>
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">1. Technology Stack</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-blue-50 p-6 rounded-lg border border-blue-100">
+                    <h3 class="font-bold text-lg mb-3">Frontend</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>Framework:</strong> React.js (Vite)</li>
+                        <li><strong>Styling:</strong> Tailwind CSS</li>
+                        <li><strong>State Management:</strong> Context API</li>
+                        <li><strong>Routing:</strong> React Router DOM</li>
+                        <li><strong>Icons:</strong> React Icons</li>
+                    </ul>
+                </div>
+                <div class="bg-green-50 p-6 rounded-lg border border-green-100">
+                    <h3 class="font-bold text-lg mb-3">Backend</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>Runtime:</strong> Node.js</li>
+                        <li><strong>Framework:</strong> Express.js</li>
+                        <li><strong>Database:</strong> MongoDB (Mongoose ODM)</li>
+                        <li><strong>Authentication:</strong> JWT (JSON Web Tokens)</li>
+                        <li><strong>Image Storage:</strong> Cloudinary</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ER Diagram -->
+        <section>
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">2. Entity Relationship Diagram (ERD)</h2>
+            <p class="mb-4 text-gray-600">The following diagram illustrates the relationships between the core database models.</p>
+            
+            <div class="mermaid">
+erDiagram
+    %% User & Identity
+    USER {
+        ObjectId _id
+        string name
+        string email
+        string role "user|admin|seller"
+        object wallet "balance, history[]"
+    }
+
+    SELLER {
+        ObjectId _id
+        ObjectId user "Ref: User"
+        string shopName
+        object wallet "balance, history[]"
+        number totalSales
+    }
+
+    ADDRESS {
+        ObjectId user "Ref: User"
+        string city
+        string state
+    }
+
+    %% Products & Catalog
+    PRODUCT {
+        ObjectId _id
+        ObjectId seller "Ref: Seller"
+        string name
+        number price
+        number stock
+        number sold
+        array variants "color, size, stock"
+        array reviews
+    }
+
+    WISHLIST {
+        ObjectId user "Ref: User"
+        array items "product, variant"
+    }
+
+    CART {
+        ObjectId user "Ref: User"
+        array items "product, quantity"
+    }
+
+    %% Orders & Transactions
+    ORDER {
+        ObjectId _id
+        ObjectId user "Ref: User"
+        string orderStatus
+        boolean isPaid
+        array items "product, seller, returnStatus"
+        object paymentInfo
+    }
+
+    %% Promotions
+    COUPON {
+        string code
+        enum type "flat|percent"
+        array usedBy "Ref: User"
+    }
+
+    DEAL {
+        string title
+        number discountPercentage
+        array products "Ref: Product"
+    }
+
+    %% Relationships
+    USER ||--o{ ORDER : places
+    USER ||--o{ ADDRESS : has
+    USER ||--o| SELLER : can_become
+    USER ||--o{ REVIEW : writes
+    
+    SELLER ||--|{ PRODUCT : sells
+    SELLER ||--o{ ORDER_ITEM : fulfills
+    
+    PRODUCT ||--o{ ORDER_ITEM : contained_in
+    PRODUCT ||--o{ CART_ITEM : contained_in
+    PRODUCT ||--o{ WISHLIST_ITEM : contained_in
+    PRODUCT ||--o{ REVIEW : has
+
+    ORDER ||--|{ ORDER_ITEM : contains
+    ORDER }|--|| COUPON : applies
+
+    DEAL }|--|{ PRODUCT : includes
+    COUPON }|--|{ PRODUCT : applicable_to
+    COUPON }|--|{ USER : used_by
+            </div>
+        </section>
+
+        <!-- Module Breakdown -->
+        <section>
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">3. Key Modules & Features</h2>
+            
+            <div class="space-y-6">
+                <!-- User Module -->
+                <div class="border-l-4 border-indigo-500 pl-4">
+                    <h3 class="font-bold text-xl text-indigo-700">User Module</h3>
+                    <p class="text-gray-700 mt-1">Handles customer identity, profile management, and personal wallet.</p>
+                    <ul class="list-disc pl-5 mt-2 text-sm text-gray-600">
+                        <li><strong>Registration/Login:</strong> Secure JWT authentication.</li>
+                        <li><strong>Wallet:</strong> Store refunds and credits.</li>
+                        <li><strong>Wishlist & Cart:</strong> Persistent storage of interested items.</li>
+                    </ul>
+                </div>
+
+                <!-- Seller Module -->
+                <div class="border-l-4 border-orange-500 pl-4">
+                    <h3 class="font-bold text-xl text-orange-700">Seller Module</h3>
+                    <p class="text-gray-700 mt-1">Dedicated panel for vendors to manage their business.</p>
+                    <ul class="list-disc pl-5 mt-2 text-sm text-gray-600">
+                        <li><strong>Product Management:</strong> Create, edit, and delete products (with variants).</li>
+                        <li><strong>Order Management:</strong> Process orders, update status (Packed, Shipped).</li>
+                        <li><strong>Analytics:</strong> View sales data, revenue charts, and best-selling products.</li>
+                    </ul>
+                </div>
+
+                <!-- Order Module -->
+                <div class="border-l-4 border-green-500 pl-4">
+                    <h3 class="font-bold text-xl text-green-700">Order System</h3>
+                    <p class="text-gray-700 mt-1">End-to-end order lifecycle management.</p>
+                    <ul class="list-disc pl-5 mt-2 text-sm text-gray-600">
+                        <li><strong>Checkout:</strong> Secure payment integration (Razorpay/Stripe).</li>
+                        <li><strong>Return System:</strong> Granular item-level returns with reason & image support.</li>
+                        <li><strong>Stock Sync:</strong> Real-time inventory updates on order placement, cancellation, or return.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Structure -->
+        <section>
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">4. API Endpoint Structure</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-gray-200">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="py-2 px-4 border-b text-left">Module</th>
+                            <th class="py-2 px-4 border-b text-left">Base Path</th>
+                            <th class="py-2 px-4 border-b text-left">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="py-2 px-4 border-b font-medium">Auth</td>
+                            <td class="py-2 px-4 border-b font-mono text-sm text-blue-600">/api/v1/auth</td>
+                            <td class="py-2 px-4 border-b">Login, Register, Profile, OTP</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 px-4 border-b font-medium">Product</td>
+                            <td class="py-2 px-4 border-b font-mono text-sm text-blue-600">/api/v1/product</td>
+                            <td class="py-2 px-4 border-b">CRUD, Filtering, Details, Reviews</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 px-4 border-b font-medium">Order</td>
+                            <td class="py-2 px-4 border-b font-mono text-sm text-blue-600">/api/v1/order</td>
+                            <td class="py-2 px-4 border-b">Place order, Return request, Status updates</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 px-4 border-b font-medium">Seller</td>
+                            <td class="py-2 px-4 border-b font-mono text-sm text-blue-600">/api/v1/seller</td>
+                            <td class="py-2 px-4 border-b">Dashboard stats, Seller-specific actions</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 px-4 border-b font-medium">Admin</td>
+                            <td class="py-2 px-4 border-b font-mono text-sm text-blue-600">/api/v1/admin</td>
+                            <td class="py-2 px-4 border-b">System-wide analytics, User management</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer class="mt-20 border-t pt-6 text-center text-gray-500 text-sm">
+            <p>&copy; 2026 E-Commerce Project. All rights reserved.</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>

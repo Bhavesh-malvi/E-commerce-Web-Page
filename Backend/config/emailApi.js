@@ -21,7 +21,11 @@ export const sendEmailApi = async ({ email, subject, message, html }) => {
         console.log('API called successfully. Returned data: ', data);
         return { success: true, data };
     } catch (error) {
-        console.error('Brevo API Error:', error);
+        console.error('Brevo API Error:', {
+            status: error.status,
+            message: error.message,
+            body: error.response?.body || error.response?.text
+        });
         return { success: false, error };
     }
 };

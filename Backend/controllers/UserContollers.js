@@ -62,14 +62,6 @@ export const sendOtp = async (req, res) => {
         otpExpire,
         isVerified: false
       });
-      await User.create({
-        name,
-        email,
-        password,
-        otp,
-        otpExpire,
-        isVerified: false
-      });
     }
 
     const emailRes = await sendEmailApi({
