@@ -6,6 +6,17 @@ import ImageUpload from '../common/ImageUpload';
 import SelectWithCreate from '../common/SelectWithCreate';
 import { FaPlus, FaTimes, FaSave } from 'react-icons/fa';
 
+const SIZE_OPTIONS = {
+  'Clothing': ['S', 'M', 'L', 'XL', 'XXL', '3XL'],
+  'Clothes': ['S', 'M', 'L', 'XL', 'XXL', '3XL'],
+  'Shoes': ['6', '7', '8', '9', '10', '11', '12'],
+  'Footwear': ['6', '7', '8', '9', '10', '11', '12'],
+  'Fashion': ['S', 'M', 'L', 'XL'],
+  'Mens Fashion': ['S', 'M', 'L', 'XL', 'XXL'],
+  'Womens Fashion': ['S', 'M', 'L', 'XL', 'XXL'],
+  'Kids Fashion': ['2-3Y', '3-4Y', '4-5Y', '5-6Y', '7-8Y', '9-10Y'],
+};
+
 const ProductForm = ({ initialData = null, isEdit = false }) => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -59,6 +70,7 @@ const ProductForm = ({ initialData = null, isEdit = false }) => {
     stock: initialData?.stock || '',
     tags: initialData?.tags || [],
     badges: initialData?.badges || [],
+    sizes: initialData?.sizes || [],
     warranty: initialData?.warranty || '',
     returnable: initialData?.returnable !== undefined ? initialData.returnable : true,
     minOrderQty: initialData?.minOrderQty || 1,
@@ -247,7 +259,7 @@ const ProductForm = ({ initialData = null, isEdit = false }) => {
   const addVariant = () => {
     setFormData(prev => ({
       ...prev,
-      variants: [...prev.variants, { color: '', colorCode: '#000000', size: '', price: '', stock: '', variantImages: [] }]
+      variants: [...prev.variants, { color: '', colorCode: '#000000', sizes: [], price: '', stock: '', variantImages: [] }]
     }));
   };
 
@@ -375,6 +387,7 @@ const ProductForm = ({ initialData = null, isEdit = false }) => {
       // Arrays as JSON
       submitData.append('tags', JSON.stringify(formData.tags));
       submitData.append('badges', JSON.stringify(formData.badges));
+      submitData.append('sizes', JSON.stringify(formData.sizes));
       
       // Filter out empty specifications
       const cleanSpecs = formData.specifications.filter(s => s.key.trim() || s.value.trim());
@@ -518,6 +531,33 @@ const ProductForm = ({ initialData = null, isEdit = false }) => {
                 <option value="Female">Female</option>
                 <option value="Unisex">Unisex</option>
               </select>
+            </div>
+
+            {/* Size Selection - Now positioned next to gender */}
+            <div className="md:col-span-1">
+              {SIZE_OPTIONS[formData.category] && (
+                <div className="space-y-3 bg-purple-50/30 p-4 rounded-2xl border border-purple-100/50 h-full">
+                  <label className="text-[9px] font-bold text-purple-400 uppercase tracking-[0.2em] ml-1">Sizes (Main)</label>
+                  <div className="flex flex-wrap gap-2">
+                    {SIZE_OPTIONS[formData.category].map(size => (
+                      <label key={size} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-slate-100 rounded-xl cursor-pointer hover:border-purple-400 transition-all shadow-sm">
+                        <input
+                          type="checkbox"
+                          checked={formData.sizes.includes(size)}
+                          onChange={(e) => {
+                            const newSizes = e.target.checked
+                              ? [...formData.sizes, size]
+                              : formData.sizes.filter(s => s !== size);
+                            setFormData(prev => ({ ...prev, sizes: newSizes }));
+                          }}
+                          className="w-3.5 h-3.5 rounded text-purple-600 focus:ring-purple-500"
+                        />
+                        <span className="text-[10px] font-bold text-slate-700">{size}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2 md:col-span-2">
@@ -806,15 +846,31 @@ const ProductForm = ({ initialData = null, isEdit = false }) => {
                         />
                       </div>
                     </div>
-                    <div className="col-span-1 space-y-2">
-                       <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Size</label>
-                       <input
-                        type="text"
-                        value={variant.size}
-                        onChange={(e) => updateVariant(index, 'size', e.target.value)}
-                        className="w-full px-4 py-2.5 bg-white border border-slate-100 rounded-xl focus:ring-4 focus:ring-purple-500/10 focus:border-purple-300 text-xs font-bold"
-                        placeholder="M"
-                      />
+                    <div className="col-span-2 space-y-3">
+                       <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Available Sizes (Specific to this color)</label>
+                       {SIZE_OPTIONS[formData.category] ? (
+                         <div className="flex flex-wrap gap-2">
+                           {SIZE_OPTIONS[formData.category].map(size => (
+                             <label key={size} className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-100 rounded-lg cursor-pointer hover:border-purple-300 transition-all">
+                               <input
+                                 type="checkbox"
+                                 checked={variant.sizes?.includes(size)}
+                                 onChange={(e) => {
+                                   const currentVariantSizes = variant.sizes || [];
+                                   const newVariantSizes = e.target.checked
+                                     ? [...currentVariantSizes, size]
+                                     : currentVariantSizes.filter(s => s !== size);
+                                   updateVariant(index, 'sizes', newVariantSizes);
+                                 }}
+                                 className="w-3 h-3 rounded text-purple-600 focus:ring-purple-400"
+                               />
+                               <span className="text-[10px] font-bold text-slate-600">{size}</span>
+                             </label>
+                           ))}
+                         </div>
+                       ) : (
+                         <p className="text-[10px] text-slate-400 italic">Select a category first</p>
+                       )}
                     </div>
                     <div className="col-span-1 space-y-2">
                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">Stock</label>

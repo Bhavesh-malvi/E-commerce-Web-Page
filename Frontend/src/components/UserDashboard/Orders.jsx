@@ -138,11 +138,29 @@ const Orders = () => {
                         >
                           {item.name}
                         </h4>
-                        <div className="flex items-center gap-3 mt-1.5">
-                           <p className="text-sm font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
+                        <div className="flex flex-wrap items-center gap-3 mt-1.5">
+                           <p className="text-sm font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded border border-gray-100">
                              Qty: {item.quantity}
                            </p>
-                           <p className="text-sm font-bold text-gray-900">
+                           {item.variant && (item.variant.color || item.variant.size) && (
+                             <div className="flex items-center gap-2">
+                               {item.variant.color && (
+                                 <div className="flex items-center gap-1.5 px-2 py-0.5 bg-gray-50 rounded border border-gray-100">
+                                   <div 
+                                     className="w-2 h-2 rounded-full border border-gray-200 shadow-sm"
+                                     style={{ backgroundColor: item.product?.variants?.find(v => v.color === item.variant.color)?.colorCode || '#ccc' }}
+                                   ></div>
+                                   <span className="text-[10px] font-bold text-gray-600 uppercase">{item.variant.color}</span>
+                                 </div>
+                               )}
+                               {item.variant.size && (
+                                 <div className="px-2 py-0.5 bg-purple-50 rounded border border-purple-100">
+                                   <span className="text-[10px] font-bold text-purple-600 uppercase tracking-tight">{item.variant.size}</span>
+                                 </div>
+                               )}
+                             </div>
+                           )}
+                           <p className="text-sm font-bold text-gray-900 ml-auto md:ml-0">
                              {currency === 'USD' ? '$' : '₹'}{convertPrice(item.price)}
                            </p>
                         </div>

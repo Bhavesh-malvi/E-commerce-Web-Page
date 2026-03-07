@@ -10,6 +10,7 @@ const productSchema = new mongoose.Schema({
   subCategory:String,
   gender:String,
   brand:String,
+  sizes:[String],
 
 
   seller:{
@@ -146,7 +147,7 @@ const productSchema = new mongoose.Schema({
     {
       color:String,      // e.g. "Red"
       colorCode:String,  // e.g. "#FF0000"
-      size:String,
+      sizes:[String],
       price:Number,      // Override base price
       stock:Number,
       sold:{ type:Number, default:0 },

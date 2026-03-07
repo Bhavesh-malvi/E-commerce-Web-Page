@@ -28,6 +28,7 @@ export const AppProvider = ({children})=>{
     const [cart, setCart] = useState(null);
     const [activeDeals, setActiveDeals] = useState([]);
     const [activeMegaDeal, setActiveMegaDeal] = useState(null);
+    const [categories, setCategories] = useState([]);
     const [addresses, setAddresses] = useState([]);
     const [selectedAddressID, setSelectedAddressID] = useState(localStorage.getItem("selectedAddressID") || null);
     const [activeBanners, setActiveBanners] = useState([]);
@@ -287,7 +288,7 @@ const getBanners = async () => {
             newSocket.emit("join", userId);
         });
 
-        newSocket.on("orderStatusUpdated", (data) => {
+        newSocket.on("orderStatusUpdated", () => {
 
             // Trigger a re-fetch of orders or update toast
             // For now, let's keep it simple: inform the user
@@ -464,8 +465,9 @@ const register = async (formData) => {
 
         return data
 
-    } catch (error) {
-
+    } catch(error) {
+        console.log(error);
+        
         
     }finally{
         setLoading(false);
@@ -929,9 +931,15 @@ const addToCart = async (productId, quantity = 1, variant) => {
   }
 };
 
-const removeFromCart = async (productId) => {
+const removeFromCart = async (productId, color, size) => {
   try {
-    const res = await API.delete(`/cart/${productId}`);
+    let url = `/cart/${productId}`;
+    const params = new URLSearchParams();
+    if (color) params.append('color', color);
+    if (size) params.append('size', size);
+    if (params.toString()) url += `?${params.toString()}`;
+    
+    const res = await API.delete(url);
     if (res.data.success) {
       setCart(res.data.cart);
     }
@@ -941,9 +949,9 @@ const removeFromCart = async (productId) => {
   }
 };
 
-const updateCartQuantity = async (productId, quantity) => {
+const updateCartQuantity = async (productId, quantity, variant) => {
   try {
-    const res = await API.put("/cart/quantity", { productId, quantity });
+    const res = await API.put("/cart/quantity", { productId, quantity, variant });
     if (res.data.success) {
       setCart(res.data.cart);
     }
@@ -1099,13 +1107,56 @@ const fetchAddresses = async () => {
     try {
         const res = await API.get("/address");
         if (res.data.success) {
-            setAddresses(res.data.list);
+            const list = res.data.list;
+            setAddresses(list);
             
-            // Auto-select default address if none selected or if previously selected is gone
-            const defaultAddress = res.data.list.find(a => a.isDefault);
-            if (!selectedAddressID && defaultAddress) {
-                setSelectedAddressID(defaultAddress._id);
-                localStorage.setItem("selectedAddressID", defaultAddress._id);
+            // Only auto-select if nothing is currently selected in state OR localStorage
+            const storedID = localStorage.getItem("selectedAddressID");
+            
+            if (!selectedAddressID && !storedID && list.length > 0) {
+                // 1. Try Default Address
+                const defaultAddress = list.find(a => a.isDefault);
+                if (defaultAddress) {
+                    setSelectedAddressID(defaultAddress._id);
+                    localStorage.setItem("selectedAddressID", defaultAddress._id);
+                } else {
+                    // 2. Try Last Used Address from Orders
+                    try {
+                        const orderRes = await API.get("/order/my");
+                        if (orderRes.data.success && orderRes.data.orders.length > 0) {
+                            const lastOrder = orderRes.data.orders[0];
+                            const lastAddr = lastOrder.shippingAddress;
+                            // Match by phone/street/pincode since IDs might be different if re-added
+                            const matched = list.find(a => 
+                                a.phone === lastAddr.phone && 
+                                a.street === lastAddr.street && 
+                                a.pincode === lastAddr.pincode
+                            );
+                            if (matched) {
+                                setSelectedAddressID(matched._id);
+                                localStorage.setItem("selectedAddressID", matched._id);
+                            } else {
+                                // 3. Fallback to First Address
+                                setSelectedAddressID(list[0]._id);
+                                localStorage.setItem("selectedAddressID", list[0]._id);
+                            }
+                        } else {
+                            // 3. Fallback to First Address
+                            setSelectedAddressID(list[0]._id);
+                            localStorage.setItem("selectedAddressID", list[0]._id);
+                        }
+                    } catch (e) {
+                        // 3. Fallback to First Address
+                        setSelectedAddressID(list[0]._id);
+                        localStorage.setItem("selectedAddressID", list[0]._id);
+                    }
+                }
+            } else if (storedID && !selectedAddressID) {
+                // If we have it in localStorage but not in state yet (common on refresh)
+                const exists = list.find(a => a._id === storedID);
+                if (exists) {
+                    setSelectedAddressID(storedID);
+                }
             }
         }
         return res.data;
@@ -1159,8 +1210,32 @@ const deleteAddress = async (id) => {
     }
 };
 
+    const getCategories = async () => {
+        try {
+            const res = await API.get("/product/nav-categories");
+            if (res.data.success) {
+                const navCats = res.data.navCategories;
+                // For each nav category (gender or category), fetch its unique subcategories
+                const enrichedCats = await Promise.all(navCats.map(async (cat) => {
+                    const queryParam = cat.type === "gender" ? `gender=${cat.value}` : `category=${cat.value}`;
+                    const subRes = await API.get(`/product/subcategories?${queryParam}`);
+                    return {
+                        ...cat,
+                        subCategories: subRes.data.success ? subRes.data.subCategories : []
+                    };
+                }));
+                setCategories(enrichedCats);
+            }
+        } catch (error) {
+            console.error("Fetch categories error:", error);
+        }
+    };
 
-const value = {
+    useEffect(() => {
+        getCategories();
+    }, []);
+
+    const value = {
     trendTypeData, truncateText, dealOfTheDay, newProducts, 
     currency, setCurrency, convertPrice, setIsShow, isShow,
     filteredData, setFilteredData, baseCategoryData, setBaseCategoryData,
@@ -1321,10 +1396,12 @@ const value = {
     },
     
     // Address export
-    addresses, selectedAddressID, setSelectedAddressID, fetchAddresses, addAddress, updateAddress, deleteAddress
-}
-    
-    
+    addresses, selectedAddressID, setSelectedAddressID, fetchAddresses, addAddress, updateAddress, deleteAddress,
+
+    // Dynamic Categories
+    categories, setCategories, getCategories
+};
+
     return(
         <AppContext.Provider value={value}>
             {children}

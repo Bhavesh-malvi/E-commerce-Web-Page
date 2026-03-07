@@ -101,14 +101,13 @@ export const placeOrder = async (req, res) => {
             // Color must match
             if (variantColor !== itemColor) return false;
             
-            const variantSize = (v.size || "").toLowerCase().trim();
-            const itemSize = (item.variant.size || "").toLowerCase().trim();
+            const variantSizeMatch = (v.sizes || []).some(s => s.toLowerCase().trim() === itemSize);
             
-            // If DB variant has no size, valid match (ignore input size)
-            if (variantSize === "") return true;
+            // If DB variant has no sizes or empty array, consider match if input size empty? 
+            // Better: strictly match if size is provided.
+            if (!itemSize && (!v.sizes || v.sizes.length === 0)) return true;
             
-            // Otherwise, strictly match size
-            return variantSize === itemSize;
+            return variantSizeMatch;
         });
 
         if (matchedVariant) {
@@ -717,14 +716,11 @@ export const updateOrderStatus = async (req, res) => {
                   // Color must match
                   if (variantColor !== itemColor) return false;
                   
-                  const variantSize = (v.size || "").toLowerCase().trim();
-                  const itemSize = (item.variant.size || "").toLowerCase().trim();
+                  const variantSizeMatch = (v.sizes || []).some(s => s.toLowerCase().trim() === itemSize);
                   
-                  // If DB variant has no size, valid match (ignore input size)
-                  if (variantSize === "") return true;
+                  if (!itemSize && (!v.sizes || v.sizes.length === 0)) return true;
                   
-                  // Otherwise, strictly match size
-                  return variantSize === itemSize;
+                  return variantSizeMatch;
               });
             }
             

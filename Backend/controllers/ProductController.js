@@ -39,6 +39,7 @@ export const addProduct = async (req, res) => {
       stock,
       tags,
       badges,
+      sizes,
       descriptionBlocks,
       specifications,
       variants,
@@ -349,6 +350,7 @@ export const updateProduct = async (req, res) => {
 
     if (req.body.tags) product.tags = safeParse(req.body.tags);
     if (req.body.badges) product.badges = safeParse(req.body.badges);
+    if (req.body.sizes) product.sizes = safeParse(req.body.sizes);
     if (req.body.specifications) product.specifications = safeParse(req.body.specifications);
     if (req.body.descriptionBlocks) product.descriptionBlocks = safeParse(req.body.descriptionBlocks);
     
@@ -550,10 +552,143 @@ export const deleteProduct = async (req, res) => {
 // ================= GET UNIQUE CATEGORIES =================
 export const getUniqueCategories = async (req, res) => {
   try {
-    const categories = await Product.distinct("category", { isActive: true });
-    res.json({ success: true, categories: categories.filter(c => c) });
+    const categories = await Product.aggregate([
+      { $match: { isActive: true, status: "active" } },
+      {
+        $project: {
+          category: 1,
+          mainImages: 1,
+          variants: 1,
+          stock: 1
+        }
+      },
+      {
+        $group: {
+          _id: "$category",
+          productCount: { $sum: 1 },
+          image: { $first: { $arrayElemAt: ["$mainImages.url", 0] } },
+          baseStock: { $sum: "$stock" },
+          variantStock: { 
+            $sum: { 
+              $reduce: {
+                input: "$variants",
+                initialValue: 0,
+                in: { $add: ["$$value", { $ifNull: ["$$this.stock", 0] }] }
+              }
+            } 
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          name: "$_id",
+          productCount: 1,
+          image: 1,
+          totalStock: { $add: ["$baseStock", "$variantStock"] }
+        }
+      },
+      { $sort: { name: 1 } }
+    ]);
+
+    res.json({ success: true, categories });
   } catch (error) {
+    console.error("GET CATEGORIES ERROR:", error);
     res.status(500).json({ success: false, message: "Failed to fetch categories" });
+  }
+};
+
+// ================= GET NAV CATEGORIES (Genders + Special Categories) =================
+export const getNavCategories = async (req, res) => {
+  try {
+    // 1. Get Genders
+    const genders = await Product.aggregate([
+      { $match: { isActive: true, status: "active", gender: { $exists: true, $ne: "" } } },
+      {
+        $group: {
+          _id: { $toLower: "$gender" },
+          productCount: { $sum: 1 },
+          image: { $first: { $arrayElemAt: ["$mainImages.url", 0] } },
+          baseStock: { $sum: "$stock" },
+          variantStock: { 
+            $sum: { 
+              $reduce: {
+                input: "$variants",
+                initialValue: 0,
+                in: { $add: ["$$value", { $ifNull: ["$$this.stock", 0] }] }
+              }
+            } 
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          name: {
+             $cond: [
+                { $eq: ["$_id", "male"] }, "Men's",
+                { $cond: [{ $eq: ["$_id", "female"] }, "Women's", "$_id"] }
+             ]
+          },
+          value: "$_id",
+          type: "gender",
+          priority: {
+             $cond: [
+                { $eq: ["$_id", "male"] }, 1,
+                { $cond: [{ $eq: ["$_id", "female"] }, 2, 3] }
+             ]
+          },
+          productCount: 1,
+          image: 1,
+          totalStock: { $add: ["$baseStock", "$variantStock"] }
+        }
+      },
+      { $sort: { priority: 1, name: 1 } }
+    ]);
+
+    // 2. Get Top Categories
+    const categories = await Product.aggregate([
+      { $match: { isActive: true, status: "active" } },
+      {
+        $group: {
+          _id: "$category",
+          productCount: { $sum: 1 },
+          image: { $first: { $arrayElemAt: ["$mainImages.url", 0] } },
+          baseStock: { $sum: "$stock" },
+          variantStock: { 
+            $sum: { 
+              $reduce: {
+                input: "$variants",
+                initialValue: 0,
+                in: { $add: ["$$value", { $ifNull: ["$$this.stock", 0] }] }
+              }
+            } 
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          name: "$_id",
+          value: "$_id",
+          type: "category",
+          priority: { $literal: 10 },
+          productCount: 1,
+          image: 1,
+          totalStock: { $add: ["$baseStock", "$variantStock"] }
+        }
+      },
+      { $sort: { name: 1 } }
+    ]);
+
+    // We can prioritize genders and then add unique categories
+    const genderNames = genders.map(g => g.name.toLowerCase());
+    const filteredCategories = categories.filter(c => !genderNames.includes(c.name.toLowerCase()));
+
+    res.json({ success: true, navCategories: [...genders, ...filteredCategories] });
+  } catch (error) {
+    console.error("GET NAV CATEGORIES ERROR:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch nav categories" });
   }
 };
 
@@ -561,12 +696,41 @@ export const getUniqueCategories = async (req, res) => {
 export const getUniqueSubCategories = async (req, res) => {
   try {
     const { category } = req.query;
-    const query = { isActive: true };
-    if (category) query.category = category;
+    const match = { isActive: true, status: "active" };
+    if (category) match.category = category;
 
-    const subCategories = await Product.distinct("subCategory", query);
-    res.json({ success: true, subCategories: subCategories.filter(s => s) });
+    const subCategories = await Product.aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: "$subCategory",
+          productCount: { $sum: 1 },
+          baseStock: { $sum: "$stock" },
+          variantStock: { 
+            $sum: { 
+              $reduce: {
+                input: "$variants",
+                initialValue: 0,
+                in: { $add: ["$$value", { $ifNull: ["$$this.stock", 0] }] }
+              }
+            } 
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          title: "$_id",
+          productCount: 1,
+          stock: { $add: ["$baseStock", "$variantStock"] }
+        }
+      },
+      { $sort: { title: 1 } }
+    ]);
+
+    res.json({ success: true, subCategories: subCategories.filter(s => s.title) });
   } catch (error) {
+    console.error("GET SUBCATEGORIES ERROR:", error);
     res.status(500).json({ success: false, message: "Failed to fetch subcategories" });
   }
 };

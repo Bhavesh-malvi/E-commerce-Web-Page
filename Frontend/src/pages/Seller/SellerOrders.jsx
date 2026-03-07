@@ -247,7 +247,28 @@ const SellerOrders = () => {
                         </div>
                         <div>
                           <p className="font-bold text-slate-800 text-[11px] line-clamp-1">{item.name}</p>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">Qty: {item.quantity}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Qty: {item.quantity}</span>
+                            {item.variant && (item.variant.color || item.variant.size) && (
+                              <>
+                                <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
+                                {item.variant.color && (
+                                  <span className="flex items-center gap-1 text-[9px] font-bold text-slate-500 uppercase tracking-tighter bg-white px-1.5 py-0.5 rounded border border-slate-100 shadow-sm">
+                                    <span 
+                                      className="w-1.5 h-1.5 rounded-full border border-slate-200" 
+                                      style={{ backgroundColor: item.product?.variants?.find(v => v.color === item.variant.color)?.colorCode || '#ccc' }}
+                                    ></span>
+                                    {item.variant.color}
+                                  </span>
+                                )}
+                                {item.variant.size && (
+                                  <span className="text-[9px] font-bold text-purple-500 uppercase tracking-tighter bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100 shadow-sm">
+                                    {item.variant.size}
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}

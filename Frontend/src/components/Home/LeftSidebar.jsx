@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 
 const LeftSidebar = () => {
 
-    const { currency, convertPrice, bestSeller } = useContext(AppContext);
+    const { currency, convertPrice, bestSeller, categories } = useContext(AppContext);
     const navigate = useNavigate()
 
     const [isOpen, setIsOpen] = useState(null);
@@ -24,12 +24,12 @@ const LeftSidebar = () => {
                     <h1 className='uppercase text-[18px] font-semibold text-[#454545] mb-3'>Category</h1>
 
                     {
-                        subCategory.map((item, i)=>{
+                        categories.map((item, i)=>{
                             return(
                                 <div key={i} className={`overflow-y-hidden transition-h duration-300`}>
                                     <div className="flex justify-between py-2.5">
                                         <div className="flex gap-2">
-                                            <img src={item.icon} width="20px" alt="" />
+                                            {item.image && <img src={item.image} width="20px" className='object-contain' alt="" />}
                                             <p className='font-medium text-[#454545] text-[15px]'>{item.name}</p>
                                         </div>
                                         <div className="cursor-pointer" onClick={()=> handleToggle(i)}> {isOpen === i ? <LuMinus /> : <GoPlus />} </div>
@@ -38,11 +38,11 @@ const LeftSidebar = () => {
                                         ${isOpen === i ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
                                         <div className="overflow-hidden pl-7 pb-2">
                                             {
-                                                item.subData.map((item, idx)=>{
+                                                item.subCategories?.map((sub, idx)=>{
                                                     return(
-                                                        <div key={idx} className="flex justify-between py-1 text-[#666666] hover:text-[#454545] cursor-pointer" onClick={()=> {navigate(`/categoryPage/${item.title}`); scrollTo(0,650)}}>
-                                                            <p>{item.title}</p>
-                                                            <p>{item.stock}</p>
+                                                        <div key={idx} className="flex justify-between py-1 text-[#666666] hover:text-[#454545] cursor-pointer" onClick={()=> {navigate(`/categoryPage/${sub.title}`); scrollTo(0,650)}}>
+                                                            <p>{sub.title}</p>
+                                                            <p>{sub.stock}</p>
                                                         </div>
                                                     )
                                                 })

@@ -7,7 +7,7 @@ const StarRating = ({ rating, textSize }) => {
     return (
         <div className={`flex text-[#F6A355] text-[${textSize || "15px"}]`}>
         {[...Array(totalStars)].map((_, index) => {
-            const starNumber = index + 1;
+            const starNumber = index + 1;       
 
             if (rating >= starNumber) {
             return <IoStarSharp key={index} />;
@@ -16,6 +16,7 @@ const StarRating = ({ rating, textSize }) => {
             if (rating >= starNumber - 0.5) {
             return <IoStarHalfSharp  key={index} />;
             }
+            
 
             return <IoStarOutline  key={index} />;
         })}

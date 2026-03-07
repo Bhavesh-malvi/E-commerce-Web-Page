@@ -85,43 +85,59 @@ const Checkout = () => {
   const handlePlaceOrder = async (e) => {
     e?.preventDefault();
     
+    // 1. Initial Checks
+    if (addresses.length === 0) {
+      toast.error("Please add a shipping address first");
+      return;
+    }
+
     if (!selectedAddressID) {
       toast.error("Please select a shipping address");
       return;
     }
 
+    const selectedAddress = addresses.find(a => a._id === selectedAddressID);
+    if (!selectedAddress) {
+      toast.error("Selected address not found. Please select again.");
+      return;
+    }
+
     setPlacing(true);
 
-    const selectedAddress = addresses.find(a => a._id === selectedAddressID);
+    try {
+      const data = {
+        shippingAddress: {
+          name: selectedAddress.name,
+          phone: selectedAddress.phone,
+          street: selectedAddress.street,
+          city: selectedAddress.city,
+          state: selectedAddress.state,
+          pincode: selectedAddress.pincode,
+          landmark: selectedAddress.landmark
+        },
+        paymentMethod,
+        couponCode: appliedCoupon ? appliedCoupon.code : null
+      };
 
-    const data = {
-      shippingAddress: {
-        name: selectedAddress.name,
-        phone: selectedAddress.phone,
-        street: selectedAddress.street,
-        city: selectedAddress.city,
-        state: selectedAddress.state,
-        pincode: selectedAddress.pincode,
-        landmark: selectedAddress.landmark
-      },
-      paymentMethod,
-      couponCode: appliedCoupon ? appliedCoupon.code : null
-    };
+      const res = await placeOrder(data);
 
-    const res = await placeOrder(data);
-
-    if (res?.success) {
-      if (res.session_url) {
-        toast.success("Redirecting to payment...");
-        window.location.replace(res.session_url);
-        return;
+      if (res?.success) {
+        if (res.session_url) {
+          toast.success("Redirecting to payment...");
+          window.location.replace(res.session_url);
+          return; // Browser will leave page
+        }
+        toast.success("Order placed successfully! 🎉");
+        navigate("/orders");
+      } else {
+        toast.error(res?.message || "Failed to place order");
+        setPlacing(false);
       }
-      toast.success("Order placed successfully! 🎉");
-      navigate("/orders");
-    } else {
-      toast.error(res?.message || "Failed to place order");
+    } catch (error) {
+      console.error("Order error:", error);
+      toast.error("An unexpected error occurred. Please try again.");
+      setPlacing(false);
     }
-    setPlacing(false);
   };
 
   const handleAddressSubmit = async (formData) => {
@@ -291,8 +307,28 @@ const Checkout = () => {
                       <img src={displayImage} alt="" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-gray-900 text-sm line-clamp-2 leading-tight">{item.product.name}</p>
-                      <div className="flex items-center gap-3 mt-1">
+                      <p className="font-bold text-gray-900 text-sm line-clamp-1 leading-tight">{item.product.name}</p>
+                      
+                      {item.variant && (item.variant.color || item.variant.size) && (
+                        <div className="flex items-center gap-2 mt-1 px-1">
+                           {item.variant.color && (
+                             <span className="flex items-center gap-1 text-[9px] font-black text-gray-400 uppercase tracking-tighter">
+                               <span 
+                                className="w-2 h-2 rounded-full border border-gray-100" 
+                                style={{ backgroundColor: item.product?.variants?.find(v => v.color === item.variant.color)?.colorCode || '#ccc' }}
+                               ></span>
+                               {item.variant.color}
+                             </span>
+                           )}
+                           {item.variant.size && (
+                             <span className="text-[9px] font-black text-purple-400 uppercase tracking-tighter bg-purple-50 px-1.5 py-0.5 rounded-md">
+                               {item.variant.size}
+                             </span>
+                           )}
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-3 mt-1.5">
                         <p className="text-xs text-gray-400 font-bold">QTY: {item.quantity}</p>
                         <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
                         <p className="text-xs font-black text-[#FF8F9C]">₹{(item.finalPrice * item.quantity).toFixed(2)}</p>

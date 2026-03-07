@@ -26,6 +26,7 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [selectedSize, setSelectedSize] = useState("");
   const [notifyEmail, setNotifyEmail] = useState("");
 
   const handleNotify = async () => {
@@ -63,6 +64,7 @@ const ProductDetails = () => {
       setIndex(0); // Reset image index
       // Don't auto-select variant - show main product images by default
       setSelectedVariant(null);
+      setSelectedSize("");
 
       // Track browsing history
       trackActivity({
@@ -104,7 +106,7 @@ const ProductDetails = () => {
     }
 
     try {
-      const res = await addToCart(product._id, 1, selectedVariant);
+      const res = await addToCart(product._id, 1, { ...selectedVariant, size: selectedSize });
       if (res?.success) {
         toast.success("Redirecting to cart...");
         navigate("/cart");
@@ -117,6 +119,25 @@ const ProductDetails = () => {
     }
   };
 
+  const handleAddToCart = async () => {
+    if (!user) {
+      setOpen(true);
+      return;
+    }
+
+    if (availableSizes.length > 0 && !selectedSize) {
+      toast.error("Please select a size");
+      return;
+    }
+
+    const res = await addToCart(product._id, 1, { ...selectedVariant, size: selectedSize });
+    if (res?.success) {
+      toast.success("Added to cart!");
+    } else {
+      toast.error(res?.message || "Failed to add to cart");
+    }
+  };
+
   // Dynamic values based on selection
   const currentImages = useMemo(() => {
     if (!product) return [];
@@ -124,6 +145,12 @@ const ProductDetails = () => {
     if (selectedVariant?.images?.length > 0) return selectedVariant.images.map(img => img.url);
     // Default: show main product images
     return product.mainImages?.map(img => img.url) || [];
+  }, [product, selectedVariant]);
+
+  const availableSizes = useMemo(() => {
+    if (!product) return [];
+    if (selectedVariant?.sizes?.length > 0) return selectedVariant.sizes;
+    return product.sizes || [];
   }, [product, selectedVariant]);
 
   // Track activity to LocalStorage (LIFO)
@@ -299,6 +326,30 @@ const ProductDetails = () => {
                 </div>
               )}
 
+              {/* Size Selection */}
+              {availableSizes.length > 0 && (
+                <div className="pt-2">
+                  <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+                    Select Size: <span className="font-normal text-purple-600 font-bold">{selectedSize || 'Choose one'}</span>
+                  </p>
+                  <div className="flex gap-2 sm:gap-3 flex-wrap">
+                    {availableSizes.map((size) => (
+                      <button
+                        key={size}
+                        onClick={() => setSelectedSize(size)}
+                        className={`min-w-[40px] h-10 px-3 rounded-lg border-2 transition-all flex items-center justify-center text-xs font-bold uppercase tracking-wider ${
+                          selectedSize === size
+                            ? "border-[#FF8F9C] bg-[#FF8F9C]/5 text-[#FF8F9C] scale-105"
+                            : "border-gray-200 text-gray-600 hover:border-gray-400"
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Stock Status with Progress Bar */}
               {(() => {
                 const currentStock = selectedVariant?.stock ?? product.stock ?? 0;
@@ -362,7 +413,9 @@ const ProductDetails = () => {
                   <div>
                     <CartButton 
                       productId={product._id} 
-                      variant={selectedVariant} 
+                      variant={{ ...selectedVariant, size: selectedSize }} 
+                      isDisabled={availableSizes.length > 0 && !selectedSize}
+                      onAdd={handleAddToCart}
                     />
                   </div>
                   

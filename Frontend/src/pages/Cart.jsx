@@ -20,17 +20,16 @@ const Cart = () => {
         setLoading(false);
     };
 
-    const handleQuantityChange = async (productId, newQty) => {
+    const handleQuantityChange = async (productId, newQty, variant) => {
         if (newQty < 1) return;
-
-        const res = await updateCartQuantity(productId, newQty);
+        const res = await updateCartQuantity(productId, newQty, variant);
         if (!res?.success) {
             toast.error(res?.message || "Failed to update quantity");
         }
     };
 
-    const handleRemove = async (productId) => {
-        const res = await removeFromCart(productId);
+    const handleRemove = async (productId, variant) => {
+        const res = await removeFromCart(productId, variant?.color, variant?.size);
         if (res?.success) {
             toast.success("Item removed from cart");
         } else {
@@ -89,21 +88,35 @@ const Cart = () => {
                             />
                             
                             <div className="flex-1">
-                                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-1">{item.product?.name}</h3>
-                                {item.variant && (
-                                    <p className="text-xs sm:text-sm text-gray-500 mb-2">
-                                        {item.variant.color && `Color: ${item.variant.color}`}
-                                        {item.variant.size && ` • Size: ${item.variant.size}`}
-                                    </p>
+                                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-1 line-clamp-1">{item.product?.name}</h3>
+                                
+                                {item.variant && (item.variant.color || item.variant.size) && (
+                                    <div className="flex flex-wrap gap-2 mb-3">
+                                        {item.variant.color && (
+                                            <span className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-lg text-[10px] font-bold text-gray-600 uppercase tracking-wider">
+                                                <span 
+                                                    className="w-2 h-2 rounded-full border border-gray-200" 
+                                                    style={{ backgroundColor: item.product?.variants?.find(v => v.color === item.variant.color)?.colorCode || '#ccc' }}
+                                                ></span>
+                                                {item.variant.color}
+                                            </span>
+                                        )}
+                                        {item.variant.size && (
+                                            <span className="px-2.5 py-1 bg-purple-50 border border-purple-100 rounded-lg text-[10px] font-bold text-purple-600 uppercase tracking-wider">
+                                                Size: {item.variant.size}
+                                            </span>
+                                        )}
+                                    </div>
                                 )}
-                                <p className="text-lg sm:text-xl font-bold text-[#FF8F9C]">
+
+                                <p className="text-lg sm:text-xl font-black text-[#FF8F9C]">
                                     {currency === "USD" ? "$" : "₹"}{convertPrice(item.finalPrice)}
                                 </p>
                             </div>
 
                             <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-between">
                                 <button 
-                                    onClick={() => handleRemove(typeof item.product === 'object' ? item.product._id : item.product)}
+                                    onClick={() => handleRemove(typeof item.product === 'object' ? item.product._id : item.product, item.variant)}
                                     className="text-red-500 hover:text-red-700 transition-colors order-2 sm:order-1"
                                 >
                                     <IoTrashOutline className="text-lg sm:text-xl" />
@@ -111,14 +124,14 @@ const Cart = () => {
 
                                 <div className="flex items-center gap-2 sm:gap-3 border border-gray-300 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 order-1 sm:order-2">
                                     <button 
-                                        onClick={() => handleQuantityChange(typeof item.product === 'object' ? item.product._id : item.product, item.quantity - 1)}
+                                        onClick={() => handleQuantityChange(typeof item.product === 'object' ? item.product._id : item.product, item.quantity - 1, item.variant)}
                                         className="text-lg sm:text-xl font-bold text-gray-600 hover:text-[#FF8F9C] transition-colors"
                                     >
                                         −
                                     </button>
                                     <span className="text-base sm:text-lg font-semibold w-6 sm:w-8 text-center">{item.quantity}</span>
                                     <button 
-                                        onClick={() => handleQuantityChange(typeof item.product === 'object' ? item.product._id : item.product, item.quantity + 1)}
+                                        onClick={() => handleQuantityChange(typeof item.product === 'object' ? item.product._id : item.product, item.quantity + 1, item.variant)}
                                         className="text-lg sm:text-xl font-bold text-gray-600 hover:text-[#FF8F9C] transition-colors"
                                     >
                                         +

@@ -9,6 +9,8 @@ export const addToCart = async (req, res) => {
   try {
 
     const { productId, quantity = 1, variant } = req.body;
+    
+    console.log("ADD TO CART:", { productId, quantity, variant });
 
 
     // Validate
@@ -34,7 +36,13 @@ export const addToCart = async (req, res) => {
     let variantPrice = product.discountPrice || product.price;
 
     if (variant) {
-       const v = product.variants.find(v => v.color === variant.color && v.size === variant.size);
+       // Match by color OR size (if one is provided) or both
+       const v = product.variants.find(v => {
+          const colorMatch = !variant.color || v.color === variant.color;
+          const sizeMatch = !variant.size || v.sizes?.includes(variant.size);
+          return colorMatch && sizeMatch;
+       });
+       
        if (v) {
           targetStock = v.stock;
           if (v.price) variantPrice = v.price;
@@ -169,7 +177,7 @@ export const getCart = async (req, res) => {
 export const updateQuantity = async (req, res) => {
   try {
 
-    const { productId, quantity } = req.body;
+    const { productId, quantity, variant } = req.body;
 
 
 
@@ -199,7 +207,9 @@ export const updateQuantity = async (req, res) => {
 
     const item = cart.items.find(i => {
       const itemProductId = i.product._id ? i.product._id.toString() : i.product.toString();
-      return itemProductId === productId;
+      const colorMatch = i.variant?.color === variant?.color;
+      const sizeMatch = i.variant?.size === variant?.size;
+      return itemProductId === productId && colorMatch && sizeMatch;
     });
 
 
@@ -254,6 +264,7 @@ export const removeFromCart = async (req, res) => {
   try {
 
     const productId = req.params.productId;
+    const { color, size } = req.query; // Pass variant as query params for DELETE
 
     const cart = await Cart.findOne({
       user: req.user._id
@@ -271,7 +282,9 @@ export const removeFromCart = async (req, res) => {
 
     cart.items = cart.items.filter(i => {
       const itemProductId = i.product._id ? i.product._id.toString() : i.product.toString();
-      return itemProductId !== productId;
+      const colorMatch = i.variant?.color === color;
+      const sizeMatch = i.variant?.size === size;
+      return !(itemProductId === productId && colorMatch && sizeMatch);
     });
 
     // Save (pre-save hook will recalculate totals)

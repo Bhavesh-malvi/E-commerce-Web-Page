@@ -99,7 +99,7 @@ const chunkArray = (array, size) => {
                 </div>
 
                 <div className="py-4 sm:py-5 col-span-1 md:col-span-2 lg:col-span-3 mt-3 sm:mt-5">
-                   <RecommendedProducts />
+                    <RecommendedProducts />
                 </div>
 
             </div>

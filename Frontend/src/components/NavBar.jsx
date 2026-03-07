@@ -10,7 +10,7 @@ import { AppContext } from '../context/AppContext';
 
 const NavBar = () => {
 
-    const {setOpen, user, wishlist, cart, activeMegaDeal} = useContext(AppContext);
+    const {setOpen, user, wishlist, cart, activeMegaDeal, categories} = useContext(AppContext);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const navigate = useNavigate();
@@ -160,82 +160,34 @@ const NavBar = () => {
                     <li className='relative flex flex-col items-center group'>
                         <p className='font-semibold pb-3 text-[#464646] relative after:content-[] after:absolute after:w-[0%] after:h-[2.5px] after:bg-[#FF8F9C] after:left-0 after:bottom-0 hover:after:w-full after:transition-w after:duration-300  hover:text-[#FF8F9C] cursor-pointer uppercase'>Categories</p>
 
-                        <div className="absolute z-20 flex w-140 top-9 justify-between px-5 gap-10 py-3 rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.25)] opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-3 group-hover:translate-y-0 transition-all duration-200 bg-white">
-                            <ul className='w-1/2 flex flex-col gap-3'>
-                                <li className='font-semibold border-b border-gray-300 pb-3 text-[#464646]'>Men's</li>
-                                {["shirt & t-shirt","formal shoes", "casual shoes", "sports shoes", "jacket"].map((p)=>{
-                                    return(
-                                        <li key={p} className='capitalize cursor-pointer hover:text-[#FF8F9C]'><Link to={`/categoryPage/male/${p}`} onClick={()=> scrollTo(0,650)}>{p}</Link></li>
-                                    )
-                                })}
-
-                                <li className='rounded-[5px] overflow-hidden cursor-pointer'><img src={assets.mens_banner} alt="" /></li>
-                            </ul>
-
-                            <ul className='w-1/2 flex flex-col gap-3'>
-                                <li className='font-semibold border-b border-gray-300 pb-3 text-[#464646]'>Women's</li>
-                                {["shirt & t-shirt","earring", "party wear", "jacket","bags"].map((p)=>{
-                                    return(
-                                        <li key={p} className='capitalize cursor-pointer hover:text-[#FF8F9C]'><Link to={`/categoryPage/female/${p}`} onClick={()=> scrollTo(0,650)}>{p}</Link></li>
-                                    )
-                                })}
-
-                                <li className='rounded-[5px] overflow-hidden cursor-pointer'><img src={assets.womens_banner} alt="" /></li>
-                            </ul>
+                        <div className="absolute z-20 flex w-max min-w-[300px] top-9 justify-start px-5 gap-10 py-5 rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.25)] opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-3 group-hover:translate-y-0 transition-all duration-200 bg-white">
+                            {categories.filter(cat => cat.type === "gender").map((cat) => (
+                                <ul key={cat.name} className='flex flex-col gap-3 min-w-[150px]'>
+                                    <li className='font-semibold border-b border-gray-300 pb-2 text-[#464646] uppercase mb-1'>{cat.name}</li>
+                                    {cat.subCategories?.map((sub) => (
+                                        <li key={sub.title} className='capitalize cursor-pointer hover:text-[#FF8F9C] text-sm'>
+                                            <Link to={cat.type === "gender" ? `/categoryPage/${cat.value}/${sub.title}` : `/categoryPage/${cat.value}/${sub.title}`} onClick={() => scrollTo(0, 650)}>{sub.title}</Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ))}
                         </div>
                     </li>
-                    <li className='relative flex flex-col items-start group'>
-                        <p className='font-semibold pb-3 text-[#464646] relative after:content-[] after:absolute after:w-[0%] after:h-[2.5px] after:bg-[#FF8F9C] after:left-0 after:bottom-0 hover:after:w-full after:transition-w after:duration-300  hover:text-[#FF8F9C] cursor-pointer uppercase'>Men's</p>
+                    {categories.filter(cat => cat.type === "category").map((cat) => (
+                        <li key={cat.name} className='relative flex flex-col items-start group'>
+                            <p className='font-semibold pb-3 text-[#464646] relative after:content-[] after:absolute after:w-[0%] after:h-[2.5px] after:bg-[#FF8F9C] after:left-0 after:bottom-0 hover:after:w-full after:transition-w after:duration-300  hover:text-[#FF8F9C] cursor-pointer uppercase'>{cat.name}</p>
 
-                        <div className="absolute z-20 flex w-50 top-9 justify-between px-5 gap-10 py-3 rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.25)] opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-3 group-hover:translate-y-0 transition-all duration-200 bg-white">
-                            <ul className='w-full flex flex-col gap-3'>
-                                {["shirt", "shorts & jeans", "shoes", "wallet"].map((p)=>{
-                                    return(
-                                        <li key={p} className='capitalize cursor-pointer hover:text-[#FF8F9C]'><Link to={`/categoryPage/male/${p}`} onClick={()=> scrollTo(0,650)}>{p}</Link></li>
-                                    )
-                                })}
-                            </ul>
-                        </div>
-                    </li>
-                    <li className='relative flex flex-col items-start group'>
-                        <p className='font-semibold pb-3 text-[#464646] relative after:content-[] after:absolute after:w-[0%] after:h-[2.5px] after:bg-[#FF8F9C] after:left-0 after:bottom-0 hover:after:w-full after:transition-w after:duration-300  hover:text-[#FF8F9C] cursor-pointer uppercase'>Women's</p>
-
-                        <div className="absolute z-20 flex w-50 top-9 justify-between px-5 gap-10 py-3 rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.25)] opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-3 group-hover:translate-y-0 transition-all duration-200 bg-white">
-                            <ul className='w-full flex flex-col gap-3'>
-                                {["clothes", "earring", "necklace", "shorts & jeans"].map((p)=>{
-                                    return(
-                                        <li key={p} className='capitalize cursor-pointer hover:text-[#FF8F9C]'><Link to={`/categoryPage/female/${p}`} onClick={()=> scrollTo(0,650)}>{p}</Link></li>
-                                    )
-                                })}
-                            </ul>
-                        </div>
-                    </li>
-                    <li className='relative flex flex-col items-start group'>
-                        <p className='font-semibold pb-3 text-[#464646] relative after:content-[] after:absolute after:w-[0%] after:h-[2.5px] after:bg-[#FF8F9C] after:left-0 after:bottom-0 hover:after:w-full after:transition-w after:duration-300  hover:text-[#FF8F9C] cursor-pointer uppercase'>Jewelry</p>
-
-                        <div className="absolute z-20 flex w-50 top-9 justify-between px-5 gap-10 py-3 rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.25)] opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-3 group-hover:translate-y-0 transition-all duration-200 bg-white">
-                            <ul className='w-full flex flex-col gap-3'>
-                                {["earring", "couple rings", "necklace", "bracelets"].map((p)=>{
-                                    return(
-                                        <li key={p} className='capitalize cursor-pointer hover:text-[#FF8F9C]'><Link to={`/categoryPage/${p}`} onClick={()=> scrollTo(0,650)}>{p}</Link></li>
-                                    )
-                                })}
-                            </ul>
-                        </div>
-                    </li>
-                    <li className='relative flex flex-col items-start group'>
-                        <p className='font-semibold pb-3 text-[#464646] relative after:content-[] after:absolute after:w-[0%] after:h-[2.5px] after:bg-[#FF8F9C] after:left-0 after:bottom-0 hover:after:w-full after:transition-w after:duration-300  hover:text-[#FF8F9C] cursor-pointer uppercase'>Perfume</p>
-
-                        <div className="absolute z-20 flex w-50 top-9 justify-between px-5 gap-10 py-3 rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.25)] opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-3 group-hover:translate-y-0 transition-all duration-200 bg-white">
-                            <ul className='w-full flex flex-col gap-3'>
-                                {["clothes perfume", "deodorant"].map((p)=>{
-                                    return(
-                                        <li key={p} className='capitalize cursor-pointer hover:text-[#FF8F9C]'><Link to={`/categoryPage/${p}`} onClick={()=> scrollTo(0,650)}>{p}</Link></li>
-                                    )
-                                })}
-                            </ul>
-                        </div>
-                    </li>
+                            <div className="absolute z-20 flex w-50 top-9 justify-between px-5 gap-10 py-3 rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.25)] opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-3 group-hover:translate-y-0 transition-all duration-200 bg-white">
+                                <ul className='w-full flex flex-col gap-3'>
+                                    {cat.subCategories?.map((sub) => (
+                                        <li key={sub.title} className='capitalize cursor-pointer hover:text-[#FF8F9C]'>
+                                            <Link to={cat.type === "gender" ? `/categoryPage/${cat.value}/${sub.title}` : `/categoryPage/${cat.value}/${sub.title}`} onClick={() => scrollTo(0, 650)}>{sub.title}</Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </li>
+                    ))}
                     <li>
                         <Link to="/blog" className='font-semibold pb-3 text-[#464646] relative after:content-[] after:absolute after:w-[0%] after:h-[2.5px] after:bg-[#FF8F9C] after:left-0 after:bottom-0 hover:after:w-full after:transition-w after:duration-300  hover:text-[#FF8F9C] cursor-pointer uppercase'>Blog</Link>
                     </li>
@@ -268,36 +220,18 @@ const NavBar = () => {
                             <li>
                                 <Link to="/" onClick={() => setMobileMenuOpen(false)} className='block font-semibold text-[#464646] hover:text-[#FF8F9C] uppercase py-2 border-b border-gray-200'>Home</Link>
                             </li>
-                            <li>
-                                <p className='font-semibold text-[#464646] uppercase py-2 border-b border-gray-200'>Men's</p>
-                                <ul className='pl-4 mt-2 flex flex-col gap-2'>
-                                    {["shirt", "shorts & jeans", "shoes", "wallet"].map((p)=>(
-                                        <li key={p} className='capitalize text-sm hover:text-[#FF8F9C]'>
-                                            <Link to={`/categoryPage/male/${p}`} onClick={() => {setMobileMenuOpen(false); scrollTo(0,650)}}>{p}</Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </li>
-                            <li>
-                                <p className='font-semibold text-[#464646] uppercase py-2 border-b border-gray-200'>Women's</p>
-                                <ul className='pl-4 mt-2 flex flex-col gap-2'>
-                                    {["clothes", "earring", "necklace", "shorts & jeans"].map((p)=>(
-                                        <li key={p} className='capitalize text-sm hover:text-[#FF8F9C]'>
-                                            <Link to={`/categoryPage/female/${p}`} onClick={() => {setMobileMenuOpen(false); scrollTo(0,650)}}>{p}</Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </li>
-                            <li>
-                                <p className='font-semibold text-[#464646] uppercase py-2 border-b border-gray-200'>Jewelry</p>
-                                <ul className='pl-4 mt-2 flex flex-col gap-2'>
-                                    {["earring", "couple rings", "necklace", "bracelets"].map((p)=>(
-                                        <li key={p} className='capitalize text-sm hover:text-[#FF8F9C]'>
-                                            <Link to={`/categoryPage/${p}`} onClick={() => {setMobileMenuOpen(false); scrollTo(0,650)}}>{p}</Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </li>
+                            {categories.map((cat) => (
+                                <li key={cat.name}>
+                                    <p className='font-semibold text-[#464646] uppercase py-2 border-b border-gray-200'>{cat.name}</p>
+                                    <ul className='pl-4 mt-2 flex flex-col gap-2'>
+                                        {cat.subCategories?.map((sub) => (
+                                            <li key={sub.title} className='capitalize text-sm hover:text-[#FF8F9C]'>
+                                                <Link to={cat.type === "gender" ? `/categoryPage/${cat.value}/${sub.title}` : `/categoryPage/${cat.value}/${sub.title}`} onClick={() => {setMobileMenuOpen(false); scrollTo(0, 650)}}>{sub.title}</Link>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </li>
+                            ))}
                             <li>
                                 <Link to="/blog" onClick={() => setMobileMenuOpen(false)} className='block font-semibold text-[#464646] hover:text-[#FF8F9C] uppercase py-2 border-b border-gray-200'>Blog</Link>
                             </li>

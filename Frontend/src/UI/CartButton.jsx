@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react'
 import { IoCartOutline } from 'react-icons/io5'
+// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion'
 import { GiPaperBagFolded } from 'react-icons/gi'
 import { AppContext } from '../context/AppContext'
@@ -32,10 +33,13 @@ const CartButton = ({ productId, variant, isDisabled }) => {
     if (cart && cart.items) {
       const cartItem = cart.items.find(item => {
         const itemProductId = typeof item.product === 'object' ? item.product._id : item.product;
-        return itemProductId === productId;
+        const colorMatch = item.variant?.color === variant?.color;
+        const sizeMatch = item.variant?.size === variant?.size;
+        return itemProductId === productId && colorMatch && sizeMatch;
       });
       
       if (cartItem) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setShowQty(true);
         setQty(cartItem.quantity);
       } else {
@@ -70,7 +74,7 @@ const CartButton = ({ productId, variant, isDisabled }) => {
   const handleDecrease = async () => {
     if (qty === 1) {
       // Remove from cart
-      const res = await removeFromCart(productId);
+      const res = await removeFromCart(productId, variant?.color, variant?.size);
       if (res?.success) {
         setShowQty(false);
         setStage('idle');
@@ -82,7 +86,7 @@ const CartButton = ({ productId, variant, isDisabled }) => {
     } else {
       const newQty = qty - 1;
       setQty(newQty);
-      const res = await updateCartQuantity(productId, newQty);
+      const res = await updateCartQuantity(productId, newQty, variant);
       if (!res?.success) {
         toast.error(res?.message || 'Failed to update quantity');
         // Revert on error
@@ -94,7 +98,7 @@ const CartButton = ({ productId, variant, isDisabled }) => {
   const handleIncrease = async () => {
     const newQty = qty + 1;
     setQty(newQty);
-    const res = await updateCartQuantity(productId, newQty);
+    const res = await updateCartQuantity(productId, newQty, variant);
     if (!res?.success) {
       toast.error(res?.message || 'Failed to update quantity');
       // Revert on error

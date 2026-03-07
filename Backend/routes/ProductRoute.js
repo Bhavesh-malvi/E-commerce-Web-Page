@@ -9,6 +9,7 @@ import {
   deleteProduct,
   getUniqueCategories,
   getUniqueSubCategories,
+  getNavCategories,
   getSellerProducts,
   subscribeToRestock
 } from "../controllers/ProductController.js";
@@ -69,6 +70,9 @@ router.get("/categories", getUniqueCategories);
 
 // Get unique subcategories
 router.get("/subcategories", getUniqueSubCategories);
+
+// Get nav categories (hierarchical)
+router.get("/nav-categories", getNavCategories);
 
 // Notify Restock
 router.post("/notify-restock", subscribeToRestock);
