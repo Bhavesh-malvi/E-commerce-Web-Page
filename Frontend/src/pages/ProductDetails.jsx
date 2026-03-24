@@ -213,7 +213,7 @@ const ProductDetails = () => {
               {currentImages.map((item, i) => (
                 <div
                   key={i}
-                  className={`border rounded-[5px] min-w-[60px] w-16 h-16 sm:min-w-[70px] sm:w-18 sm:h-18 md:min-w-0 md:w-full md:h-23 p-0.5 cursor-pointer flex-shrink-0 ${
+                  className={`border rounded-[5px] min-w-[60px] w-16 h-16 sm:min-w-[70px] sm:w-18 sm:h-18 md:min-w-0 md:w-full md:h-23 p-0.5 cursor-pointer shrink-0 ${
                     index === i ? "border-[#FF8F9C] shadow-md" : "border-gray-300"
                   }`}
                   onClick={() => setIndex(i)}
@@ -348,7 +348,7 @@ const ProductDetails = () => {
                     ))}
                   </div>
                 </div>
-              )}
+              )}z
 
               {/* Stock Status with Progress Bar */}
               {(() => {

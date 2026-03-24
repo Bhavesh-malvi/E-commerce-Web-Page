@@ -51,7 +51,7 @@ const SelectWithCreate = ({ label, name, options, value, onChange, placeholder, 
       {isOpen && options.length > 0 && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
           {options
-            .filter(opt => opt.toLowerCase().includes(value.toLowerCase()))
+            .filter(opt => (opt || '').toString().toLowerCase().includes((value || '').toString().toLowerCase()))
             .map((opt, idx) => (
             <div
               key={idx}

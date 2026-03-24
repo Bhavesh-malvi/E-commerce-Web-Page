@@ -34,14 +34,14 @@ const ProductForm = ({ initialData = null, isEdit = false }) => {
   const fetchCategories = async () => {
     const res = await getUniqueCategories();
     if (res.success) {
-        setCategories(res.categories);
+        setCategories(res.categories.map(c => c.name));
     }
   };
 
   const fetchSubCategories = async (cat) => {
     const res = await getUniqueSubCategories(cat);
     if (res.success) {
-        setSubCategories(res.subCategories);
+        setSubCategories(res.subCategories.map(s => s.title));
     }
   };
 
